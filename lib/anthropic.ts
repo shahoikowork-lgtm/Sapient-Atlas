@@ -26,6 +26,19 @@ function extractJSON(text: string): unknown {
   return JSON.parse(t.slice(start, end + 1))
 }
 
+// Strip em-dashes from every string value in the model output (a writing "tell").
+// Deterministic, so no em-dash reaches the DB or the user regardless of what the model writes.
+function stripEmDashes(value: unknown): unknown {
+  if (typeof value === 'string') return value.replace(/[ \t]*—[ \t]*/g, ', ')
+  if (Array.isArray(value)) return value.map(stripEmDashes)
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(value)) out[k] = stripEmDashes(v)
+    return out
+  }
+  return value
+}
+
 export async function generateJSON<T>(opts: {
   system: string
   prompt: string
@@ -43,7 +56,7 @@ export async function generateJSON<T>(opts: {
       messages: [{ role: 'user', content: prompt + extra }],
     })
     const text = msg.content.map((b) => (b.type === 'text' ? b.text : '')).join('')
-    return schema.parse(extractJSON(text))
+    return schema.parse(stripEmDashes(extractJSON(text)))
   }
 
   try {
