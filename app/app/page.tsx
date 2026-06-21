@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getAppUser } from '@/lib/app-user'
 import { getWorkspace } from '@/lib/app-data'
-import { money } from '@/lib/format'
+import { trajectoryLabel } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,24 +33,21 @@ export default async function DashboardPage() {
         </span>
       </div>
 
-      {/* Value */}
+      {/* Capability read */}
       <section className="mt-8 rounded-2xl border border-black/10 p-6">
-        <div className="text-xs uppercase tracking-wide text-black/40">Current market value</div>
+        <div className="text-xs uppercase tracking-wide text-black/40">Capability read</div>
         {assessment ? (
           <>
-            <div className="mt-2 flex items-baseline gap-2 font-mono text-3xl font-semibold tracking-tight">
-              <span>{money(assessment.value_low, assessment.currency)}</span>
-              <span className="text-black/25">–</span>
-              <span>{money(assessment.value_high, assessment.currency)}</span>
-            </div>
-            <div className="mt-1 text-sm text-black/50">
-              Midpoint {money(assessment.value_mid, assessment.currency)} · confidence{' '}
-              <strong>{assessment.confidence}</strong> · trajectory{' '}
-              <strong className="capitalize">{assessment.trajectory}</strong>
+            {assessment.observation ? (
+              <p className="mt-2 text-[15px] leading-relaxed text-black/75">{assessment.observation}</p>
+            ) : null}
+            <div className="mt-2 text-sm text-black/50">
+              Confidence <strong>{assessment.confidence}</strong> · capability trajectory{' '}
+              <strong>{trajectoryLabel(assessment.trajectory)}</strong>
             </div>
           </>
         ) : (
-          <p className="mt-2 text-sm text-black/50">Your assessment is being prepared. Check back shortly.</p>
+          <p className="mt-2 text-sm text-black/50">Your capability read is being prepared. Check back shortly.</p>
         )}
       </section>
 
@@ -70,10 +67,7 @@ export default async function DashboardPage() {
             {move.thesis ? <p className="mt-2 text-sm leading-relaxed text-white/70">{move.thesis}</p> : null}
             {prediction && pcd ? (
               <div className="mt-4 border-t border-white/10 pt-3 text-xs text-white/60">
-                30-day prediction: <span className="capitalize text-white/80">{pcd.dimension}</span> {pcd.from} → {pcd.to}
-                {prediction.pred_value_delta != null ? (
-                  <> · value {money(prediction.pred_value_delta, assessment?.currency ?? 'USD')}</>
-                ) : null}
+                30-day prediction: stronger evidence of <span className="capitalize text-white/80">{pcd.dimension}</span>
               </div>
             ) : null}
           </>
@@ -89,7 +83,7 @@ export default async function DashboardPage() {
             <div>
               <div className="text-xs uppercase tracking-wide text-black/40">Monthly re-rating</div>
               <p className="mt-2 text-sm text-black/60">
-                See whether you got more valuable this sprint, and your next move.
+                See how your capability moved this sprint, and your next move.
               </p>
             </div>
             <Link href={`/app/rerating/${assessment.cycle_id}`} className="shrink-0 text-xs underline underline-offset-4">

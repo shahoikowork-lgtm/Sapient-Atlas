@@ -78,7 +78,7 @@ export default function DiagnosisPage() {
         <div className="text-sm font-medium tracking-tight text-black/50">Sapient Atlas</div>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight">Where do you actually stand?</h1>
         <p className="mt-3 text-[15px] leading-relaxed text-black/60">
-          Paste one real piece of your work. Atlas reads it and returns your market value, an honest
+          Paste one real piece of your work. Atlas reads it and returns your capability profile, an honest
           read on where AI is eroding it, and the single highest-leverage move to make next.
         </p>
       </header>
@@ -123,7 +123,7 @@ export default function DiagnosisPage() {
           </div>
           <div>
             <label className={label}>Target</label>
-            <input className={input} placeholder="e.g. +30% in 12 months" value={form.target} onChange={(e) => set('target', e.target.value)} />
+            <input className={input} placeholder="e.g. lead bigger launches, build stronger acquisition, become harder to replace" value={form.target} onChange={(e) => set('target', e.target.value)} />
           </div>
         </div>
 
@@ -136,7 +136,7 @@ export default function DiagnosisPage() {
           <h2 className="text-sm font-semibold">Your responsibilities</h2>
           <p className="mt-1 text-xs leading-relaxed text-black/50">
             What you actually own, day to day and week to week. Scope of ownership is one of the
-            strongest signals of market value.
+            strongest signals of real capability.
           </p>
           <div className="mt-4 flex flex-col gap-4">
             <div>
@@ -169,7 +169,7 @@ export default function DiagnosisPage() {
             onChange={(e) => set('work_sample', e.target.value)}
             required
           />
-          <p className="mt-1 text-xs text-black/40">Stays private. Used only to assess your value.</p>
+          <p className="mt-1 text-xs text-black/40">Stays private. Used only to assess your capability.</p>
         </div>
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -179,7 +179,7 @@ export default function DiagnosisPage() {
           disabled={submitting}
           className="mt-2 inline-flex items-center justify-center rounded-lg bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-black/85 disabled:opacity-60"
         >
-          {submitting ? 'Analyzing your work… (~20s)' : 'Get my value diagnosis'}
+          {submitting ? 'Analyzing your work… (~20s)' : 'Get my capability read'}
         </button>
       </form>
     </main>

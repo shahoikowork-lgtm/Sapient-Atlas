@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getAppUser } from '@/lib/app-user'
 import { getWorkspace } from '@/lib/app-data'
 import { ensureSprintPlan, deriveWeeks } from '@/lib/sprint'
+import { weekLabel } from '@/lib/format'
 import { CheckinForm } from './checkin-form'
 
 export const dynamic = 'force-dynamic'
@@ -64,7 +65,7 @@ export default async function CheckinPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Week {w.week}</span>
                     {reviewed ? (
-                      <span className="font-mono text-sm">{sub?.graded_score}/100</span>
+                      <span className="text-sm text-black/70">{weekLabel(sub?.graded_score) || 'Reviewed'}</span>
                     ) : (
                       <span className="text-xs text-black/40">Awaiting review</span>
                     )}

@@ -2,14 +2,14 @@ import Link from 'next/link'
 import { getAppUser } from '@/lib/app-user'
 import { getWorkspace } from '@/lib/app-data'
 import { ensureSprintPlan, deriveWeeks } from '@/lib/sprint'
-import { money } from '@/lib/format'
+import { leverageLabel } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
 export default async function MovePage() {
   const user = await getAppUser()
   if (user) await ensureSprintPlan(user) // generate the 30-day plan on first access if missing
-  const { move, prediction, assessment, plan, submissions } = await getWorkspace()
+  const { move, prediction, plan, submissions } = await getWorkspace()
 
   if (!move) {
     return (
@@ -22,6 +22,7 @@ export default async function MovePage() {
   const pcd = prediction?.pred_capability_delta as
     | { dimension: string; from: number; to: number }
     | undefined
+  const predImproving = !pcd || pcd.to >= pcd.from
   const alts = (move.deferred_alternatives ?? []) as { title: string; why_deferred: string }[]
   const { weeks, currentWeek } = deriveWeeks(plan, submissions)
 
@@ -31,7 +32,7 @@ export default async function MovePage() {
       <h1 className="mt-1 text-2xl font-semibold tracking-tight">{move.title}</h1>
       <div className="mt-2 text-sm text-black/50">
         Confidence: <strong>{move.confidence}</strong>
-        {move.leverage_score != null ? <> · leverage {move.leverage_score}/100</> : null}
+        {move.leverage_score != null ? <> · {leverageLabel(move.leverage_score)}</> : null}
       </div>
 
       {move.thesis ? <p className="mt-6 text-[15px] leading-relaxed text-black/80">{move.thesis}</p> : null}
@@ -56,11 +57,8 @@ export default async function MovePage() {
             Prediction we will check in {prediction.horizon_days ?? 30} days
           </div>
           <p className="mt-2 text-[15px] text-black/80">
-            <span className="capitalize font-medium">{pcd.dimension}</span>: {pcd.from} →{' '}
-            <span className="font-medium">{pcd.to}</span>
-            {prediction.pred_value_delta != null ? (
-              <> · expected value change {money(prediction.pred_value_delta, assessment?.currency ?? 'USD')}</>
-            ) : null}
+            We expect {predImproving ? 'stronger, more consistent evidence of' : 'real pressure on'}{' '}
+            <span className="capitalize font-medium">{pcd.dimension}</span> in your real work.
           </p>
         </section>
       ) : null}

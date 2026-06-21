@@ -30,7 +30,7 @@ export function UpgradeCta({ token }: { token: string }) {
       <h2 className="mt-2 text-xl font-semibold tracking-tight">Value Sprint, 30 days of execution</h2>
       <p className="mt-2 text-[15px] leading-relaxed text-black/65">
         We turn this one move into a 30-day plan on your real work, check your progress each week, and
-        re-rate your value at the end. One-time payment.
+        re-rate your capability profile at the end. One-time payment.
       </p>
       <button
         onClick={go}

@@ -2,11 +2,27 @@ import Link from 'next/link'
 import { getAppUser } from '@/lib/app-user'
 import { createClient } from '@/lib/supabase/server'
 import { ensureRerating, MIN_REVIEWED_FOR_RERATING } from '@/lib/rerating'
-import { money } from '@/lib/format'
+import { trajectoryLabel } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
 const VERDICT_LABEL: Record<string, string> = { hit: 'Hit', partial: 'Partial', miss: 'Miss' }
+
+// Direction of a capability move, expressed qualitatively (no numbers). The raw scores
+// stay in the backend; we only render whether the evidence got stronger or weaker.
+function changeText(delta: number | null): string {
+  if (delta == null) return 'Assessed this sprint'
+  if (delta > 3) return 'Stronger, more consistent evidence'
+  if (delta < -3) return 'Weaker evidence than at the start'
+  return 'Little change'
+}
+function actualText(from?: number, to?: number): string {
+  if (from == null || to == null) return 'assessed'
+  const d = to - from
+  if (d > 3) return 'stronger evidence of'
+  if (d < -3) return 'weaker evidence of'
+  return 'little change in'
+}
 
 export default async function ReratingPage({ params }: { params: Promise<{ cycle: string }> }) {
   const { cycle } = await params
@@ -57,7 +73,6 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
 
   const previous = approvedVas[0]
   const updated = approvedVas[approvedVas.length - 1]
-  const attributed = (Number(updated.value_mid) || 0) - (Number(previous.value_mid) || 0)
   const verdict = prediction?.verdict as string | undefined
   const pcd = prediction?.pred_capability_delta as { dimension?: string; from?: number; to?: number } | undefined
   const acd = prediction?.actual_capability_delta as { dimension?: string; from?: number; to?: number } | undefined
@@ -71,43 +86,17 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
   return (
     <div className="mx-auto w-full max-w-2xl">
       <div className="text-xs uppercase tracking-wide text-black/40">Monthly re-rating</div>
-      <h1 className="mt-1 text-2xl font-semibold tracking-tight">Are you more valuable now?</h1>
+      <h1 className="mt-1 text-2xl font-semibold tracking-tight">Did your capability move?</h1>
 
-      <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl border border-black/10 p-5">
-          <div className="text-xs uppercase tracking-wide text-black/40">Previous</div>
-          <div className="mt-1 font-mono text-xl font-semibold">
-            {money(previous.value_low, previous.currency)}–{money(previous.value_high, previous.currency)}
-          </div>
-          <div className="mt-1 text-xs text-black/45">mid {money(previous.value_mid, previous.currency)}</div>
-        </div>
-        <div className="rounded-2xl bg-black p-5 text-white">
-          <div className="text-xs uppercase tracking-wide text-white/50">Updated</div>
-          <div className="mt-1 font-mono text-xl font-semibold">
-            {money(updated.value_low, updated.currency)}–{money(updated.value_high, updated.currency)}
-          </div>
-          <div className="mt-1 text-xs text-white/60">
-            mid {money(updated.value_mid, updated.currency)} · confidence {updated.confidence}
-          </div>
-        </div>
-      </section>
-
-      <div className="mt-3 text-sm">
-        Attributed change:{' '}
-        <strong>
-          {attributed >= 0 ? '+' : ''}
-          {money(attributed, updated.currency)}
-        </strong>
-        <span className="text-black/45">
-          {' '}· trajectory <span className="capitalize">{updated.trajectory}</span>
-        </span>
+      <div className="mt-3 text-sm text-black/60">
+        Capability trajectory: <strong>{trajectoryLabel(updated.trajectory)}</strong> · confidence {updated.confidence}
       </div>
 
       {updated.confidence_reason ? (
         <p className="mt-3 text-[15px] leading-relaxed text-black/70">{updated.confidence_reason}</p>
       ) : null}
 
-      {/* Prediction vs actual + verdict */}
+      {/* Prediction vs actual + verdict (qualitative, no numbers) */}
       <section className="mt-8 rounded-2xl border border-black/10 p-6">
         <div className="flex items-center justify-between">
           <div className="text-xs uppercase tracking-wide text-black/40">Prediction vs actual</div>
@@ -119,41 +108,29 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
         </div>
         {pcd ? (
           <p className="mt-3 text-sm text-black/70">
-            Predicted: <span className="capitalize">{pcd.dimension}</span> {pcd.from} → {pcd.to}
-            {prediction?.pred_value_delta != null ? <> · value {money(prediction.pred_value_delta, updated.currency)}</> : null}
+            Predicted: stronger evidence of <span className="capitalize">{pcd.dimension}</span>
           </p>
         ) : null}
         {acd ? (
           <p className="mt-1 text-sm text-black/70">
-            Actual: <span className="capitalize">{acd.dimension}</span> {acd.from} → {acd.to}
-            {prediction?.actual_value_delta != null ? <> · value {money(prediction.actual_value_delta, updated.currency)}</> : null}
+            Actual: {actualText(acd.from, acd.to)} <span className="capitalize">{acd.dimension}</span>
           </p>
         ) : null}
         {prediction?.learning ? <p className="mt-2 text-[13px] leading-relaxed text-black/55">{prediction.learning}</p> : null}
       </section>
 
-      {/* Capability changes */}
+      {/* Capability changes (qualitative direction, no scores) */}
       {Object.keys(newCaps).length > 0 ? (
         <section className="mt-4">
           <h2 className="text-sm font-semibold">Capability changes</h2>
           <div className="mt-3 flex flex-col gap-2">
             {Object.entries(newCaps).map(([dim, c]) => {
               const before = prevCaps[dim]?.score
-              const after = c.score
-              const delta = before != null ? after - before : null
+              const delta = before != null ? c.score - before : null
               return (
-                <div key={dim} className="flex items-center justify-between rounded-lg border border-black/10 px-3 py-2 text-sm">
-                  <span className="capitalize">{dim}</span>
-                  <span className="font-mono text-black/70">
-                    {before != null ? `${before} → ` : ''}
-                    {after}
-                    {delta != null ? (
-                      <span className={delta >= 0 ? 'text-black/45' : 'text-red-600'}>
-                        {' '}({delta >= 0 ? '+' : ''}
-                        {delta})
-                      </span>
-                    ) : null}
-                  </span>
+                <div key={dim} className="flex items-center justify-between gap-4 rounded-lg border border-black/10 px-3 py-2 text-sm">
+                  <span className="capitalize font-medium">{dim}</span>
+                  <span className="text-right text-black/55">{changeText(delta)}</span>
                 </div>
               )
             })}

@@ -15,7 +15,7 @@ export default async function UpgradeSuccessPage({
       <h1 className="text-2xl font-semibold tracking-tight">You&apos;re in. Your Value Sprint is active.</h1>
       <p className="text-[15px] leading-relaxed text-black/65">
         Over the next 30 days we turn your one move into a concrete plan on your real work, check your
-        progress weekly, and re-rate your market value at the end.
+        progress weekly, and re-rate your capability profile at the end.
       </p>
       <div>
         <Link
