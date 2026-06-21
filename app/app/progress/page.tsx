@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getWorkspace } from '@/lib/app-data'
 import { deriveWeeks } from '@/lib/sprint'
-import { weekLabel } from '@/lib/format'
+import { weekLabel, humanizeDimension } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +39,7 @@ export default async function ProgressPage() {
                 capability_delta?: { dimension?: string; delta?: number }
               }
               const cd = fb.capability_delta
-              const sharper = cd?.dimension && (cd.delta ?? 0) > 0 ? `sharper ${cd.dimension}` : null
+              const sharper = cd?.dimension && (cd.delta ?? 0) > 0 ? `sharper ${humanizeDimension(cd.dimension)}` : null
               return (
                 <div
                   key={w.week}
@@ -67,7 +67,7 @@ export default async function ProgressPage() {
           <div className="mt-3 flex flex-col gap-4">
             {Object.entries(caps).map(([dim, c]) => (
               <div key={dim}>
-                <div className="text-sm font-medium capitalize">{dim}</div>
+                <div className="text-sm font-medium">{humanizeDimension(dim)}</div>
                 {c.evidence ? (
                   <p className="mt-1 text-[13px] leading-relaxed text-black/60">{c.evidence}</p>
                 ) : null}

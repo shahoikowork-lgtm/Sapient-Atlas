@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { getAppUser } from '@/lib/app-user'
 import { getWorkspace } from '@/lib/app-data'
 import { ensureSprintPlan, deriveWeeks } from '@/lib/sprint'
-import { leverageLabel } from '@/lib/format'
+import { leverageLabel, humanizeDimension } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,7 +58,7 @@ export default async function MovePage() {
           </div>
           <p className="mt-2 text-[15px] text-black/80">
             We expect {predImproving ? 'stronger, more consistent evidence of' : 'real pressure on'}{' '}
-            <span className="capitalize font-medium">{pcd.dimension}</span> in your real work.
+            <span className="font-medium">{humanizeDimension(pcd.dimension)}</span> in your real work.
           </p>
         </section>
       ) : null}

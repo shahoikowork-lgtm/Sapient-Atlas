@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Button, Eyebrow } from '@/components/atlas'
 
 export function UpgradeCta({ token }: { token: string }) {
   const [busy, setBusy] = useState(false)
@@ -25,21 +26,35 @@ export function UpgradeCta({ token }: { token: string }) {
   }
 
   return (
-    <section className="mt-12 rounded-2xl border border-black/10 p-6">
-      <div className="text-xs font-medium uppercase tracking-wide text-black/40">Make the move</div>
-      <h2 className="mt-2 text-xl font-semibold tracking-tight">Value Sprint, 30 days of execution</h2>
-      <p className="mt-2 text-[15px] leading-relaxed text-black/65">
-        We turn this one move into a 30-day plan on your real work, check your progress each week, and
-        re-rate your capability profile at the end. One-time payment.
+    <section className="mt-8 rounded-2xl border border-hairline bg-surface p-6">
+      <Eyebrow className="text-muted">Make the move</Eyebrow>
+      <h2 className="mt-2 font-serif text-[22px] font-semibold tracking-tight">
+        The Value Sprint, 30 days of execution
+      </h2>
+      <p className="mt-2 text-[15px] leading-relaxed text-muted">
+        You know the move. The Sprint turns it into a 30-day plan on your real work, checks your progress
+        each week, and re-rates your capability profile at the end. One-time payment.
       </p>
-      <button
-        onClick={go}
-        disabled={busy}
-        className="mt-4 inline-flex items-center justify-center rounded-lg bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-black/85 disabled:opacity-60"
-      >
-        {busy ? 'Starting checkout…' : 'Start your Value Sprint, $149'}
-      </button>
-      {err ? <p className="mt-2 text-sm text-red-600">{err}</p> : null}
+      <ul className="mt-4 flex flex-col gap-2 text-[14px] text-ink/75">
+        <li className="flex gap-2.5">
+          <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+          A 30-day execution plan built on your real work
+        </li>
+        <li className="flex gap-2.5">
+          <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+          Weekly feedback on what you actually ship
+        </li>
+        <li className="flex gap-2.5">
+          <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+          A re-rating of your capability profile at the end
+        </li>
+      </ul>
+      <div className="mt-5">
+        <Button onClick={go} disabled={busy} size="lg">
+          {busy ? 'Starting checkout…' : 'Start your Value Sprint · $149'}
+        </Button>
+      </div>
+      {err ? <p className="mt-2 text-sm text-red-700">{err}</p> : null}
     </section>
   )
 }

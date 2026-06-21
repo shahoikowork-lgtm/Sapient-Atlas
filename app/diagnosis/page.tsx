@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button, Eyebrow } from '@/components/atlas'
 
 type Form = {
   name: string
@@ -38,8 +39,8 @@ const EMPTY: Form = {
 }
 
 const input =
-  'w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-sm outline-none transition focus:border-black/50'
-const label = 'mb-1 block text-xs font-medium text-black/60'
+  'w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/15'
+const label = 'mb-1.5 block text-xs font-medium text-muted'
 
 export default function DiagnosisPage() {
   const router = useRouter()
@@ -73,115 +74,140 @@ export default function DiagnosisPage() {
   const submitting = status === 'submitting'
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-6 py-16">
-      <header className="mb-10">
-        <div className="text-sm font-medium tracking-tight text-black/50">Sapient Atlas</div>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Where do you actually stand?</h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-black/60">
-          Paste one real piece of your work. Atlas reads it and returns your capability profile, an honest
-          read on where AI is eroding it, and the single highest-leverage move to make next.
-        </p>
+    <div className="min-h-screen bg-paper text-ink">
+      <header className="border-b border-hairline">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3.5">
+          <span className="font-serif text-base font-semibold tracking-tight">Sapient Atlas</span>
+          <span className="text-xs text-muted">No scores. No grades. A read.</span>
+        </div>
       </header>
 
-      <form onSubmit={onSubmit} className="flex flex-col gap-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className={label}>Name *</label>
-            <input className={input} value={form.name} onChange={(e) => set('name', e.target.value)} required />
-          </div>
-          <div>
-            <label className={label}>Email *</label>
-            <input className={input} type="email" value={form.email} onChange={(e) => set('email', e.target.value)} required />
-          </div>
-          <div>
-            <label className={label}>Role *</label>
-            <input className={input} placeholder="e.g. Performance marketer" value={form.role} onChange={(e) => set('role', e.target.value)} required />
-          </div>
-          <div>
-            <label className={label}>Seniority</label>
-            <input className={input} placeholder="e.g. Senior" value={form.seniority} onChange={(e) => set('seniority', e.target.value)} />
-          </div>
-          <div>
-            <label className={label}>Years in the field</label>
-            <input className={input} value={form.years} onChange={(e) => set('years', e.target.value)} />
-          </div>
-          <div>
-            <label className={label}>Company type</label>
-            <input className={input} placeholder="e.g. B2B SaaS, agency" value={form.company_type} onChange={(e) => set('company_type', e.target.value)} />
-          </div>
-          <div>
-            <label className={label}>Region</label>
-            <input className={input} value={form.region} onChange={(e) => set('region', e.target.value)} />
-          </div>
-          <div>
-            <label className={label}>Income band (optional)</label>
-            <input className={input} value={form.income_band} onChange={(e) => set('income_band', e.target.value)} />
-          </div>
-          <div>
-            <label className={label}>Your goal</label>
-            <input className={input} placeholder="What you want next" value={form.goal} onChange={(e) => set('goal', e.target.value)} />
-          </div>
-          <div>
-            <label className={label}>Target</label>
-            <input className={input} placeholder="e.g. lead bigger launches, build stronger acquisition, become harder to replace" value={form.target} onChange={(e) => set('target', e.target.value)} />
-          </div>
-        </div>
+      <main className="mx-auto w-full max-w-2xl px-6 py-14">
+        <Eyebrow>Free capability diagnosis</Eyebrow>
+        <h1 className="mt-3 font-serif text-[32px] font-semibold leading-[1.12] tracking-[-0.02em]">
+          Show Atlas one real piece of your work.
+        </h1>
+        <p className="mt-3 text-[15px] leading-relaxed text-muted">
+          The more real the work, the sharper the read. A campaign, a brief, an analysis, a strategy doc,
+          a piece of copy.
+        </p>
 
-        <div>
-          <label className={label}>Unfair advantages</label>
-          <input className={input} placeholder="What you have that others don't" value={form.unfair_advantages} onChange={(e) => set('unfair_advantages', e.target.value)} />
-        </div>
+        <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5">
+          {/* The focal action: paste real work */}
+          <div className="rounded-2xl border border-hairline bg-surface p-4">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-accent">Paste real work</span>
+              <span className="text-[11px] text-muted">required</span>
+            </div>
+            <textarea
+              className={`${input} mt-2.5 min-h-[200px] resize-y font-mono text-[13px] leading-relaxed`}
+              placeholder="Paste the actual work here. A campaign brief, an analysis, a piece of copy, a strategy doc. The more real, the sharper the read."
+              value={form.work_sample}
+              onChange={(e) => set('work_sample', e.target.value)}
+              required
+            />
+          </div>
 
-        <section className="border-t border-black/10 pt-6">
-          <h2 className="text-sm font-semibold">Your responsibilities</h2>
-          <p className="mt-1 text-xs leading-relaxed text-black/50">
-            What you actually own, day to day and week to week. Scope of ownership is one of the
-            strongest signals of real capability.
-          </p>
-          <div className="mt-4 flex flex-col gap-4">
+          {/* Required identity */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
-              <label className={label}>Daily responsibilities</label>
-              <textarea
-                className={`${input} min-h-[90px] resize-y`}
-                placeholder="What a typical day involves, the work you're accountable for."
-                value={form.responsibilities_daily}
-                onChange={(e) => set('responsibilities_daily', e.target.value)}
-              />
+              <label className={label}>Name *</label>
+              <input className={input} value={form.name} onChange={(e) => set('name', e.target.value)} required />
             </div>
             <div>
-              <label className={label}>Weekly responsibilities</label>
-              <textarea
-                className={`${input} min-h-[90px] resize-y`}
-                placeholder="What you own on a weekly cadence, the part of the business or operations you're responsible for."
-                value={form.responsibilities_weekly}
-                onChange={(e) => set('responsibilities_weekly', e.target.value)}
-              />
+              <label className={label}>Email *</label>
+              <input className={input} type="email" value={form.email} onChange={(e) => set('email', e.target.value)} required />
+            </div>
+            <div>
+              <label className={label}>Role *</label>
+              <input className={input} placeholder="e.g. Performance marketer" value={form.role} onChange={(e) => set('role', e.target.value)} required />
             </div>
           </div>
-        </section>
 
-        <div>
-          <label className={label}>A real work sample *</label>
-          <textarea
-            className={`${input} min-h-[180px] resize-y font-mono text-[13px] leading-relaxed`}
-            placeholder="Paste real work: a campaign brief you wrote, an analysis, a piece of copy, a strategy doc. The more real, the sharper the read."
-            value={form.work_sample}
-            onChange={(e) => set('work_sample', e.target.value)}
-            required
-          />
-          <p className="mt-1 text-xs text-black/40">Stays private. Used only to assess your capability.</p>
-        </div>
+          {/* Optional context, collapsed */}
+          <details className="rounded-xl border border-hairline [&_summary]:cursor-pointer">
+            <summary className="flex items-center gap-2 px-4 py-3 text-sm text-muted">
+              <span aria-hidden="true">+</span> Add context (optional)
+              <span className="ml-auto text-xs text-muted/70">seniority · goals · responsibilities</span>
+            </summary>
+            <div className="border-t border-hairline p-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className={label}>Seniority</label>
+                  <input className={input} placeholder="e.g. Senior" value={form.seniority} onChange={(e) => set('seniority', e.target.value)} />
+                </div>
+                <div>
+                  <label className={label}>Years in the field</label>
+                  <input className={input} value={form.years} onChange={(e) => set('years', e.target.value)} />
+                </div>
+                <div>
+                  <label className={label}>Company type</label>
+                  <input className={input} placeholder="e.g. B2B SaaS, agency" value={form.company_type} onChange={(e) => set('company_type', e.target.value)} />
+                </div>
+                <div>
+                  <label className={label}>Region</label>
+                  <input className={input} value={form.region} onChange={(e) => set('region', e.target.value)} />
+                </div>
+                <div>
+                  <label className={label}>Income band (optional)</label>
+                  <input className={input} value={form.income_band} onChange={(e) => set('income_band', e.target.value)} />
+                </div>
+                <div>
+                  <label className={label}>Your goal</label>
+                  <input className={input} placeholder="What you want next" value={form.goal} onChange={(e) => set('goal', e.target.value)} />
+                </div>
+                <div>
+                  <label className={label}>Target</label>
+                  <input className={input} placeholder="e.g. lead bigger launches, become harder to replace" value={form.target} onChange={(e) => set('target', e.target.value)} />
+                </div>
+                <div>
+                  <label className={label}>Unfair advantages</label>
+                  <input className={input} placeholder="What you have that others don't" value={form.unfair_advantages} onChange={(e) => set('unfair_advantages', e.target.value)} />
+                </div>
+              </div>
+              <div className="mt-4 flex flex-col gap-4">
+                <div>
+                  <label className={label}>Daily responsibilities</label>
+                  <textarea
+                    className={`${input} min-h-[80px] resize-y`}
+                    placeholder="What a typical day involves, the work you're accountable for."
+                    value={form.responsibilities_daily}
+                    onChange={(e) => set('responsibilities_daily', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className={label}>Weekly responsibilities</label>
+                  <textarea
+                    className={`${input} min-h-[80px] resize-y`}
+                    placeholder="What you own on a weekly cadence, the part of the business you're responsible for."
+                    value={form.responsibilities_weekly}
+                    onChange={(e) => set('responsibilities_weekly', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </details>
 
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {/* Trust */}
+          <div className="flex items-start gap-3 rounded-xl bg-accent-tint px-4 py-3">
+            <span className="mt-0.5 text-accent" aria-hidden="true">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+            </span>
+            <span className="text-[12.5px] leading-relaxed text-accent-deep">
+              Your work stays private, used only for your read. <strong>A human reviews it</strong> before you see anything.
+            </span>
+          </div>
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="mt-2 inline-flex items-center justify-center rounded-lg bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-black/85 disabled:opacity-60"
-        >
-          {submitting ? 'Analyzing your work… (~20s)' : 'Get my capability read'}
-        </button>
-      </form>
-    </main>
+          {error ? <p className="text-sm text-red-700">{error}</p> : null}
+
+          <div className="flex items-center gap-4">
+            <Button type="submit" size="lg" disabled={submitting}>
+              {submitting ? 'Analyzing your work… (~20s)' : 'Get my capability read'}
+            </Button>
+            <span className="text-xs text-muted">takes about 20 seconds to read</span>
+          </div>
+        </form>
+      </main>
+    </div>
   )
 }

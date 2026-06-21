@@ -46,3 +46,12 @@ export function aiExposureLabel(x: number | null | undefined): string {
   if (x >= 0.34) return 'Moderate'
   return 'Low'
 }
+
+// Display-only: turn a snake_case capability key into natural language.
+// "product_thinking" -> "Product thinking", "ai_workflow_design" -> "AI workflow design".
+export function humanizeDimension(key: string | null | undefined): string {
+  if (!key) return ''
+  const s = key.replace(/_/g, ' ').trim().toLowerCase()
+  const sentence = s.charAt(0).toUpperCase() + s.slice(1)
+  return sentence.replace(/\bai\b/gi, 'AI')
+}

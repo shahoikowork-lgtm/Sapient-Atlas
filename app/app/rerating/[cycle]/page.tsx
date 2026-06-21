@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { getAppUser } from '@/lib/app-user'
 import { createClient } from '@/lib/supabase/server'
 import { ensureRerating, MIN_REVIEWED_FOR_RERATING } from '@/lib/rerating'
-import { trajectoryLabel } from '@/lib/format'
+import { trajectoryLabel, humanizeDimension } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -108,12 +108,12 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
         </div>
         {pcd ? (
           <p className="mt-3 text-sm text-black/70">
-            Predicted: stronger evidence of <span className="capitalize">{pcd.dimension}</span>
+            Predicted: stronger evidence of <span>{humanizeDimension(pcd.dimension)}</span>
           </p>
         ) : null}
         {acd ? (
           <p className="mt-1 text-sm text-black/70">
-            Actual: {actualText(acd.from, acd.to)} <span className="capitalize">{acd.dimension}</span>
+            Actual: {actualText(acd.from, acd.to)} <span>{humanizeDimension(acd.dimension)}</span>
           </p>
         ) : null}
         {prediction?.learning ? <p className="mt-2 text-[13px] leading-relaxed text-black/55">{prediction.learning}</p> : null}
@@ -129,7 +129,7 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
               const delta = before != null ? c.score - before : null
               return (
                 <div key={dim} className="flex items-center justify-between gap-4 rounded-lg border border-black/10 px-3 py-2 text-sm">
-                  <span className="capitalize font-medium">{dim}</span>
+                  <span className="font-medium">{humanizeDimension(dim)}</span>
                   <span className="text-right text-black/55">{changeText(delta)}</span>
                 </div>
               )

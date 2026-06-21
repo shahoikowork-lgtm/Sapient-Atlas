@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getAppUser } from '@/lib/app-user'
 import { getWorkspace } from '@/lib/app-data'
-import { trajectoryLabel } from '@/lib/format'
+import { trajectoryLabel, humanizeDimension } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
             {move.thesis ? <p className="mt-2 text-sm leading-relaxed text-white/70">{move.thesis}</p> : null}
             {prediction && pcd ? (
               <div className="mt-4 border-t border-white/10 pt-3 text-xs text-white/60">
-                30-day prediction: stronger evidence of <span className="capitalize text-white/80">{pcd.dimension}</span>
+                30-day prediction: stronger evidence of <span className="text-white/80">{humanizeDimension(pcd.dimension)}</span>
               </div>
             ) : null}
           </>
