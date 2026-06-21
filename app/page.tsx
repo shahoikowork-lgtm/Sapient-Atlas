@@ -1,29 +1,29 @@
-import { ButtonLink, Card, Eyebrow, Evidence, ReviewSeal, Section, TrustStrip } from '@/components/atlas'
+import { ButtonLink, Card, Eyebrow, Evidence, Section, TrustStrip } from '@/components/atlas'
 
 export const metadata = {
   title: 'Sapient Atlas — The Art of Becoming Harder to Replace',
-  description: 'Paste real work. Get a capability read. Know your next move.',
+  description: 'Paste real work. See where you can get ahead. Know your next move.',
 }
 
 const RETURNS = [
-  { h: 'Observed capabilities', p: 'read from your real work, with the evidence' },
-  { h: "What's capping you", p: 'the constraints, named plainly' },
-  { h: 'The one move', p: 'your single highest-leverage next step' },
-  { h: 'A 30-day prediction', p: 'logged now, graded honestly later' },
+  { h: "What you're actually good at", p: 'the real strengths in your work, with the proof' },
+  { h: 'Where your leverage is', p: "the strengths you're underusing, and the opportunities in your work" },
+  { h: 'What to focus on first', p: 'the one thing quietly limiting you' },
+  { h: 'Your highest-leverage move', p: 'the most important thing to do next, and where it takes you' },
 ]
 
 const STEPS = [
-  { n: '1', h: 'Paste real work', p: 'A campaign, a brief, an analysis, a strategy doc, a piece of copy.' },
-  { n: '2', h: 'Atlas reads it, a human checks it', p: 'The model does the read; a person reviews it before it reaches you.' },
-  { n: '3', h: 'You get your read and your move', p: 'What is strong, what is missing, and the one thing to do next.' },
+  { n: '1', h: 'Paste one real piece of your work', p: 'A campaign, a brief, an analysis, a strategy doc, a piece of copy.' },
+  { n: '2', h: 'See where you actually stand', p: 'Your real strengths, where your leverage is, and what to focus on next.' },
+  { n: '3', h: 'Leave knowing your next move', p: 'The single most important thing to do next, and where it takes you.' },
 ]
 
 const FAQ = [
-  { q: 'Is this a course?', a: 'No. There is nothing to watch and nothing to study. Atlas reads your actual work and tells you your next move.' },
-  { q: 'What do you do with my work?', a: 'It stays private and is used only to produce your read. A human reviews the read before you see it.' },
-  { q: 'Is it just an AI answer?', a: 'The model does the first read, but every read is checked by a human before it reaches you, and each one names its evidence, reasoning, confidence, and a prediction we later grade.' },
-  { q: 'What is the Value Sprint?', a: 'An optional, one-time 30-day program to execute your one move on real work, with weekly feedback and an honest re-rating at the end.' },
-  { q: 'Do you tell me a salary or a score?', a: 'No. Atlas reads capability and gives a considered judgment, not a number.' },
+  { q: 'Is this a course?', a: 'No. Nothing to watch, nothing to study. Atlas shows you where your leverage is and the one move to make next.' },
+  { q: 'What do you do with my work?', a: 'It stays private and is used only to produce your results. Nothing is shared, nothing is public.' },
+  { q: 'What will I actually walk away with?', a: 'A clear picture of where you stand, where your real leverage is, and the single highest-leverage move to make next.' },
+  { q: 'What is the Value Sprint?', a: 'An optional, one-time 30-day program to do your one move on real work, with feedback each week and an honest look at your progress.' },
+  { q: 'Do you tell me a salary or a score?', a: 'No. Atlas gives you a clear, considered judgment of where you stand, not a number.' },
 ]
 
 export default function Landing() {
@@ -36,7 +36,7 @@ export default function Landing() {
           <nav className="flex items-center gap-5 text-sm text-muted">
             <a href="#how" className="hidden hover:text-ink sm:inline">How it works</a>
             <a href="#faq" className="hidden hover:text-ink sm:inline">FAQ</a>
-            <ButtonLink href="/diagnosis" size="md">Start free diagnosis</ButtonLink>
+            <ButtonLink href="/diagnosis" size="md">Find my next move</ButtonLink>
           </nav>
         </div>
       </header>
@@ -44,43 +44,44 @@ export default function Landing() {
       {/* Hero */}
       <section className="px-6 pt-20 pb-16 text-center sm:pt-28">
         <div className="mx-auto max-w-2xl">
-          <Eyebrow className="justify-center">Capability intelligence</Eyebrow>
+          <Eyebrow className="justify-center">Know exactly where to focus next</Eyebrow>
           <h1 className="mx-auto mt-4 max-w-[17ch] font-serif text-[40px] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[52px]">
-            Paste real work. Get a capability read. Know your next move.
+            Paste real work. See where you can get ahead. Know your next move.
           </h1>
           <p className="mx-auto mt-4 font-serif text-[19px] italic text-ink/75">
             The Art of Becoming Harder to Replace
           </p>
           <p className="mx-auto mt-5 max-w-[52ch] text-[17px] leading-relaxed text-muted">
-            Atlas reads one real piece of your work and tells you what&apos;s strong, what&apos;s missing,
-            and your single highest-leverage move.
+            Show Atlas one real piece of your work, and see what you&apos;re genuinely good at, where your
+            real leverage is, and the one move that gets you ahead fastest.
           </p>
           <div className="mt-7 flex items-center justify-center gap-4">
-            <ButtonLink href="/diagnosis" size="lg">Start free diagnosis</ButtonLink>
+            <ButtonLink href="/diagnosis" size="lg">Find my next move</ButtonLink>
             <span className="text-sm text-muted">Free · about 3 minutes</span>
           </div>
-          <div className="mt-6 flex justify-center">
-            <ReviewSeal label="Reviewed by a human before you ever see it" />
-          </div>
+          <p className="mt-6 text-sm text-muted">See what you can&apos;t see from inside your own work.</p>
         </div>
       </section>
 
-      {/* Pain */}
+      {/* The problem */}
       <Section className="border-t border-hairline bg-surface">
-        <Eyebrow className="text-muted">The problem</Eyebrow>
-        <h2 className="mt-3 font-serif text-[26px] font-semibold leading-tight tracking-[-0.01em]">
-          AI can already do the generic parts of digital work.
+        <h2 className="font-serif text-[28px] font-semibold leading-tight tracking-[-0.01em]">
+          Some people move faster than you.
         </h2>
-        <p className="mt-3 text-[17px] leading-relaxed text-muted">
-          So the real question isn&apos;t whether you&apos;re busy, it&apos;s what makes you harder to replace.
-          Atlas reads your real work to show which capabilities are actually visible, what&apos;s missing, and
-          the one move that would make you more defensible.
+        <p className="mt-4 font-serif text-[19px] leading-relaxed text-ink/80">
+          Not because they&apos;re smarter.<br />
+          Not because they work harder.<br />
+          <span className="text-ink">They see something you don&apos;t.</span>
+        </p>
+        <p className="mt-5 text-[17px] leading-relaxed text-muted">
+          From inside your own work, it&apos;s hard to tell. Atlas shows you what&apos;s genuinely strong,
+          where your leverage is, and the one move most likely to move you forward.
         </p>
       </Section>
 
-      {/* What Atlas returns */}
+      {/* What you'll walk away with */}
       <Section>
-        <Eyebrow className="text-muted">What Atlas returns</Eyebrow>
+        <Eyebrow className="text-muted">What you&apos;ll walk away with</Eyebrow>
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {RETURNS.map((r) => (
             <Card key={r.h} className="p-5">
@@ -91,9 +92,9 @@ export default function Landing() {
         </div>
       </Section>
 
-      {/* How it works */}
+      {/* What happens */}
       <Section id="how" className="border-t border-hairline bg-surface">
-        <Eyebrow className="text-muted">How it works</Eyebrow>
+        <Eyebrow className="text-muted">What happens</Eyebrow>
         <div className="mt-5 flex flex-col gap-5">
           {STEPS.map((s) => (
             <div key={s.n} className="flex gap-4">
@@ -109,12 +110,12 @@ export default function Landing() {
         </div>
       </Section>
 
-      {/* Example output — the evidence centerpiece */}
+      {/* A real example */}
       <Section>
         <div className="text-center">
-          <Eyebrow className="justify-center">Example output</Eyebrow>
+          <Eyebrow className="justify-center">A real example</Eyebrow>
           <h2 className="mt-2 font-serif text-[26px] font-semibold tracking-[-0.01em]">
-            This is what a read looks like
+            This is what you&apos;ll see
           </h2>
         </div>
         <Card className="mt-6">
@@ -130,30 +131,26 @@ export default function Landing() {
             />
           </div>
           <div className="mt-5 rounded-xl bg-focal p-4">
-            <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-focal-soft">The one move</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-focal-soft">Your one move</div>
             <div className="mt-1 text-[15px] font-medium text-white">
               Make dependencies explicit before the next launch.
             </div>
           </div>
         </Card>
         <div className="mt-5 text-center">
-          <ButtonLink href="/diagnosis" variant="ghost">See your own read →</ButtonLink>
+          <ButtonLink href="/diagnosis" variant="ghost">Find my next move →</ButtonLink>
         </div>
       </Section>
 
-      {/* Trust strip */}
+      {/* Clarity strip */}
       <Section className="border-t border-hairline bg-surface">
         <TrustStrip>
-          <div className="flex items-center justify-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-white" aria-hidden="true">
-              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 3v6c0 4-3 7-7 8-4-1-7-4-7-8V6l7-3z" /></svg>
-            </span>
-            <span className="font-medium text-accent-deep">Why this isn&apos;t another AI answer</span>
-          </div>
+          <p className="text-center font-serif text-[20px] font-semibold text-accent-deep">
+            Finally know exactly where to focus.
+          </p>
           <p className="mx-auto mt-2 max-w-[60ch] text-center text-[15px] leading-relaxed text-accent-deep/80">
-            Every read names the <strong>evidence</strong> from your work, the <strong>reasoning</strong>,
-            its <strong>confidence</strong>, and a <strong>prediction we log and grade</strong>. AI reads it.
-            A human checks it before you see it.
+            You&apos;ll see what you&apos;re genuinely good at, where your real leverage is, and the single
+            highest-leverage move to build momentum now. Specific to your work. No guessing.
           </p>
         </TrustStrip>
       </Section>
@@ -165,14 +162,14 @@ export default function Landing() {
             <Eyebrow className="text-muted">If you want to act on it</Eyebrow>
             <h2 className="mt-2 font-serif text-[24px] font-semibold tracking-[-0.01em]">The Value Sprint</h2>
             <p className="mt-2 text-[15px] leading-relaxed text-muted">
-              30 days of execution on your real work, weekly feedback, and an honest re-rating at the end.
-              Optional, one-time.
+              30 days of doing your one move on real work, with feedback each week and an honest look at how
+              far you&apos;ve come at the end. Optional, one-time.
             </p>
           </div>
           <Card className="text-center">
             <div className="font-serif text-[28px] font-semibold">$149</div>
-            <div className="mt-0.5 text-xs text-muted">one-time · start with the free read</div>
-            <ButtonLink href="/diagnosis" className="mt-4 w-full">Start free diagnosis</ButtonLink>
+            <div className="mt-0.5 text-xs text-muted">one-time · start free</div>
+            <ButtonLink href="/diagnosis" className="mt-4 w-full">Find my next move</ButtonLink>
           </Card>
         </div>
       </Section>
@@ -180,10 +177,10 @@ export default function Landing() {
       {/* Final CTA */}
       <Section className="border-t border-hairline bg-surface text-center">
         <h2 className="mx-auto max-w-[22ch] font-serif text-[28px] font-semibold tracking-[-0.01em]">
-          Paste real work. Get a capability read.
+          Paste real work. See where you can get ahead.
         </h2>
         <div className="mt-6 flex justify-center">
-          <ButtonLink href="/diagnosis" size="lg">Start free diagnosis</ButtonLink>
+          <ButtonLink href="/diagnosis" size="lg">Find my next move</ButtonLink>
         </div>
         <p className="mt-3 text-sm text-muted">Free · about 3 minutes · your work stays private</p>
       </Section>

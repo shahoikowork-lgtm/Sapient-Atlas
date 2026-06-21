@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { trajectoryLabel, aiExposureLabel, humanizeDimension } from '@/lib/format'
-import { Card, Eyebrow, Evidence, ReviewSeal } from '@/components/atlas'
+import { Card, Eyebrow, Evidence } from '@/components/atlas'
 import { UpgradeCta } from './upgrade-cta'
 
 export const runtime = 'nodejs'
@@ -80,9 +80,8 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
       <header className="border-b border-hairline">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3.5">
           <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
-            Sapient Atlas · Your capability read
+            Sapient Atlas · Your results
           </span>
-          <ReviewSeal />
         </div>
       </header>
 
@@ -192,7 +191,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
         {/* 6. FULL ANALYSIS, tucked away. */}
         {va.confidence_reason || va.ai_exposure != null ? (
           <details className="mt-6 rounded-2xl border border-hairline p-6 [&_summary]:cursor-pointer">
-            <summary className="text-sm font-semibold">Full analysis</summary>
+            <summary className="text-sm font-semibold">The full picture</summary>
             <div className="mt-4 flex flex-col gap-4">
               {va.confidence_reason ? (
                 <div>
@@ -202,12 +201,12 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
               ) : null}
               {va.ai_exposure != null ? (
                 <div>
-                  <Eyebrow className="text-muted">AI exposure</Eyebrow>
+                  <Eyebrow className="text-muted">How much of this can be automated</Eyebrow>
                   <p className="mt-1 text-[14px] leading-relaxed text-ink/70">
-                    AI exposure for this kind of role is{' '}
+                    How much of this kind of work can already be automated:{' '}
                     <strong className="text-ink">{aiExposureLabel(va.ai_exposure).toLowerCase()}</strong>. The more of
-                    your work that competent AI use can already do, the more your edge has to come from judgment,
-                    ownership, and outcomes AI cannot yet carry.
+                    your work that tools can already handle, the more your edge has to come from judgment, ownership,
+                    and outcomes that can&apos;t be automated.
                   </p>
                 </div>
               ) : null}

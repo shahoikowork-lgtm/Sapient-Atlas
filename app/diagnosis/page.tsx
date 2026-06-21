@@ -78,17 +78,17 @@ export default function DiagnosisPage() {
       <header className="border-b border-hairline">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3.5">
           <span className="font-serif text-base font-semibold tracking-tight">Sapient Atlas</span>
-          <span className="text-xs text-muted">No scores. No grades. A read.</span>
+          <span className="text-xs text-muted">No scores. No grades. Just clarity.</span>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-2xl px-6 py-14">
-        <Eyebrow>Free capability diagnosis</Eyebrow>
+        <Eyebrow>See what you can&apos;t see yourself</Eyebrow>
         <h1 className="mt-3 font-serif text-[32px] font-semibold leading-[1.12] tracking-[-0.02em]">
           Show Atlas one real piece of your work.
         </h1>
         <p className="mt-3 text-[15px] leading-relaxed text-muted">
-          The more real the work, the sharper the read. A campaign, a brief, an analysis, a strategy doc,
+          The more real the work, the more you&apos;ll see. A campaign, a brief, an analysis, a strategy doc,
           a piece of copy.
         </p>
 
@@ -101,7 +101,7 @@ export default function DiagnosisPage() {
             </div>
             <textarea
               className={`${input} mt-2.5 min-h-[200px] resize-y font-mono text-[13px] leading-relaxed`}
-              placeholder="Paste the actual work here. A campaign brief, an analysis, a piece of copy, a strategy doc. The more real, the sharper the read."
+              placeholder="Paste the actual work here. A campaign brief, an analysis, a piece of copy, a strategy doc. The more real, the more you'll see."
               value={form.work_sample}
               onChange={(e) => set('work_sample', e.target.value)}
               required
@@ -194,7 +194,7 @@ export default function DiagnosisPage() {
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
             </span>
             <span className="text-[12.5px] leading-relaxed text-accent-deep">
-              Your work stays private, used only for your read. <strong>A human reviews it</strong> before you see anything.
+              Your work stays private, used only to show you what you&apos;re missing. Nothing is shared, nothing is public.
             </span>
           </div>
 
@@ -202,9 +202,9 @@ export default function DiagnosisPage() {
 
           <div className="flex items-center gap-4">
             <Button type="submit" size="lg" disabled={submitting}>
-              {submitting ? 'Analyzing your work… (~20s)' : 'Get my capability read'}
+              {submitting ? 'Reading your work… (~20s)' : 'Find my next move'}
             </Button>
-            <span className="text-xs text-muted">takes about 20 seconds to read</span>
+            <span className="text-xs text-muted">takes about 20 seconds</span>
           </div>
         </form>
       </main>

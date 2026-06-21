@@ -21,10 +21,10 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   title: "Sapient Atlas — The Art of Becoming Harder to Replace",
-  description: "Paste real work. Get a capability read. Know your next move.",
+  description: "Paste real work. See where you can get ahead. Know your next move.",
   openGraph: {
     title: "Sapient Atlas — The Art of Becoming Harder to Replace",
-    description: "Paste real work. Get a capability read. Know your next move.",
+    description: "Paste real work. See where you can get ahead. Know your next move.",
     siteName: "Sapient Atlas",
     type: "website",
   },
