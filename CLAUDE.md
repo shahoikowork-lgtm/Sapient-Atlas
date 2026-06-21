@@ -8,11 +8,13 @@ Atlas product only.
 
 ## Canonical doctrine
 
-The Atlas Operating System (`ATLAS_OS.md`) is the locked product doctrine. Every prompt,
-feature, screen, and product decision must conform to it. When a proposal conflicts with the
-doctrine, the proposal is wrong, not the doctrine.
+The Atlas Operating System (`ATLAS_OS.md`) is the locked product doctrine, and the Atlas
+Constraint Design Manual (`CONSTRAINT_DESIGN_MANUAL.md`) is the source of truth for every
+constraint added to Atlas. Every prompt, feature, screen, and product decision must conform
+to both. When a proposal conflicts with the doctrine, the proposal is wrong, not the doctrine.
 
 @ATLAS_OS.md
+@CONSTRAINT_DESIGN_MANUAL.md
 
 ## Product
 
