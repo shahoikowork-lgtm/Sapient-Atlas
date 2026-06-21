@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getUser, isAdmin } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendDiagnosisReadyEmail } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -59,9 +60,12 @@ export async function POST(request: Request) {
       .eq('status', 'pending_review')
     if (e1 || e2) return NextResponse.json({ error: 'Update failed' }, { status: 500 })
 
-    // If this approval gives the cycle a second assessment, it is a re-rating:
-    // append a value_history point (new value + attributed change vs the original).
+    // A second approved assessment on the cycle is a re-rating: append a
+    // value_history point (new value + attributed change vs the original). The
+    // first approval is the initial diagnosis: email the user that it is ready
+    // (transactional, link only, no AI content, sent only after this human approval).
     if (justApproved && justApproved.length > 0) {
+      const userId = justApproved[0].user_id
       const { data: approvedAll } = await admin
         .from('value_assessments')
         .select('value_mid')
@@ -72,11 +76,13 @@ export async function POST(request: Request) {
         const prevMid = Number(approvedAll[0].value_mid) || 0
         const newMid = Number(justApproved[0].value_mid) || 0
         await admin.from('value_history').insert({
-          user_id: justApproved[0].user_id,
+          user_id: userId,
           value_mid: newMid,
           confidence: justApproved[0].confidence,
           attributed_delta: newMid - prevMid,
         })
+      } else {
+        await notifyDiagnosisReady(admin, userId, new URL(request.url).origin)
       }
     }
   } else {
@@ -95,4 +101,40 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ ok: true })
+}
+
+// Email the user that their initial diagnosis is approved and ready. Best-effort:
+// never throws, so a mail failure can't fail the approval. Looks up the recipient
+// and their results token and sends only the transactional link (no AI content).
+async function notifyDiagnosisReady(
+  admin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  origin: string,
+) {
+  try {
+    const { data: u } = await admin
+      .from('users')
+      .select('email,name')
+      .eq('id', userId)
+      .maybeSingle()
+    if (!u?.email) return
+
+    const { data: d } = await admin
+      .from('diagnoses')
+      .select('result_token')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (!d?.result_token) return
+
+    const base = (process.env.NEXT_PUBLIC_SITE_URL || origin).replace(/\/$/, '')
+    await sendDiagnosisReadyEmail({
+      to: u.email,
+      name: u.name,
+      resultsUrl: `${base}/results/${d.result_token}`,
+    })
+  } catch (err) {
+    console.error('[approve] diagnosis-ready email failed:', err instanceof Error ? err.message : err)
+  }
 }
