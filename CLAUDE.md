@@ -6,6 +6,14 @@ Do not build any old "Atlas Knowledge Engine", relationship-matching system, com
 graph, member loop, or previous Sapient concept. This repository is for the new Sapient
 Atlas product only.
 
+## Canonical doctrine
+
+The Atlas Operating System (`ATLAS_OS.md`) is the locked product doctrine. Every prompt,
+feature, screen, and product decision must conform to it. When a proposal conflicts with the
+doctrine, the proposal is wrong, not the doctrine.
+
+@ATLAS_OS.md
+
 ## Product
 
 Sapient Atlas is a Professional Market Value Operating System. It helps professionals
