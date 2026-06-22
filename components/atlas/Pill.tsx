@@ -3,13 +3,13 @@ import type { ReactNode } from 'react'
 type Tone = 'neutral' | 'accent' | 'success'
 
 const tones: Record<Tone, string> = {
-  neutral: 'border border-hairline bg-surface text-text-secondary',
-  accent: 'bg-accent-tint text-accent-deep',
-  success: 'bg-accent-tint text-grow',
+  neutral: 'border border-s-line bg-s-panel text-s-text-2',
+  accent: 'bg-s-accent-tint text-s-accent-strong',
+  success: 'border border-s-line bg-s-panel text-s-grow',
 }
 
 // Quiet status, word-only. Never a number, never a metric (doctrine: feel understood,
-// not analyzed). Replaces clinical "Confidence: high" chips.
+// not analyzed). Surface-aware.
 export function Pill({
   tone = 'neutral',
   className = '',

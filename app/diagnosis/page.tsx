@@ -104,10 +104,10 @@ export default function DiagnosisPage() {
     }
   }
 
-  // The designed wait takes over the screen during analysis.
+  // The designed wait takes over the screen during analysis, in the instrument register.
   if (status === 'submitting') {
     return (
-      <div className="min-h-screen bg-paper text-ink">
+      <div className="instrument min-h-screen bg-s-bg text-s-text">
         <AnalysisState />
       </div>
     )
@@ -122,46 +122,46 @@ export default function DiagnosisPage() {
       }
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
-      <header className="sticky top-0 z-20 border-b border-hairline bg-paper/80 backdrop-blur supports-[backdrop-filter]:bg-paper/70">
+    <div className="instrument min-h-screen bg-s-bg text-s-text">
+      <header className="sticky top-0 z-20 border-b border-s-line bg-s-bg/80 backdrop-blur supports-[backdrop-filter]:bg-s-bg/70">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3.5">
-          <a href="/" className="font-semibold tracking-tight text-ink transition-opacity hover:opacity-70">
+          <a href="/" className="font-semibold tracking-tight text-s-text transition-opacity hover:opacity-70">
             Sapient Atlas
           </a>
-          <span className="text-label text-muted tabular">Step {step} of 2</span>
+          <span className="text-label text-s-muted tabular">Step {step} of 2</span>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-2xl px-6 py-14">
-        <Eyebrow>See what you can&apos;t see yourself</Eyebrow>
-        <h1 className="mt-3 text-h1 text-ink">Show Atlas one real piece of your work.</h1>
-        <p className="mt-3 text-body text-text-secondary">
-          The more real the work, the more you&apos;ll see. A campaign, a brief, an analysis, a
-          strategy doc, a piece of copy.
+        <Eyebrow>See what you can’t see yourself</Eyebrow>
+        <h1 className="mt-3 text-h1 text-s-text">Show Atlas one real piece of your work.</h1>
+        <p className="mt-3 text-body text-s-text-2">
+          The more real the work, the more you’ll see. A campaign, a brief, an analysis, a strategy
+          doc, a piece of copy.
         </p>
 
         <form onSubmit={onSubmit} noValidate className="mt-8 flex flex-col gap-6">
           {/* STEP 1 — the work is the hero of the page. */}
           <div
-            className={`rounded-2xl border bg-surface p-4 transition-colors ${
-              errors.work_sample ? 'border-danger' : 'border-hairline focus-within:border-accent/50'
+            className={`rounded-2xl border bg-s-panel p-4 transition-colors ${
+              errors.work_sample ? 'border-s-danger' : 'border-s-line focus-within:border-s-accent/50'
             }`}
           >
             <div className="flex items-center justify-between">
-              <label htmlFor="work_sample" className="font-mono text-eyebrow uppercase text-accent">
+              <label htmlFor="work_sample" className="font-mono text-eyebrow uppercase text-s-accent">
                 Paste real work
               </label>
-              <span className="text-[11px] text-muted">required</span>
+              <span className="text-[11px] text-s-muted">required</span>
             </div>
             <textarea
               id="work_sample"
               name="work_sample"
-              className={`mt-2.5 min-h-[220px] w-full resize-y rounded-lg border bg-surface px-3 py-2.5 font-mono text-[13px] leading-relaxed text-ink outline-none transition-colors placeholder:text-muted/60 ${
+              className={`mt-2.5 min-h-[220px] w-full resize-y rounded-lg border bg-s-bg px-3 py-2.5 font-mono text-[13px] leading-relaxed text-s-text outline-none transition-colors placeholder:text-s-muted/60 ${
                 errors.work_sample
-                  ? 'border-danger focus:ring-2 focus:ring-danger/15'
-                  : 'border-hairline hover:border-hairline-strong focus:border-accent focus:ring-2 focus:ring-accent/15'
+                  ? 'border-s-danger focus:ring-2 focus:ring-s-danger/20'
+                  : 'border-s-line hover:border-s-line-strong focus:border-s-accent focus:ring-2 focus:ring-s-accent/20'
               }`}
-              placeholder="Paste the actual work here. A campaign brief, an analysis, a piece of copy, a strategy doc. The more real, the more you'll see."
+              placeholder="Paste the actual work here. A campaign brief, an analysis, a piece of copy, a strategy doc. The more real, the more you’ll see."
               value={form.work_sample}
               onChange={(e) => set('work_sample', e.target.value)}
               required
@@ -171,13 +171,13 @@ export default function DiagnosisPage() {
             />
             <div className="mt-2 flex items-center justify-between">
               {errors.work_sample ? (
-                <p id="work_sample-error" role="alert" className="text-[12.5px] text-danger">
+                <p id="work_sample-error" role="alert" className="text-[12.5px] text-s-danger">
                   {errors.work_sample}
                 </p>
               ) : (
                 <span />
               )}
-              <span id="work_sample-hint" className="text-[11px] text-muted tabular">
+              <span id="work_sample-hint" className="text-[11px] text-s-muted tabular">
                 {wordCount > 0 ? `${wordCount} word${wordCount === 1 ? '' : 's'}` : 'Your work stays private'}
               </span>
             </div>
@@ -188,7 +188,7 @@ export default function DiagnosisPage() {
               <Button type="button" size="lg" onClick={continueToStep2} disabled={!workReady}>
                 Continue
               </Button>
-              <span className="text-label text-muted">Then one or two quick details.</span>
+              <span className="text-label text-s-muted">Then one or two quick details.</span>
             </div>
           ) : (
             <motion.div ref={step2Ref} {...reveal} className="flex flex-col gap-6">
@@ -223,19 +223,19 @@ export default function DiagnosisPage() {
                   onBlur={() => setErrors((e) => ({ ...e, role: form.role.trim() ? undefined : 'This field is required.' }))}
                   required
                   error={errors.role}
-                  placeholder="e.g. content marketer, SEO, PM"
+                  placeholder="e.g. content marketer, SEO, PM, designer, analyst"
                   autoComplete="organization-title"
                 />
               </div>
 
               {/* Optional context — after the work, never competing with it. */}
-              <details className="group rounded-xl border border-hairline transition-colors hover:border-hairline-strong [&_summary]:cursor-pointer">
-                <summary className="flex items-center gap-2 px-4 py-3 text-sm text-muted transition-colors hover:text-ink">
+              <details className="group rounded-xl border border-s-line transition-colors hover:border-s-line-strong [&_summary]:cursor-pointer">
+                <summary className="flex items-center gap-2 px-4 py-3 text-sm text-s-muted transition-colors hover:text-s-text">
                   <span aria-hidden="true" className="transition-transform group-open:rotate-45">+</span>
                   Add context (optional)
-                  <span className="ml-auto text-xs text-muted/70">name · seniority · goals · responsibilities</span>
+                  <span className="ml-auto text-xs text-s-muted">name · seniority · goals · responsibilities</span>
                 </summary>
-                <div className="grid grid-cols-1 gap-4 border-t border-hairline p-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 border-t border-s-line p-4 sm:grid-cols-2">
                   <Field id="name" label="Name" value={form.name} onChange={(v) => set('name', v)} autoComplete="name" />
                   <Field id="seniority" label="Seniority" value={form.seniority} onChange={(v) => set('seniority', v)} placeholder="e.g. Senior" />
                   <Field id="years" label="Years in the field" value={form.years} onChange={(v) => set('years', v)} inputMode="numeric" />
@@ -251,12 +251,12 @@ export default function DiagnosisPage() {
               </details>
 
               {/* Trust */}
-              <div className="flex items-start gap-3 rounded-xl bg-accent-tint px-4 py-3">
-                <span className="mt-0.5 text-accent" aria-hidden="true">
+              <div className="flex items-start gap-3 rounded-xl bg-s-accent-tint px-4 py-3">
+                <span className="mt-0.5 text-s-accent" aria-hidden="true">
                   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
                 </span>
-                <span className="text-[12.5px] leading-relaxed text-accent-deep">
-                  Your work stays private, used only to show you what you&apos;re missing. Nothing is shared, nothing is public.
+                <span className="text-[12.5px] leading-relaxed text-s-text-2">
+                  Your work stays private, used only to show you what you’re missing. Nothing is shared, nothing is public.
                 </span>
               </div>
 
@@ -268,7 +268,7 @@ export default function DiagnosisPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="rounded-lg border border-danger/30 bg-danger-tint px-4 py-3 text-sm text-danger"
+                    className="rounded-lg border border-s-danger/30 bg-s-danger-tint px-4 py-3 text-sm text-s-danger"
                   >
                     {error}
                   </motion.div>
@@ -279,7 +279,7 @@ export default function DiagnosisPage() {
                 <Button type="submit" size="lg" className="min-w-[12rem]">
                   Get my diagnosis
                 </Button>
-                <span className="text-label text-muted">takes about 20 seconds</span>
+                <span className="text-label text-s-muted">takes about 20 seconds</span>
               </div>
             </motion.div>
           )}

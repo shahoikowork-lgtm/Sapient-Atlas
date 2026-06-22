@@ -19,12 +19,16 @@ const newsreader = Newsreader({
   weight: ["400", "500", "600"],
 });
 
+const TITLE = "Sapient Atlas: The Art of Becoming Harder to Replace";
+const DESCRIPTION =
+  "Show Atlas a real piece of your work. It finds the single thing holding it back, shows you the evidence, and tells you whether a 30-day Sprint can fix it.";
+
 export const metadata: Metadata = {
-  title: "Sapient Atlas — The Art of Becoming Harder to Replace",
-  description: "Paste real work. See where you can get ahead. Know your next move.",
+  title: TITLE,
+  description: DESCRIPTION,
   openGraph: {
-    title: "Sapient Atlas — The Art of Becoming Harder to Replace",
-    description: "Paste real work. See where you can get ahead. Know your next move.",
+    title: TITLE,
+    description: DESCRIPTION,
     siteName: "Sapient Atlas",
     type: "website",
   },

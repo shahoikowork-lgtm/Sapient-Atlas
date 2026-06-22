@@ -1,19 +1,19 @@
 import Link from 'next/link'
 import type { ComponentProps, ReactNode } from 'react'
 
-// Visual primitive. Warm-paper + deep-indigo system. No external UI deps.
+// Visual primitive. Surface-aware (paper + instrument); no external UI deps.
 type Variant = 'primary' | 'secondary' | 'ghost'
 type Size = 'md' | 'lg'
 
 // Restrained micro-interaction: a near-imperceptible lift on hover, a settle on press.
-// Duration-scoped so the global prefers-reduced-motion guard neutralizes it on opt-out.
+// Duration-scoped, so the global prefers-reduced-motion guard neutralizes it on opt-out.
 const base =
-  'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 ease-out will-change-transform hover:-translate-y-px active:translate-y-0 active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none disabled:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper'
+  'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 ease-out will-change-transform hover:-translate-y-px active:translate-y-0 active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none disabled:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-s-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-s-bg'
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-accent text-white hover:bg-accent-hover shadow-sm hover:shadow-raised',
-  secondary: 'border border-hairline bg-surface text-ink hover:bg-paper hover:border-hairline-strong',
-  ghost: 'text-accent hover:text-accent-hover hover:translate-y-0',
+  primary: 'bg-s-accent text-s-accent-contrast hover:bg-s-accent-strong shadow-sm hover:shadow-s',
+  secondary: 'border border-s-line bg-s-panel text-s-text hover:bg-s-sunken hover:border-s-line-strong',
+  ghost: 'text-s-accent hover:text-s-accent-strong hover:translate-y-0',
 }
 
 const sizes: Record<Size, string> = {

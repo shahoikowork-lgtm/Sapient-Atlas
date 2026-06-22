@@ -3,11 +3,11 @@ import type { ComponentProps } from 'react'
 type Tone = 'surface' | 'sunken'
 
 const tones: Record<Tone, string> = {
-  surface: 'bg-surface',
-  sunken: 'bg-surface-sunken',
+  surface: 'bg-s-panel',
+  sunken: 'bg-s-sunken',
 }
 
-// Hairline card on a warm surface. Calm radius, no shadow by default.
+// Hairline card, surface-aware. Calm radius, no shadow by default.
 export function Card({
   tone = 'surface',
   interactive = false,
@@ -15,11 +15,11 @@ export function Card({
   ...props
 }: { tone?: Tone; interactive?: boolean } & ComponentProps<'div'>) {
   const hover = interactive
-    ? 'transition-all duration-200 ease-out hover:border-hairline-strong hover:shadow-raised'
+    ? 'transition-all duration-200 ease-out hover:border-s-line-strong hover:shadow-s'
     : ''
   return (
     <div
-      className={`rounded-2xl border border-hairline ${tones[tone]} p-6 ${hover} ${className}`}
+      className={`rounded-2xl border border-s-line ${tones[tone]} p-6 ${hover} ${className}`}
       {...props}
     />
   )

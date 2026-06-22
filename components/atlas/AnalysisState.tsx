@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 
-// The designed wait. Not a spinner — a calm sequence that shows the experience of the
+// The designed wait. Not a spinner: a calm sequence that shows the experience of the
 // work being read and the field of considerations narrowing to one. Honest about the
-// ~20s. Shows the *experience*, never the mechanism (no AI / models / pipeline talk).
+// ~20s. Shows the experience, never the mechanism (no AI / models / pipeline talk).
+// Renders inside the dark instrument register on the diagnosis surface.
 
 const PHASES = [
   'Reading your work…',
@@ -27,8 +28,8 @@ export function AnalysisState() {
   }, [])
 
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 text-center">
-      <div className="font-mono text-eyebrow uppercase text-accent">Your diagnosis</div>
+    <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
+      <div className="font-mono text-eyebrow uppercase text-s-accent">Your diagnosis</div>
 
       <div className="mt-8 flex w-full max-w-xs flex-col gap-2.5" aria-hidden="true">
         {BARS.map((i) => {
@@ -37,7 +38,7 @@ export function AnalysisState() {
             return (
               <div
                 key={i}
-                className={`h-2.5 rounded-full ${isFocus ? 'bg-accent' : 'bg-hairline'}`}
+                className={`h-2.5 rounded-full ${isFocus ? 'bg-s-accent' : 'bg-s-line'}`}
                 style={{ width: isFocus ? '100%' : `${60 + i * 6}%` }}
               />
             )
@@ -45,13 +46,9 @@ export function AnalysisState() {
           return (
             <motion.div
               key={i}
-              className={`h-2.5 rounded-full ${isFocus ? 'bg-accent' : 'bg-hairline'}`}
+              className={`h-2.5 rounded-full ${isFocus ? 'bg-s-accent' : 'bg-s-line'}`}
               initial={{ opacity: 0.35, width: `${55 + i * 7}%` }}
-              animate={
-                isFocus
-                  ? { opacity: 1, width: '100%' }
-                  : { opacity: [0.5, 0.25, 0.5] }
-              }
+              animate={isFocus ? { opacity: 1, width: '100%' } : { opacity: [0.5, 0.25, 0.5] }}
               transition={
                 isFocus
                   ? { duration: 1.6, ease: [0.22, 1, 0.36, 1] }
@@ -62,10 +59,10 @@ export function AnalysisState() {
         })}
       </div>
 
-      <p className="mt-8 text-body-lg text-ink" aria-live="polite">
+      <p className="mt-8 text-body-lg text-s-text" aria-live="polite">
         {PHASES[phase]}
       </p>
-      <p className="mt-2 text-label text-muted">This takes about 20 seconds. Your work stays private.</p>
+      <p className="mt-2 text-label text-s-muted">This takes about 20 seconds. Your work stays private.</p>
     </div>
   )
 }

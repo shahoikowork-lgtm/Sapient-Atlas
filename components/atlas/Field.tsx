@@ -5,7 +5,7 @@ import type { ChangeEvent } from 'react'
 
 // The accessibility contract in one place: label + control + error + hint, wired with
 // htmlFor/id, aria-required, aria-invalid, aria-describedby, and a role="alert" error.
-// One component so no page re-implements form a11y.
+// One component so no page re-implements form a11y. Surface-aware (paper + instrument).
 
 type FieldType = 'text' | 'email' | 'textarea' | 'select'
 
@@ -20,7 +20,7 @@ export function FieldError({ id, message }: { id: string; message?: string }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
-          className="mt-1.5 text-[12.5px] text-danger"
+          className="mt-1.5 text-[12.5px] text-s-danger"
         >
           {message}
         </motion.p>
@@ -30,9 +30,9 @@ export function FieldError({ id, message }: { id: string; message?: string }) {
 }
 
 const controlBase =
-  'w-full rounded-lg border bg-surface px-3 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-muted/60 min-h-11'
-const ok = 'border-hairline hover:border-hairline-strong focus:border-accent focus:ring-2 focus:ring-accent/15'
-const bad = 'border-danger focus:border-danger focus:ring-2 focus:ring-danger/15'
+  'w-full rounded-lg border bg-s-panel px-3 py-2.5 text-sm text-s-text outline-none transition-colors placeholder:text-s-muted/60 min-h-11'
+const ok = 'border-s-line hover:border-s-line-strong focus:border-s-accent focus:ring-2 focus:ring-s-accent/20'
+const bad = 'border-s-danger focus:border-s-danger focus:ring-2 focus:ring-s-danger/20'
 
 export function Field({
   id,
@@ -78,7 +78,7 @@ export function Field({
 
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-1.5 block text-label text-text-secondary">
+      <label htmlFor={id} className="mb-1.5 block text-label text-s-text-2">
         {label}
         {required ? <span aria-hidden="true"> *</span> : null}
       </label>
@@ -140,7 +140,7 @@ export function Field({
       )}
 
       {hint && !error ? (
-        <p id={hintId} className="mt-1.5 text-[12px] text-muted">
+        <p id={hintId} className="mt-1.5 text-[12px] text-s-muted">
           {hint}
         </p>
       ) : null}

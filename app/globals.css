@@ -96,6 +96,52 @@
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* ── Surface-aware register ────────────────────────────────────────────────
+   A non-inline @theme so each utility references var(--color-s-*); the
+   `.instrument` class below overrides those variables at runtime, flipping the
+   shared component vocabulary into the dark register. Defaults here are
+   byte-identical to the warm-paper tokens, so every paper surface is unchanged. */
+@theme {
+  --color-s-bg: #f8f7f2;
+  --color-s-panel: #ffffff;
+  --color-s-sunken: #f1efe8;
+  --color-s-line: #e6e3d9;
+  --color-s-line-strong: #d8d4c8;
+  --color-s-text: #1a1a17;
+  --color-s-text-2: #565049;
+  --color-s-muted: #645f54;
+  --color-s-accent: #2b3a67;
+  --color-s-accent-strong: #1e2950;
+  --color-s-accent-tint: #eceef6;
+  --color-s-accent-contrast: #ffffff;
+  --color-s-grow: #2e5e47;
+  --color-s-danger: #b4322a;
+  --color-s-danger-tint: #f7eceb;
+  --shadow-s: 0 1px 2px rgb(26 26 23 / 0.04), 0 6px 16px rgb(26 26 23 / 0.05);
+}
+
+/* The dark "instrument" register — diagnosis + results, and the homepage focal
+   climax. Cool near-black with an indigo undertone; warm-white text echoes the
+   paper so the two registers read as one product, not two sites. */
+.instrument {
+  --color-s-bg: #0f1118;
+  --color-s-panel: #171a26;
+  --color-s-sunken: #14161f;
+  --color-s-line: #272c3d;
+  --color-s-line-strong: #3a4159;
+  --color-s-text: #f4f3ee;
+  --color-s-text-2: #c3c6d4;
+  --color-s-muted: #8b90a6;
+  --color-s-accent: #aab4f0;
+  --color-s-accent-strong: #c8cdf8;
+  --color-s-accent-tint: rgba(150, 162, 228, 0.14);
+  --color-s-accent-contrast: #11131c;
+  --color-s-grow: #76c79b;
+  --color-s-danger: #f0a9a2;
+  --color-s-danger-tint: rgba(180, 50, 42, 0.18);
+  --shadow-s: 0 1px 2px rgb(0 0 0 / 0.4), 0 18px 44px rgb(0 0 0 / 0.5);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -111,12 +157,13 @@ html {
 }
 
 ::selection {
-  background: var(--color-accent-tint);
-  color: var(--color-accent-deep);
+  background: var(--color-s-accent-tint);
+  color: var(--color-s-accent-strong);
 }
 
+/* Focus ring follows the active register (indigo on paper, bright indigo on dark). */
 :focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--color-s-accent) 60%, transparent);
   outline-offset: 2px;
   border-radius: 4px;
 }
