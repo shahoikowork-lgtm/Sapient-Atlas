@@ -120,7 +120,7 @@ export default function DiagnosisPage() {
             </div>
             <div>
               <label className={label}>Role *</label>
-              <input className={input} placeholder="e.g. Performance marketer" value={form.role} onChange={(e) => set('role', e.target.value)} required />
+              <input className={input} placeholder="e.g. content marketer, SEO, PM, designer, analyst" value={form.role} onChange={(e) => set('role', e.target.value)} required />
             </div>
           </div>
 

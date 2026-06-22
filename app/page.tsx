@@ -14,7 +14,7 @@ const AFTER = [
 ]
 
 const PROFESSIONS = [
-  { who: 'Marketers', work: 'landing pages, campaigns, positioning docs' },
+  { who: 'Marketers', work: 'positioning, landing pages, campaigns, ads, SEO, email' },
   { who: 'Product managers', work: 'PRDs, specs, roadmaps' },
   { who: 'Designers', work: 'design docs, UX cases, flows' },
   { who: 'Engineers', work: 'RFCs, technical design docs, pull requests' },
@@ -112,6 +112,10 @@ export default function Landing() {
             </div>
           ))}
         </div>
+        <p className="mt-5 text-sm text-muted">
+          Marketing here covers every discipline: SEO, paid ads, content, product marketing, email, demand
+          generation, and growth marketing.
+        </p>
       </Section>
 
       {/* How it works */}
@@ -139,9 +143,10 @@ export default function Landing() {
             The first Sprint is for marketers.
           </h2>
           <p className="mt-3 text-[16px] leading-relaxed text-ink/80">
-            One Sprint is open today: positioning for marketers whose work sounds like their competitors&apos;.
-            Thirty days, on your own campaigns and pages. By the end, a real prospect can say why you and not
-            the other three. It is $149, once, with no subscription.
+            One Sprint is open today: positioning. If your work sounds like your competitors&apos;, this is the
+            fix, whether you work in SEO, paid ads, content, product marketing, email, demand generation, or
+            growth marketing. Thirty days, on your own campaigns and pages. By the end, a real prospect can say
+            why you and not the other three. It is $149, once, with no subscription.
           </p>
           <div className="mt-5">
             <ButtonLink href="/diagnosis" size="lg">Get your free diagnosis</ButtonLink>
