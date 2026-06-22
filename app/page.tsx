@@ -1,29 +1,45 @@
-import { ButtonLink, Card, Eyebrow, Evidence, Section, TrustStrip } from '@/components/atlas'
+import { ButtonLink, Card, Eyebrow, Section } from '@/components/atlas'
 
 export const metadata = {
   title: 'Sapient Atlas — The Art of Becoming Harder to Replace',
-  description: 'Paste real work. See where you can get ahead. Know your next move.',
+  description:
+    'Upload a real piece of work. Atlas identifies the biggest thing slowing your growth, shows you the evidence, and tells you whether we can help you fix it in 30 days.',
 }
 
-const RETURNS = [
-  { h: "What you're actually good at", p: 'the real strengths in your work, with the proof' },
-  { h: 'Where your leverage is', p: "the strengths you're underusing, and the opportunities in your work" },
-  { h: 'What to focus on first', p: 'the one thing quietly limiting you' },
-  { h: 'Your highest-leverage move', p: 'the most important thing to do next, and where it takes you' },
+const AFTER = [
+  "What you're already doing well",
+  "What's limiting your growth",
+  "Why it's happening",
+  'What to work on next',
+]
+
+const PROFESSIONS = [
+  { who: 'Marketers', work: 'landing pages, campaigns, positioning docs' },
+  { who: 'Product managers', work: 'PRDs, specs, roadmaps' },
+  { who: 'Designers', work: 'design docs, UX cases, flows' },
+  { who: 'Engineers', work: 'RFCs, technical design docs, pull requests' },
+  { who: 'Data analysts', work: 'dashboards, analyses, reports' },
+  { who: 'Growth operators', work: 'experiment docs, funnel breakdowns' },
+  { who: 'AI operators', work: 'prompts, workflows, evals' },
+  { who: 'Founders', work: 'pitch decks, strategy memos, narratives' },
 ]
 
 const STEPS = [
-  { n: '1', h: 'Paste one real piece of your work', p: 'A campaign, a brief, an analysis, a strategy doc, a piece of copy.' },
-  { n: '2', h: 'See where you actually stand', p: 'Your real strengths, where your leverage is, and what to focus on next.' },
-  { n: '3', h: 'Leave knowing your next move', p: 'The single most important thing to do next, and where it takes you.' },
-]
-
-const FAQ = [
-  { q: 'Is this a course?', a: 'No. Nothing to watch, nothing to study. Atlas shows you where your leverage is and the one move to make next.' },
-  { q: 'What do you do with my work?', a: 'It stays private and is used only to produce your results. Nothing is shared, nothing is public.' },
-  { q: 'What will I actually walk away with?', a: 'A clear picture of where you stand, where your real leverage is, and the single highest-leverage move to make next.' },
-  { q: 'What is the Value Sprint?', a: 'An optional, one-time 30-day program to do your one move on real work, with feedback each week and an honest look at your progress.' },
-  { q: 'Do you tell me a salary or a score?', a: 'No. Atlas gives you a clear, considered judgment of where you stand, not a number.' },
+  {
+    n: '1',
+    h: 'Get your diagnosis',
+    p: 'Show us one real piece of work. You get your diagnosis in a few minutes, free.',
+  },
+  {
+    n: '2',
+    h: "Start your Sprint, if it's open",
+    p: 'When your bottleneck is one we can fix in 30 days, you start a Sprint and work on your real work, with focused feedback at each step.',
+  },
+  {
+    n: '3',
+    h: 'Prove it',
+    p: 'At the end you do the work again on a fresh piece, and a real prospect, colleague, or client confirms it. You keep the before and after.',
+  },
 ]
 
 export default function Landing() {
@@ -35,8 +51,7 @@ export default function Landing() {
           <span className="font-serif text-base font-semibold tracking-tight">Sapient Atlas</span>
           <nav className="flex items-center gap-5 text-sm text-muted">
             <a href="#how" className="hidden hover:text-ink sm:inline">How it works</a>
-            <a href="#faq" className="hidden hover:text-ink sm:inline">FAQ</a>
-            <ButtonLink href="/diagnosis" size="md">Find my next move</ButtonLink>
+            <ButtonLink href="/diagnosis" size="md">Get your free diagnosis</ButtonLink>
           </nav>
         </div>
       </header>
@@ -44,57 +59,64 @@ export default function Landing() {
       {/* Hero */}
       <section className="px-6 pt-20 pb-16 text-center sm:pt-28">
         <div className="mx-auto max-w-2xl">
-          <Eyebrow className="justify-center">Know exactly where to focus next</Eyebrow>
-          <h1 className="mx-auto mt-4 max-w-[17ch] font-serif text-[40px] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[52px]">
-            Paste real work. See where you can get ahead. Know your next move.
+          <h1 className="mx-auto max-w-[20ch] font-serif text-[40px] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[52px]">
+            Find the biggest bottleneck limiting your professional growth.
           </h1>
-          <p className="mx-auto mt-4 font-serif text-[19px] italic text-ink/75">
-            The Art of Becoming Harder to Replace
-          </p>
-          <p className="mx-auto mt-5 max-w-[52ch] text-[17px] leading-relaxed text-muted">
-            Show Atlas one real piece of your work, and see what you&apos;re genuinely good at, where your
-            real leverage is, and the one move that gets you ahead fastest.
+          <p className="mx-auto mt-5 max-w-[56ch] text-[17px] leading-relaxed text-muted">
+            Upload a real piece of work. Atlas identifies the biggest thing slowing your growth, shows you
+            the evidence, and tells you whether we can help you fix it in 30 days.
           </p>
           <div className="mt-7 flex items-center justify-center gap-4">
-            <ButtonLink href="/diagnosis" size="lg">Find my next move</ButtonLink>
-            <span className="text-sm text-muted">Free · about 3 minutes</span>
+            <ButtonLink href="/diagnosis" size="lg">Get your free diagnosis</ButtonLink>
+            <a href="#how" className="text-sm text-muted hover:text-ink">See how it works</a>
           </div>
-          <p className="mt-6 text-sm text-muted">See what you can&apos;t see from inside your own work.</p>
+          <p className="mx-auto mt-6 max-w-[60ch] text-[15px] leading-relaxed text-muted">
+            Free for every digital professional. The first paid Sprint is open to marketers working on
+            positioning. Everyone else gets the diagnosis and early access.
+          </p>
+          <p className="mt-3 text-sm text-muted">
+            Free diagnosis. No account needed. We tell you if we can&apos;t help.
+          </p>
         </div>
       </section>
 
-      {/* The problem */}
+      {/* After your diagnosis */}
       <Section className="border-t border-hairline bg-surface">
-        <h2 className="font-serif text-[28px] font-semibold leading-tight tracking-[-0.01em]">
-          Some people move faster than you.
+        <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
+          After your diagnosis you&apos;ll know:
         </h2>
-        <p className="mt-4 font-serif text-[19px] leading-relaxed text-ink/80">
-          Not because they&apos;re smarter.<br />
-          Not because they work harder.<br />
-          <span className="text-ink">They see something you don&apos;t.</span>
-        </p>
-        <p className="mt-5 text-[17px] leading-relaxed text-muted">
-          From inside your own work, it&apos;s hard to tell. Atlas shows you what&apos;s genuinely strong,
-          where your leverage is, and the one move most likely to move you forward.
-        </p>
+        <ul className="mt-5 flex flex-col gap-2.5">
+          {AFTER.map((a) => (
+            <li key={a} className="flex gap-2.5 text-[16px] leading-relaxed text-ink/80">
+              <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+              <span>{a}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-5 text-[15px] text-muted">No score. No grade. A clear answer you can act on.</p>
       </Section>
 
-      {/* What you'll walk away with */}
+      {/* Bring your real work */}
       <Section>
-        <Eyebrow className="text-muted">What you&apos;ll walk away with</Eyebrow>
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {RETURNS.map((r) => (
-            <Card key={r.h} className="p-5">
-              <div className="font-serif text-[17px] font-semibold">{r.h}</div>
-              <div className="mt-1 text-sm text-muted">{r.p}</div>
-            </Card>
+        <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
+          Bring the work you already do.
+        </h2>
+        <p className="mt-3 text-[16px] leading-relaxed text-muted">
+          Atlas analyzes real, finished work. One piece is enough to start.
+        </p>
+        <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+          {PROFESSIONS.map((p) => (
+            <div key={p.who} className="border-t border-hairline pt-3">
+              <div className="font-medium text-ink">{p.who}</div>
+              <div className="mt-0.5 text-sm text-muted">{p.work}</div>
+            </div>
           ))}
         </div>
       </Section>
 
-      {/* What happens */}
+      {/* How it works */}
       <Section id="how" className="border-t border-hairline bg-surface">
-        <Eyebrow className="text-muted">What happens</Eyebrow>
+        <Eyebrow className="text-muted">How it works</Eyebrow>
         <div className="mt-5 flex flex-col gap-5">
           {STEPS.map((s) => (
             <div key={s.n} className="flex gap-4">
@@ -110,97 +132,71 @@ export default function Landing() {
         </div>
       </Section>
 
-      {/* A real example */}
+      {/* The first Sprint */}
       <Section>
-        <div className="text-center">
-          <Eyebrow className="justify-center">A real example</Eyebrow>
-          <h2 className="mt-2 font-serif text-[26px] font-semibold tracking-[-0.01em]">
-            This is what you&apos;ll see
+        <Card className="p-6">
+          <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
+            The first Sprint is for marketers.
           </h2>
-        </div>
-        <Card className="mt-6">
-          <p className="font-serif text-[19px] leading-snug">
-            You operate at a strong individual-contributor level. Your ceiling right now is scope, not skill.
+          <p className="mt-3 text-[16px] leading-relaxed text-ink/80">
+            One Sprint is open today: positioning for marketers whose work sounds like their competitors&apos;.
+            Thirty days, on your own campaigns and pages. By the end, a real prospect can say why you and not
+            the other three. It is $149, once, with no subscription.
           </p>
           <div className="mt-5">
-            <Eyebrow className="text-muted">Execution · evidence</Eyebrow>
-            <Evidence
-              className="mt-2"
-              quote="Tight sequencing and clear ownership across the launch, but two dependencies were left implicit."
-              source="from your launch brief"
-            />
-          </div>
-          <div className="mt-5 rounded-xl bg-focal p-4">
-            <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-focal-soft">Your one move</div>
-            <div className="mt-1 text-[15px] font-medium text-white">
-              Make dependencies explicit before the next launch.
-            </div>
+            <ButtonLink href="/diagnosis" size="lg">Get your free diagnosis</ButtonLink>
           </div>
         </Card>
-        <div className="mt-5 text-center">
-          <ButtonLink href="/diagnosis" variant="ghost">Find my next move →</ButtonLink>
-        </div>
       </Section>
 
-      {/* Clarity strip */}
+      {/* Everyone else */}
       <Section className="border-t border-hairline bg-surface">
-        <TrustStrip>
-          <p className="text-center font-serif text-[20px] font-semibold text-accent-deep">
-            Finally know exactly where to focus.
-          </p>
-          <p className="mx-auto mt-2 max-w-[60ch] text-center text-[15px] leading-relaxed text-accent-deep/80">
-            You&apos;ll see what you&apos;re genuinely good at, where your real leverage is, and the single
-            highest-leverage move to build momentum now. Specific to your work. No guessing.
-          </p>
-        </TrustStrip>
-      </Section>
-
-      {/* Value Sprint */}
-      <Section>
-        <div className="grid grid-cols-1 items-center gap-6 sm:grid-cols-[1.3fr_1fr]">
-          <div>
-            <Eyebrow className="text-muted">If you want to act on it</Eyebrow>
-            <h2 className="mt-2 font-serif text-[24px] font-semibold tracking-[-0.01em]">The Value Sprint</h2>
-            <p className="mt-2 text-[15px] leading-relaxed text-muted">
-              30 days of doing your one move on real work, with feedback each week and an honest look at how
-              far you&apos;ve come at the end. Optional, one-time.
-            </p>
-          </div>
-          <Card className="text-center">
-            <div className="font-serif text-[28px] font-semibold">$149</div>
-            <div className="mt-0.5 text-xs text-muted">one-time · start free</div>
-            <ButtonLink href="/diagnosis" className="mt-4 w-full">Find my next move</ButtonLink>
-          </Card>
-        </div>
-      </Section>
-
-      {/* Final CTA */}
-      <Section className="border-t border-hairline bg-surface text-center">
-        <h2 className="mx-auto max-w-[22ch] font-serif text-[28px] font-semibold tracking-[-0.01em]">
-          Paste real work. See where you can get ahead.
+        <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
+          Everyone else starts with the diagnosis.
         </h2>
-        <div className="mt-6 flex justify-center">
-          <ButtonLink href="/diagnosis" size="lg">Find my next move</ButtonLink>
-        </div>
-        <p className="mt-3 text-sm text-muted">Free · about 3 minutes · your work stays private</p>
+        <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
+          Product managers, designers, engineers, data analysts, growth and AI operators, founders. You can
+          get the same diagnosis today and see your biggest bottleneck, with the evidence. Your Sprint is not
+          open yet, so we will not sell you one. Tell us you want it and you will be first in line when it
+          opens.
+        </p>
       </Section>
 
-      {/* FAQ */}
-      <Section id="faq" className="border-t border-hairline">
-        <Eyebrow className="text-muted">FAQ</Eyebrow>
-        <div className="mt-4 divide-y divide-hairline border-y border-hairline">
-          {FAQ.map((f) => (
-            <details key={f.q} className="group py-4 [&_summary]:cursor-pointer">
-              <summary className="flex items-center justify-between gap-4 text-[15px] font-medium">
-                {f.q}
-                <span className="text-muted transition group-open:rotate-180" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-                </span>
-              </summary>
-              <p className="mt-2 text-[14px] leading-relaxed text-muted">{f.a}</p>
-            </details>
-          ))}
+      {/* Not a course */}
+      <Section>
+        <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">No lessons. No videos.</h2>
+        <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
+          Atlas is not a course or a coaching program. There is nothing to watch and nothing to memorize. You
+          work on the thing that is actually holding you back, on your own work, until you can do it without
+          us.
+        </p>
+      </Section>
+
+      {/* The honest part */}
+      <Section className="border-t border-hairline bg-surface">
+        <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
+          We tell you when we can&apos;t help.
+        </h2>
+        <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
+          The diagnosis is free. When your bottleneck is something a 30-day Sprint cannot honestly move, we
+          say so, and we point you somewhere more useful. We would rather lose the sale than waste your month.
+        </p>
+      </Section>
+
+      {/* Closing */}
+      <Section className="border-t border-hairline text-center">
+        <h2 className="mx-auto max-w-[22ch] font-serif text-[28px] font-semibold tracking-[-0.01em]">
+          Start with the diagnosis.
+        </h2>
+        <p className="mt-3 text-[16px] leading-relaxed text-muted">
+          One real piece of work. A few minutes. The one thing holding it back.
+        </p>
+        <div className="mt-6 flex justify-center">
+          <ButtonLink href="/diagnosis" size="lg">Get your free diagnosis</ButtonLink>
         </div>
+        <p className="mt-3 text-sm text-muted">
+          Your work stays private. We use it only to produce your diagnosis.
+        </p>
       </Section>
 
       {/* Footer */}
