@@ -33,7 +33,7 @@ const STEPS = [
   {
     n: '2',
     h: "Start your Sprint, if it's open",
-    p: 'When your bottleneck is one we can fix in 30 days, you start a Sprint and work on your real work, with focused feedback at each step.',
+    p: 'When the thing holding you back is one we can fix in 30 days, you start a Sprint and work on your real work, with focused feedback at each step.',
   },
   {
     n: '3',
@@ -60,7 +60,7 @@ export default function Landing() {
       <section className="px-6 pt-20 pb-16 text-center sm:pt-28">
         <div className="mx-auto max-w-2xl">
           <h1 className="mx-auto max-w-[20ch] font-serif text-[40px] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[52px]">
-            Find the biggest bottleneck limiting your professional growth.
+            Find the one thing holding your work back.
           </h1>
           <p className="mx-auto mt-5 max-w-[56ch] text-[17px] leading-relaxed text-muted">
             Upload a real piece of work. Atlas identifies the biggest thing slowing your growth, shows you
@@ -156,7 +156,7 @@ export default function Landing() {
         </h2>
         <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
           Product managers, designers, engineers, data analysts, growth and AI operators, founders. You can
-          get the same diagnosis today and see your biggest bottleneck, with the evidence. Your Sprint is not
+          get the same diagnosis today and see the biggest thing holding your work back, with the evidence. Your Sprint is not
           open yet, so we will not sell you one. Tell us you want it and you will be first in line when it
           opens.
         </p>
@@ -178,7 +178,7 @@ export default function Landing() {
           We tell you when we can&apos;t help.
         </h2>
         <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
-          The diagnosis is free. When your bottleneck is something a 30-day Sprint cannot honestly move, we
+          The diagnosis is free. When what&apos;s holding you back is something a 30-day Sprint cannot honestly move, we
           say so, and we point you somewhere more useful. We would rather lose the sale than waste your month.
         </p>
       </Section>
