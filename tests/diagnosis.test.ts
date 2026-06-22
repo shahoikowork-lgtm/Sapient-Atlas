@@ -33,13 +33,25 @@ const h = vi.hoisted(() => ({
       horizon_days: 30,
     },
   },
+  cls: {
+    matched_constraint_id: 'marketer.generic_positioning',
+    capability_shaped: true,
+    legible_bar: true,
+    reppable_on_real_work: true,
+    thirty_day_movable: true,
+    artifact_sufficient: true,
+    refused_category: 'none',
+    rationale: 'Generic positioning is the dominant constraint.',
+  },
 }))
 
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => h.store }))
 vi.mock('@/lib/ai/value-assessment', () => ({ runValueAssessment: vi.fn(async () => h.va) }))
 vi.mock('@/lib/ai/opportunity-ranking', () => ({ runOpportunityRanking: vi.fn(async () => h.opp) }))
+vi.mock('@/lib/ai/constraint-match', () => ({ runConstraintMatch: vi.fn(async () => h.cls) }))
 
 import { POST } from '@/app/api/diagnosis/route'
+import { sprintEligibility } from '@/lib/atlas/eligibility'
 
 const intake = {
   name: 'Dana Pro',
@@ -111,5 +123,26 @@ describe('diagnosis API', () => {
     expect(s.rows('value_assessments')[0].user_id).toBe(userId)
     expect(s.rows('value_assessments')[0].cycle_id).toBe(cycleId)
     expect(s.rows('moves')[0].cycle_id).toBe(cycleId)
+  })
+
+  it('classifies the constraint and stores the Decline Gate result in the cycle JSONB', async () => {
+    const req = new Request('https://atlas.test/api/diagnosis', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(intake),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(200)
+
+    const s = h.store as FakeStore
+    const atlas = s.rows('cycles')[0].profile_snapshot.atlas
+    expect(atlas.constraint_id).toBe('marketer.generic_positioning')
+    expect(atlas.decline_result.decision).toBe('accepted')
+    expect(atlas.decline_result.may_sell_sprint).toBe(true)
+    expect(atlas.bar).toBeTruthy()
+    expect(typeof atlas.target_capability).toBe('string')
+
+    // The stored result drives the results-page eligibility.
+    expect(sprintEligibility(atlas).show_sprint_cta).toBe(true)
   })
 })

@@ -1,7 +1,8 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { trajectoryLabel, aiExposureLabel, humanizeDimension } from '@/lib/format'
-import { Card, Eyebrow, Evidence } from '@/components/atlas'
+import { ButtonLink, Card, Eyebrow, Evidence } from '@/components/atlas'
+import { sprintEligibility, type AtlasCycleData } from '@/lib/atlas/eligibility'
 import { UpgradeCta } from './upgrade-cta'
 
 export const runtime = 'nodejs'
@@ -22,6 +23,45 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
     .eq('result_token', token)
     .maybeSingle()
   if (!diag) notFound()
+
+  // Sprint eligibility from the stored Decline Gate result (Phase 2A). Latest cycle for the
+  // user; falls back to showing the CTA when no classification is present.
+  const { data: cycle } = await admin
+    .from('cycles')
+    .select('profile_snapshot')
+    .eq('user_id', diag.user_id)
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const atlas = (cycle?.profile_snapshot as { atlas?: AtlasCycleData } | null)?.atlas
+  const eligibility = sprintEligibility(atlas)
+
+  // needs_more_artifact: ask for a fuller piece of work and show no Sprint CTA.
+  if (eligibility.mode === 'needs_more_artifact') {
+    return (
+      <div className="min-h-screen bg-paper text-ink">
+        <header className="border-b border-hairline">
+          <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3.5">
+            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
+              Sapient Atlas · Your results
+            </span>
+          </div>
+        </header>
+        <main className="mx-auto w-full max-w-2xl px-6 py-14">
+          <Eyebrow className="text-muted">One more piece of real work</Eyebrow>
+          <h1 className="mt-3 font-serif text-[28px] font-semibold tracking-tight">
+            Show one fuller piece of your work.
+          </h1>
+          <p className="mt-3 text-[16px] leading-relaxed text-muted">{eligibility.explanation}</p>
+          <div className="mt-6">
+            <ButtonLink href="/diagnosis" size="lg">
+              Share more of your work
+            </ButtonLink>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   const { data: va } = await admin
     .from('value_assessments')
@@ -47,11 +87,11 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
         <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-3 px-6">
           <Eyebrow className="text-muted">Sapient Atlas</Eyebrow>
           <h1 className="font-serif text-[28px] font-semibold tracking-tight">
-            Your capability read is being reviewed.
+            Your read is being prepared.
           </h1>
           <p className="text-[15px] leading-relaxed text-muted">
-            Every Atlas read is checked by a human before you see it. Your capability profile and your
-            single highest-leverage move will appear here shortly, keep this link.
+            We&apos;ll show your capability profile and your single highest-leverage move as soon as
+            they&apos;re ready, keep this link.
           </p>
         </main>
       </div>
@@ -214,8 +254,15 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
           </details>
         ) : null}
 
-        {/* 7. CTA. */}
-        <UpgradeCta token={token} />
+        {/* 7. CTA — gated by Sprint eligibility (Phase 2A). Only an accepted match sells. */}
+        {eligibility.show_sprint_cta ? (
+          <UpgradeCta token={token} />
+        ) : eligibility.explanation ? (
+          <section className="mt-8 rounded-2xl border border-hairline bg-surface p-6">
+            <Eyebrow className="text-muted">Where this leaves you</Eyebrow>
+            <p className="mt-2 text-[15px] leading-relaxed text-ink/80">{eligibility.explanation}</p>
+          </section>
+        ) : null}
       </main>
     </div>
   )

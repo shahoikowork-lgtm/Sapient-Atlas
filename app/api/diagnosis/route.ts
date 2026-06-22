@@ -4,6 +4,9 @@ import { IntakeSchema } from '@/lib/validation'
 import { generateResultToken } from '@/lib/tokens'
 import { runValueAssessment } from '@/lib/ai/value-assessment'
 import { runOpportunityRanking } from '@/lib/ai/opportunity-ranking'
+import { runConstraintMatch } from '@/lib/ai/constraint-match'
+import { classifyDecline } from '@/lib/atlas/decline-gate'
+import { getConstraint } from '@/lib/atlas/constraints'
 
 export const runtime = 'nodejs'
 
@@ -132,6 +135,39 @@ export async function POST(request: Request) {
       horizon_days: opp.prediction.horizon_days,
     })
     if (predErr) throw predErr
+
+    // 6. Constraint match + Decline Gate (Phase 2A). Best-effort: a failure here must not
+    // fail the diagnosis. Stored in existing cycle JSONB only (no schema change). Only an
+    // `accepted` result may sell a Sprint; everything else routes the user away.
+    try {
+      const classification = await runConstraintMatch(intake, {
+        observation: va.observation,
+        gaps: va.gaps,
+      })
+      const declineResult = classifyDecline(classification)
+      const matched = declineResult.matched_constraint_id
+        ? getConstraint(declineResult.matched_constraint_id)
+        : undefined
+      await admin
+        .from('cycles')
+        .update({
+          profile_snapshot: {
+            ...intake,
+            atlas: {
+              constraint_id: declineResult.matched_constraint_id,
+              decline_result: declineResult,
+              bar: matched ? matched.bar : null,
+              target_capability: matched ? matched.bar.definition : null,
+            },
+          },
+        })
+        .eq('id', cycleId)
+    } catch (matchErr) {
+      console.error(
+        '[diagnosis] constraint match failed:',
+        matchErr instanceof Error ? matchErr.message : matchErr,
+      )
+    }
 
     return NextResponse.json({ token })
   } catch (err) {
