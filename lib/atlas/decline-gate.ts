@@ -1,13 +1,20 @@
 import { z } from 'zod'
-import { getConstraint } from './constraints'
+import { getCatalogEntry } from './profession-map'
 
 /**
- * The Decline Gate — deterministic router (Phase 1, inert).
+ * The Decline Gate — deterministic router.
  *
- * Run-time companion to CONSTRAINT_DESIGN_MANUAL.md: it takes a classification of THIS
- * user's diagnosed problem (the four manual tests + scope) and routes to exactly one of
- * four decisions. Only `accepted` may sell a Sprint. Pure — no DB, no AI, no I/O. Nothing
- * in app/ imports this yet.
+ * Run-time companion to CONSTRAINT_DESIGN_MANUAL.md. It takes a classification of THIS
+ * user's diagnosed problem (the dominant constraint matched across the profession map + the
+ * four manual tests) and routes to one of five decisions:
+ *
+ *  - accepted             : matched an ACTIVE V1 constraint (M1 today) — the only sellable result.
+ *  - waitlist             : matched a KNOWN constraint that isn't active yet (early access).
+ *  - declined             : a refused category, or a failed manual gate test.
+ *  - needs_more_artifact  : the work sample is too thin to judge.
+ *  - out_of_scope         : capability-shaped, but nothing on the Atlas map matched.
+ *
+ * Pure — no DB, no AI, no I/O.
  */
 
 export const REFUSED_CATEGORIES = [
@@ -21,11 +28,18 @@ export const REFUSED_CATEGORIES = [
 ] as const
 export type RefusedCategory = (typeof REFUSED_CATEGORIES)[number]
 
-export type DeclineDecision = 'accepted' | 'declined' | 'needs_more_artifact' | 'out_of_scope'
+export type DeclineDecision =
+  | 'accepted'
+  | 'waitlist'
+  | 'declined'
+  | 'needs_more_artifact'
+  | 'out_of_scope'
 
-// What the diagnosis read produces about the user's specific problem (the AI's output).
+// What the diagnosis read produces about the user's specific problem (the matcher output).
 export const DeclineClassificationSchema = z.object({
-  matched_constraint_id: z.string().nullable(),
+  matched_code: z.string().nullable(), // a profession-map code (e.g. 'M1', 'D1') or null
+  matched_name: z.string().nullable(),
+  profession: z.string().nullable(),
   capability_shaped: z.boolean(), // Manual Test 1
   legible_bar: z.boolean(), // Manual Test 3
   reppable_on_real_work: z.boolean(), // Manual Test 4
@@ -41,7 +55,9 @@ export type DeclineResult = {
   user_explanation: string // user-facing, qualitative, mechanism-free
   internal_reason: string // logged for audit
   may_sell_sprint: boolean
-  matched_constraint_id: string | null
+  matched_code: string | null
+  matched_name: string | null
+  profession: string | null
 }
 
 const GATE_TESTS = [
@@ -63,13 +79,22 @@ const REFUSED_PHRASE: Record<RefusedCategory, string> = {
 
 /**
  * Route a classification to a decision. Precedence is deliberate and deterministic:
- *  1. an explicit refused category   -> declined (the honest "not a capability" answer)
- *  2. an insufficient artifact        -> needs_more_artifact
- *  3. any failed manual gate test     -> declined
- *  4. no active-V1 constraint matched -> out_of_scope
- *  5. otherwise                       -> accepted (the only result that may sell)
+ *  1. a refused category               -> declined
+ *  2. an insufficient artifact         -> needs_more_artifact
+ *  3. any failed manual gate test      -> declined
+ *  4. matched an active V1 (M1)        -> accepted (the only result that may sell)
+ *  5. matched a known map constraint   -> waitlist (early access)
+ *  6. nothing on the map matched       -> out_of_scope
  */
 export function classifyDecline(c: DeclineClassification): DeclineResult {
+  const entry = getCatalogEntry(c.matched_code)
+  // Prefer the catalog's authoritative name/profession; fall back to the matcher's.
+  const ids = {
+    matched_code: c.matched_code,
+    matched_name: entry?.name ?? c.matched_name,
+    profession: entry?.profession ?? c.profession,
+  }
+
   // 1. A refused category is the strongest, most honest signal — decline regardless.
   if (c.refused_category !== 'none') {
     return {
@@ -77,7 +102,7 @@ export function classifyDecline(c: DeclineClassification): DeclineResult {
       user_explanation: `This isn't something a 30-day sprint on your work can honestly move — it's more about ${REFUSED_PHRASE[c.refused_category]}. Here's the honest read, and what I'd actually suggest instead.`,
       internal_reason: `declined:${c.refused_category}`,
       may_sell_sprint: false,
-      matched_constraint_id: c.matched_constraint_id,
+      ...ids,
     }
   }
 
@@ -89,7 +114,7 @@ export function classifyDecline(c: DeclineClassification): DeclineResult {
         "I need to see a bit more of your real work to give you something honest — share one fuller piece and I'll take another look.",
       internal_reason: 'needs_more_artifact',
       may_sell_sprint: false,
-      matched_constraint_id: c.matched_constraint_id,
+      ...ids,
     }
   }
 
@@ -102,29 +127,43 @@ export function classifyDecline(c: DeclineClassification): DeclineResult {
         "This isn't something a 30-day sprint on your real work can honestly move yet. Here's the honest read of where you stand.",
       internal_reason: `declined:failed_gate(${failed.join(',')})`,
       may_sell_sprint: false,
-      matched_constraint_id: c.matched_constraint_id,
+      ...ids,
     }
   }
 
-  // 4. A valid capability constraint, but not one Atlas sells in V1 (unmatched or inactive).
-  const matched = c.matched_constraint_id ? getConstraint(c.matched_constraint_id) : undefined
-  if (!matched || !matched.active_v1) {
+  // 4. Matched an active V1 constraint (M1 today) — the only sellable result.
+  if (entry && entry.active_v1 && entry.code === 'M1') {
     return {
-      decision: 'out_of_scope',
-      user_explanation:
-        "This is a real, workable capability — just not one Atlas runs sprints for yet. I can show you where you stand; the sprint for this is coming.",
-      internal_reason: matched ? `out_of_scope:${matched.id}(inactive)` : 'out_of_scope:unmatched',
-      may_sell_sprint: false,
-      matched_constraint_id: matched ? matched.id : c.matched_constraint_id,
+      decision: 'accepted',
+      user_explanation: '',
+      internal_reason: `accepted:${entry.code}`,
+      may_sell_sprint: true,
+      matched_code: entry.code,
+      matched_name: entry.name,
+      profession: entry.profession,
     }
   }
 
-  // 5. Gate passed, artifact sufficient, matched to an active V1 constraint — sell the Sprint.
+  // 5. Matched a known constraint that isn't active yet — early access / waitlist.
+  if (entry) {
+    return {
+      decision: 'waitlist',
+      user_explanation: `We found the capability most limiting your growth right now: ${entry.name}. The sprint for it isn't open yet — you're on the early-access list, and we'll tell you the moment it opens.`,
+      internal_reason: `waitlist:${entry.code}`,
+      may_sell_sprint: false,
+      matched_code: entry.code,
+      matched_name: entry.name,
+      profession: entry.profession,
+    }
+  }
+
+  // 6. Capability-shaped, but nothing on the Atlas map matched.
   return {
-    decision: 'accepted',
-    user_explanation: '',
-    internal_reason: `accepted:${matched.id}`,
-    may_sell_sprint: true,
-    matched_constraint_id: matched.id,
+    decision: 'out_of_scope',
+    user_explanation:
+      "This looks like a real, workable capability — but it isn't one Atlas runs a sprint for yet. Here's where you stand.",
+    internal_reason: 'out_of_scope:unmatched',
+    may_sell_sprint: false,
+    ...ids,
   }
 }

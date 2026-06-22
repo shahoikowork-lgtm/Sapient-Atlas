@@ -5,11 +5,12 @@ import {
   type DeclineClassification,
   type DeclineResult,
 } from '@/lib/atlas/decline-gate'
-import { activeConstraints } from '@/lib/atlas/constraints'
 
 // A clean classification that matches the active V1 flagship (M1).
 const base: DeclineClassification = {
-  matched_constraint_id: 'marketer.generic_positioning',
+  matched_code: 'M1',
+  matched_name: 'Generic positioning',
+  profession: 'marketing',
   capability_shaped: true,
   legible_bar: true,
   reppable_on_real_work: true,
@@ -20,26 +21,41 @@ const base: DeclineClassification = {
 }
 
 describe('Decline Gate', () => {
-  it('accepts a clean match to the active flagship and may sell a Sprint', () => {
+  it('accepts a clean match to the active flagship (M1) and may sell', () => {
     const r = classifyDecline(base)
     expect(r.decision).toBe('accepted')
     expect(r.may_sell_sprint).toBe(true)
-    expect(r.matched_constraint_id).toBe('marketer.generic_positioning')
-    expect(r.internal_reason).toBe('accepted:marketer.generic_positioning')
+    expect(r.matched_code).toBe('M1')
+    expect(r.internal_reason).toBe('accepted:M1')
     expect(r.user_explanation).toBe('')
   })
 
-  it('declines a refused category (Decline Gate refusals)', () => {
+  it('waitlists a known-but-inactive marketing constraint (M2)', () => {
+    const r = classifyDecline({ ...base, matched_code: 'M2', matched_name: 'Activity reporting' })
+    expect(r.decision).toBe('waitlist')
+    expect(r.may_sell_sprint).toBe(false)
+    expect(r.internal_reason).toBe('waitlist:M2')
+    expect(r.matched_name).toBe('Activity reporting')
+    expect(r.user_explanation).toBeTruthy()
+  })
+
+  it('waitlists non-marketing constraints across the profession map', () => {
+    for (const code of ['D1', 'P1', 'SA1', 'E1', 'DA1', 'A1', 'F1', 'G1']) {
+      const r = classifyDecline({ ...base, matched_code: code })
+      expect(r.decision).toBe('waitlist')
+      expect(r.may_sell_sprint).toBe(false)
+    }
+  })
+
+  it('declines a refused category', () => {
     const r = classifyDecline({ ...base, refused_category: 'psychological' })
     expect(r.decision).toBe('declined')
-    expect(r.may_sell_sprint).toBe(false)
     expect(r.internal_reason).toBe('declined:psychological')
   })
 
   it('declines when a manual gate test fails', () => {
     const r = classifyDecline({ ...base, legible_bar: false })
     expect(r.decision).toBe('declined')
-    expect(r.may_sell_sprint).toBe(false)
     expect(r.internal_reason).toContain('failed_gate')
     expect(r.internal_reason).toContain('legible_bar')
   })
@@ -47,20 +63,17 @@ describe('Decline Gate', () => {
   it('asks for more artifact when the read is not confident', () => {
     const r = classifyDecline({ ...base, artifact_sufficient: false })
     expect(r.decision).toBe('needs_more_artifact')
-    expect(r.may_sell_sprint).toBe(false)
   })
 
-  it('returns out_of_scope for a matched but inactive constraint', () => {
-    const r = classifyDecline({ ...base, matched_constraint_id: 'founder.winning_narrative' })
-    expect(r.decision).toBe('out_of_scope')
-    expect(r.may_sell_sprint).toBe(false)
-    expect(r.internal_reason).toBe('out_of_scope:founder.winning_narrative(inactive)')
-  })
-
-  it('returns out_of_scope when nothing in the library matches', () => {
-    const r = classifyDecline({ ...base, matched_constraint_id: null })
+  it('returns out_of_scope when nothing on the map matched (null)', () => {
+    const r = classifyDecline({ ...base, matched_code: null })
     expect(r.decision).toBe('out_of_scope')
     expect(r.internal_reason).toBe('out_of_scope:unmatched')
+  })
+
+  it('returns out_of_scope for an unknown (off-map) code', () => {
+    const r = classifyDecline({ ...base, matched_code: 'ZZ9' })
+    expect(r.decision).toBe('out_of_scope')
   })
 
   it('treats a refused category as higher precedence than a thin artifact', () => {
@@ -72,29 +85,22 @@ describe('Decline Gate', () => {
   it('only the accepted decision may sell a Sprint', () => {
     const results: DeclineResult[] = [
       classifyDecline(base), // accepted
+      classifyDecline({ ...base, matched_code: 'M2' }), // waitlist
+      classifyDecline({ ...base, matched_code: 'D1' }), // waitlist
       classifyDecline({ ...base, refused_category: 'health' }), // declined
       classifyDecline({ ...base, thirty_day_movable: false }), // declined
       classifyDecline({ ...base, artifact_sufficient: false }), // needs_more_artifact
-      classifyDecline({ ...base, matched_constraint_id: null }), // out_of_scope
+      classifyDecline({ ...base, matched_code: null }), // out_of_scope
     ]
     for (const r of results) {
       expect(r.may_sell_sprint).toBe(r.decision === 'accepted')
     }
   })
 
-  it('resolves only the marketer flagship (M1) as sellable, so only M1 is accepted', () => {
-    expect(activeConstraints().map((c) => c.code)).toEqual(['M1'])
-    // Every other (admitted but inactive) constraint is out_of_scope, never accepted.
-    for (const id of [
-      'marketer.activity_reporting',
-      'founder.winning_narrative',
-      'product_manager.problem_framing',
-      'growth_operator.experiment_thinking',
-      'ai_operator.spec_clarity',
-    ]) {
-      const r = classifyDecline({ ...base, matched_constraint_id: id })
-      expect(r.decision).toBe('out_of_scope')
-      expect(r.may_sell_sprint).toBe(false)
+  it('only M1 is ever accepted; every other catalog code waitlists', () => {
+    for (const code of ['M2', 'M3', 'M4', 'M5', 'P1', 'D1', 'E1', 'DA1', 'G1', 'SA1', 'A1', 'F1']) {
+      const r = classifyDecline({ ...base, matched_code: code })
+      expect(r.decision).toBe('waitlist')
     }
   })
 

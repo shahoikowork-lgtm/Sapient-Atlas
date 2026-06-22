@@ -6,7 +6,7 @@ import { runValueAssessment } from '@/lib/ai/value-assessment'
 import { runOpportunityRanking } from '@/lib/ai/opportunity-ranking'
 import { runConstraintMatch } from '@/lib/ai/constraint-match'
 import { classifyDecline } from '@/lib/atlas/decline-gate'
-import { getConstraint } from '@/lib/atlas/constraints'
+import { getConstraintByCode } from '@/lib/atlas/constraints'
 
 export const runtime = 'nodejs'
 
@@ -136,28 +136,41 @@ export async function POST(request: Request) {
     })
     if (predErr) throw predErr
 
-    // 6. Constraint match + Decline Gate (Phase 2A). Best-effort: a failure here must not
-    // fail the diagnosis. Stored in existing cycle JSONB only (no schema change). Only an
-    // `accepted` result may sell a Sprint; everything else routes the user away.
+    // 6. Constraint match (across the profession map) + Decline Gate. Best-effort: a failure
+    // here must not fail the diagnosis. Stored in existing cycle JSONB only (no schema
+    // change). Only an `accepted` M1 result may sell a Sprint; known-but-inactive or
+    // non-marketing constraints route to `waitlist`; everything else routes the user away.
     try {
       const classification = await runConstraintMatch(intake, {
         observation: va.observation,
         gaps: va.gaps,
       })
       const declineResult = classifyDecline(classification)
-      const matched = declineResult.matched_constraint_id
-        ? getConstraint(declineResult.matched_constraint_id)
-        : undefined
+      // Authored bar/rep data exists only for the sellable (accepted/M1) constraint.
+      const authored =
+        declineResult.decision === 'accepted' && declineResult.matched_code
+          ? getConstraintByCode(declineResult.matched_code)
+          : undefined
       await admin
         .from('cycles')
         .update({
           profile_snapshot: {
             ...intake,
             atlas: {
-              constraint_id: declineResult.matched_constraint_id,
+              constraint_code: declineResult.matched_code,
+              constraint_name: declineResult.matched_name,
+              profession: declineResult.profession,
               decline_result: declineResult,
-              bar: matched ? matched.bar : null,
-              target_capability: matched ? matched.bar.definition : null,
+              bar: authored ? authored.bar : null,
+              target_capability: authored ? authored.bar.definition : null,
+              waitlist:
+                declineResult.decision === 'waitlist'
+                  ? {
+                      constraint_code: declineResult.matched_code,
+                      profession: declineResult.profession,
+                      joined_at: new Date().toISOString(),
+                    }
+                  : null,
             },
           },
         })

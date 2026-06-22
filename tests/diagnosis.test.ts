@@ -34,7 +34,9 @@ const h = vi.hoisted(() => ({
     },
   },
   cls: {
-    matched_constraint_id: 'marketer.generic_positioning',
+    matched_code: 'M1',
+    matched_name: 'Generic positioning',
+    profession: 'marketing',
     capability_shaped: true,
     legible_bar: true,
     reppable_on_real_work: true,
@@ -42,7 +44,7 @@ const h = vi.hoisted(() => ({
     artifact_sufficient: true,
     refused_category: 'none',
     rationale: 'Generic positioning is the dominant constraint.',
-  },
+  } as Record<string, unknown>,
 }))
 
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => h.store }))
@@ -61,6 +63,16 @@ const intake = {
     'Here is a real campaign brief I wrote last quarter, with budget, audience targeting, and a measurement plan.',
 }
 
+function post() {
+  return POST(
+    new Request('https://atlas.test/api/diagnosis', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(intake),
+    }),
+  )
+}
+
 beforeEach(() => {
   h.store = createFakeStore({
     users: [],
@@ -70,17 +82,24 @@ beforeEach(() => {
     moves: [],
     predictions: [],
   })
+  // Reset to the accepted-M1 classification so per-test overrides don't bleed.
+  h.cls = {
+    matched_code: 'M1',
+    matched_name: 'Generic positioning',
+    profession: 'marketing',
+    capability_shaped: true,
+    legible_bar: true,
+    reppable_on_real_work: true,
+    thirty_day_movable: true,
+    artifact_sufficient: true,
+    refused_category: 'none',
+    rationale: 'M1',
+  }
 })
 
 describe('diagnosis API', () => {
   it('creates user, diagnosis, cycle, value_assessment, move and prediction', async () => {
-    const req = new Request('https://atlas.test/api/diagnosis', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(intake),
-    })
-
-    const res = await POST(req)
+    const res = await post()
     expect(res.status).toBe(200)
     const json = (await res.json()) as { token: string }
     expect(typeof json.token).toBe('string')
@@ -117,7 +136,6 @@ describe('diagnosis API', () => {
     expect(s.rows('predictions')[0].move_id).toBe(s.rows('moves')[0].id)
     expect(s.rows('predictions')[0].pred_value_delta).toBe(12000)
 
-    // Everything is linked to the same user + cycle, and saved pending_review.
     const userId = s.rows('users')[0].id
     const cycleId = s.rows('cycles')[0].id
     expect(s.rows('value_assessments')[0].user_id).toBe(userId)
@@ -125,24 +143,35 @@ describe('diagnosis API', () => {
     expect(s.rows('moves')[0].cycle_id).toBe(cycleId)
   })
 
-  it('classifies the constraint and stores the Decline Gate result in the cycle JSONB', async () => {
-    const req = new Request('https://atlas.test/api/diagnosis', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(intake),
-    })
-    const res = await POST(req)
-    expect(res.status).toBe(200)
-
+  it('accepts M1 and stores a Decline result that enables the Sprint CTA', async () => {
+    await post()
     const s = h.store as FakeStore
     const atlas = s.rows('cycles')[0].profile_snapshot.atlas
-    expect(atlas.constraint_id).toBe('marketer.generic_positioning')
+    expect(atlas.constraint_code).toBe('M1')
+    expect(atlas.constraint_name).toBe('Generic positioning')
+    expect(atlas.profession).toBe('marketing')
     expect(atlas.decline_result.decision).toBe('accepted')
     expect(atlas.decline_result.may_sell_sprint).toBe(true)
     expect(atlas.bar).toBeTruthy()
     expect(typeof atlas.target_capability).toBe('string')
-
-    // The stored result drives the results-page eligibility.
+    expect(atlas.waitlist).toBeNull()
     expect(sprintEligibility(atlas).show_sprint_cta).toBe(true)
+  })
+
+  it('waitlists an inactive / non-marketing constraint with no Sprint CTA', async () => {
+    h.cls = { ...h.cls, matched_code: 'D1', matched_name: 'Decoration not decision', profession: 'design' }
+    await post()
+    const s = h.store as FakeStore
+    const atlas = s.rows('cycles')[0].profile_snapshot.atlas
+    expect(atlas.constraint_code).toBe('D1')
+    expect(atlas.decline_result.decision).toBe('waitlist')
+    expect(atlas.decline_result.may_sell_sprint).toBe(false)
+    expect(atlas.bar).toBeNull()
+    expect(atlas.waitlist).not.toBeNull()
+    expect(atlas.waitlist.constraint_code).toBe('D1')
+
+    const e = sprintEligibility(atlas)
+    expect(e.show_sprint_cta).toBe(false)
+    expect(e.mode).toBe('waitlist')
   })
 })

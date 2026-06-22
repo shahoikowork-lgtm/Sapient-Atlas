@@ -35,6 +35,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
     .maybeSingle()
   const atlas = (cycle?.profile_snapshot as { atlas?: AtlasCycleData } | null)?.atlas
   const eligibility = sprintEligibility(atlas)
+  const constraintName = atlas?.constraint_name ?? null
 
   // needs_more_artifact: ask for a fuller piece of work and show no Sprint CTA.
   if (eligibility.mode === 'needs_more_artifact') {
@@ -254,9 +255,21 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
           </details>
         ) : null}
 
-        {/* 7. CTA — gated by Sprint eligibility (Phase 2A). Only an accepted match sells. */}
+        {/* 7. CTA — gated by Sprint eligibility. Only an accepted (active V1 / M1) match sells.
+            waitlist = a known-but-not-yet-active constraint (early access, no checkout). */}
         {eligibility.show_sprint_cta ? (
           <UpgradeCta token={token} />
+        ) : eligibility.mode === 'waitlist' ? (
+          <section className="mt-8 rounded-2xl border border-accent/30 bg-accent-tint p-6">
+            <Eyebrow className="text-accent">Early access</Eyebrow>
+            <h2 className="mt-2 font-serif text-[20px] font-semibold tracking-tight text-accent-deep">
+              {constraintName ? `Your constraint: ${constraintName}` : 'Your constraint is identified'}
+            </h2>
+            <p className="mt-2 text-[15px] leading-relaxed text-accent-deep/85">{eligibility.explanation}</p>
+            <p className="mt-3 text-[13px] text-accent-deep/70">
+              We&apos;ll let you know the moment this Sprint opens. Keep this link.
+            </p>
+          </section>
         ) : eligibility.explanation ? (
           <section className="mt-8 rounded-2xl border border-hairline bg-surface p-6">
             <Eyebrow className="text-muted">Where this leaves you</Eyebrow>
