@@ -13,16 +13,7 @@ const AFTER = [
   'What to work on next',
 ]
 
-const PROFESSIONS = [
-  { who: 'Marketers', work: 'positioning, landing pages, campaigns, ads, SEO, email' },
-  { who: 'Product managers', work: 'PRDs, specs, roadmaps' },
-  { who: 'Designers', work: 'design docs, UX cases, flows' },
-  { who: 'Engineers', work: 'RFCs, technical design docs, pull requests' },
-  { who: 'Data analysts', work: 'dashboards, analyses, reports' },
-  { who: 'Growth operators', work: 'experiment docs, funnel breakdowns' },
-  { who: 'AI operators', work: 'prompts, workflows, evals' },
-  { who: 'Founders', work: 'pitch decks, strategy memos, narratives' },
-]
+const PROFESSIONS = ['Marketing', 'Product', 'Design', 'Engineering', 'Data', 'Growth', 'AI', 'Founders']
 
 const STEPS = [
   {
@@ -106,15 +97,13 @@ export default function Landing() {
         </p>
         <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
           {PROFESSIONS.map((p) => (
-            <div key={p.who} className="border-t border-hairline pt-3">
-              <div className="font-medium text-ink">{p.who}</div>
-              <div className="mt-0.5 text-sm text-muted">{p.work}</div>
+            <div key={p} className="border-t border-hairline pt-3">
+              <div className="font-medium text-ink">{p}</div>
             </div>
           ))}
         </div>
         <p className="mt-5 text-sm text-muted">
-          Marketing here covers every discipline: SEO, paid ads, content, product marketing, email, demand
-          generation, and growth marketing.
+          Documents, projects, campaigns, analyses, designs, specs, workflows, and other real work.
         </p>
       </Section>
 
