@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { trajectoryLabel, aiExposureLabel, humanizeDimension } from '@/lib/format'
-import { ButtonLink, Card, Eyebrow, Evidence } from '@/components/atlas'
+import { ButtonLink, Card, Eyebrow, Evidence, Reveal } from '@/components/atlas'
 import { sprintEligibility, type AtlasCycleData } from '@/lib/atlas/eligibility'
 import { UpgradeCta } from './upgrade-cta'
 
@@ -132,10 +132,10 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
           <section>
             <Eyebrow className="text-muted">What your work shows</Eyebrow>
             <div className="mt-6 flex flex-col gap-9">
-              {Object.entries(capabilities).map(([dim, c]) => {
+              {Object.entries(capabilities).map(([dim, c], i) => {
                 const targeted = !!targetDim && dim.toLowerCase() === targetDim
                 return (
-                  <div key={dim}>
+                  <Reveal as="div" key={dim} delay={Math.min(i * 0.05, 0.2)}>
                     <h2 className="font-serif text-[20px] font-semibold">{humanizeDimension(dim)}</h2>
                     {c.evidence ? (
                       <Evidence className="mt-3" quote={c.evidence} source="from your submitted work" />
@@ -145,7 +145,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
                         <span className="text-muted/70">What improves this: </span>your one move, below.
                       </p>
                     ) : null}
-                  </div>
+                  </Reveal>
                 )
               })}
             </div>
@@ -154,7 +154,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
 
         {/* 2. INTERPRETATION — the considered judgment, after the evidence. */}
         {va.observation ? (
-          <section className="mt-10 border-t border-hairline pt-8">
+          <Reveal as="section" className="mt-10 border-t border-hairline pt-8">
             <Eyebrow className="text-muted">The read</Eyebrow>
             <p className="mt-3 text-[16px] leading-relaxed text-ink/80">{va.observation}</p>
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -167,12 +167,12 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
                 </span>
               ) : null}
             </div>
-          </section>
+          </Reveal>
         ) : null}
 
         {/* 3. CONSTRAINTS — what's missing. */}
         {topGaps.length > 0 ? (
-          <section className="mt-10 border-t border-hairline pt-8">
+          <Reveal as="section" className="mt-10 border-t border-hairline pt-8">
             <h2 className="font-serif text-[20px] font-semibold tracking-tight">What&apos;s missing</h2>
             <ul className="mt-3 flex flex-col gap-2.5">
               {topGaps.map((g, i) => (
@@ -184,11 +184,11 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
                 </li>
               ))}
             </ul>
-          </section>
+          </Reveal>
         ) : null}
 
         {/* 4. THE ONE MOVE. */}
-        <section className="mt-8 rounded-2xl bg-focal p-6">
+        <Reveal as="section" className="mt-8 rounded-2xl bg-focal p-6 shadow-sm sm:p-8">
           <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-focal-soft">The one move</div>
           <h2 className="mt-2 font-serif text-[24px] font-semibold tracking-tight text-white">{move.title}</h2>
           {move.thesis ? <p className="mt-2 text-[15px] leading-relaxed text-white/85">{move.thesis}</p> : null}
@@ -210,7 +210,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
               <div className="mt-1 text-sm capitalize text-white/85">{move.confidence ?? 'unknown'}</div>
             </div>
           </div>
-        </section>
+        </Reveal>
 
         {/* 5. THE PREDICTION, logged and graded. */}
         {prediction && pcd ? (

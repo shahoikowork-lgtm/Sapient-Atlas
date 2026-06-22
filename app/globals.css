@@ -31,4 +31,49 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Offset in-page anchor jumps so a sticky header never hides the target. */
+  scroll-padding-top: 5rem;
+}
+
+/* Calm, on-brand text selection. */
+::selection {
+  background: var(--color-accent-tint);
+  color: var(--color-accent-deep);
+}
+
+/* Single, consistent focus ring across every interactive element. Visible only
+   for keyboard users; mouse clicks stay quiet. */
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Tabular figures keep any aligned numerals from shifting. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Respect reduced-motion everywhere: kill transitions, animations, smooth scroll,
+   and any transform-based micro-interaction. The single global guard the whole UI
+   (CSS hovers + framer-motion) relies on. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

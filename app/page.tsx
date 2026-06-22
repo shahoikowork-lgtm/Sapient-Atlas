@@ -1,4 +1,4 @@
-import { ButtonLink, Card, Eyebrow, Section } from '@/components/atlas'
+import { ButtonLink, Card, Eyebrow, Section, Reveal } from '@/components/atlas'
 
 export const metadata = {
   title: 'Sapient Atlas — The Art of Becoming Harder to Replace',
@@ -37,11 +37,11 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-paper text-ink">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-hairline bg-paper/80 backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-hairline bg-paper/80 backdrop-blur supports-[backdrop-filter]:bg-paper/70">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3.5">
           <span className="font-serif text-base font-semibold tracking-tight">Sapient Atlas</span>
-          <nav className="flex items-center gap-5 text-sm text-muted">
-            <a href="#how" className="hidden hover:text-ink sm:inline">How it works</a>
+          <nav className="flex items-center gap-6 text-sm text-muted">
+            <a href="#how" className="hidden text-muted transition-colors hover:text-ink sm:inline">How it works</a>
             <ButtonLink href="/diagnosis" size="md">Get your free diagnosis</ButtonLink>
           </nav>
         </div>
@@ -50,147 +50,170 @@ export default function Landing() {
       {/* Hero */}
       <section className="px-6 pt-20 pb-16 text-center sm:pt-28">
         <div className="mx-auto max-w-2xl">
-          <h1 className="mx-auto max-w-[20ch] font-serif text-[40px] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[52px]">
-            Find the one thing holding your work back.
-          </h1>
-          <p className="mx-auto mt-5 max-w-[56ch] text-[17px] leading-relaxed text-muted">
-            Upload a real piece of work. Atlas identifies the biggest thing slowing your growth, shows you
-            the evidence, and tells you whether we can help you fix it in 30 days.
-          </p>
-          <div className="mt-7 flex items-center justify-center gap-4">
-            <ButtonLink href="/diagnosis" size="lg">Get your free diagnosis</ButtonLink>
-            <a href="#how" className="text-sm text-muted hover:text-ink">See how it works</a>
-          </div>
-          <p className="mx-auto mt-6 max-w-[60ch] text-[15px] leading-relaxed text-muted">
-            Free for every digital professional. The first paid Sprint is open to marketers working on
-            positioning. Everyone else gets the diagnosis and early access.
-          </p>
-          <p className="mt-3 text-sm text-muted">
-            Free diagnosis. No account needed. We tell you if we can&apos;t help.
-          </p>
+          <Reveal>
+            <h1 className="mx-auto max-w-[20ch] font-serif text-[40px] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[52px]">
+              Find the one thing holding your work back.
+            </h1>
+          </Reveal>
+          <Reveal delay={0.06}>
+            <p className="mx-auto mt-5 max-w-[56ch] text-[17px] leading-relaxed text-muted">
+              Upload a real piece of work. Atlas identifies the biggest thing slowing your growth, shows you
+              the evidence, and tells you whether we can help you fix it in 30 days.
+            </p>
+          </Reveal>
+          <Reveal delay={0.12}>
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
+              <ButtonLink href="/diagnosis" size="lg">Get your free diagnosis</ButtonLink>
+              <a href="#how" className="text-sm text-muted underline-offset-4 transition-colors hover:text-ink hover:underline">See how it works</a>
+            </div>
+            <p className="mx-auto mt-6 max-w-[60ch] text-[15px] leading-relaxed text-muted">
+              Free for every digital professional. The first paid Sprint is open to marketers working on
+              positioning. Everyone else gets the diagnosis and early access.
+            </p>
+            <p className="mt-3 text-sm text-muted">
+              Free diagnosis. No account needed. We tell you if we can&apos;t help.
+            </p>
+          </Reveal>
         </div>
       </section>
 
       {/* After your diagnosis */}
       <Section className="border-t border-hairline bg-surface">
-        <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
-          After your diagnosis you&apos;ll know:
-        </h2>
-        <ul className="mt-5 flex flex-col gap-2.5">
-          {AFTER.map((a) => (
-            <li key={a} className="flex gap-2.5 text-[16px] leading-relaxed text-ink/80">
-              <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
-              <span>{a}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-5 text-[15px] text-muted">No score. No grade. A clear answer you can act on.</p>
+        <Reveal>
+          <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
+            After your diagnosis you&apos;ll know:
+          </h2>
+          <ul className="mt-5 flex flex-col gap-2.5">
+            {AFTER.map((a) => (
+              <li key={a} className="flex gap-2.5 text-[16px] leading-relaxed text-ink/80">
+                <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                <span>{a}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5 text-[15px] text-muted">No score. No grade. A clear answer you can act on.</p>
+        </Reveal>
       </Section>
 
       {/* Bring your real work */}
       <Section>
-        <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
-          Bring the work you already do.
-        </h2>
-        <p className="mt-3 text-[16px] leading-relaxed text-muted">
-          Atlas analyzes real, finished work. One piece is enough to start.
-        </p>
-        <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-          {PROFESSIONS.map((p) => (
-            <div key={p} className="border-t border-hairline pt-3">
-              <div className="font-medium text-ink">{p}</div>
-            </div>
-          ))}
-        </div>
-        <p className="mt-5 text-sm text-muted">
-          Documents, projects, campaigns, analyses, designs, specs, workflows, and other real work.
-        </p>
+        <Reveal>
+          <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
+            Bring the work you already do.
+          </h2>
+          <p className="mt-3 text-[16px] leading-relaxed text-muted">
+            Atlas analyzes real, finished work. One piece is enough to start.
+          </p>
+          <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-0 sm:grid-cols-2">
+            {PROFESSIONS.map((p) => (
+              <div
+                key={p}
+                className="group border-t border-hairline py-3 transition-colors hover:border-accent/40"
+              >
+                <div className="font-medium text-ink/80 transition-colors group-hover:text-ink">{p}</div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 text-sm text-muted">
+            Documents, projects, campaigns, analyses, designs, specs, workflows, and other real work.
+          </p>
+        </Reveal>
       </Section>
 
       {/* How it works */}
       <Section id="how" className="border-t border-hairline bg-surface">
         <Eyebrow className="text-muted">How it works</Eyebrow>
-        <div className="mt-5 flex flex-col gap-5">
-          {STEPS.map((s) => (
-            <div key={s.n} className="flex gap-4">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accent font-mono text-sm text-accent">
+        <div className="mt-6 flex flex-col gap-5">
+          {STEPS.map((s, i) => (
+            <Reveal as="div" key={s.n} delay={i * 0.06} className="group flex gap-4">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accent font-mono text-sm text-accent transition-colors group-hover:bg-accent group-hover:text-white">
                 {s.n}
               </span>
               <div>
                 <div className="font-serif text-[18px] font-semibold">{s.h}</div>
                 <p className="mt-1 text-[15px] leading-relaxed text-muted">{s.p}</p>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </Section>
 
       {/* The first Sprint */}
       <Section>
-        <Card className="p-6">
-          <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
-            The first Sprint is for marketers.
-          </h2>
-          <p className="mt-3 text-[16px] leading-relaxed text-ink/80">
-            One Sprint is open today: positioning. If your work sounds like your competitors&apos;, this is the
-            fix, whether you work in SEO, paid ads, content, product marketing, email, demand generation, or
-            growth marketing. Thirty days, on your own campaigns and pages. By the end, a real prospect can say
-            why you and not the other three. It is $149, once, with no subscription.
-          </p>
-          <div className="mt-5">
-            <ButtonLink href="/diagnosis" size="lg">Get your free diagnosis</ButtonLink>
-          </div>
-        </Card>
+        <Reveal>
+          <Card className="p-6 transition-shadow hover:shadow-sm sm:p-8">
+            <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
+              The first Sprint is for marketers.
+            </h2>
+            <p className="mt-3 text-[16px] leading-relaxed text-ink/80">
+              One Sprint is open today: positioning. If your work sounds like your competitors&apos;, this is the
+              fix, whether you work in SEO, paid ads, content, product marketing, email, demand generation, or
+              growth marketing. Thirty days, on your own campaigns and pages. By the end, a real prospect can say
+              why you and not the other three. It is $149, once, with no subscription.
+            </p>
+            <div className="mt-5">
+              <ButtonLink href="/diagnosis" size="lg">Get your free diagnosis</ButtonLink>
+            </div>
+          </Card>
+        </Reveal>
       </Section>
 
       {/* Everyone else */}
       <Section className="border-t border-hairline bg-surface">
-        <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
-          Everyone else starts with the diagnosis.
-        </h2>
-        <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
-          Product managers, designers, engineers, data analysts, growth and AI operators, founders. You can
-          get the same diagnosis today and see the biggest thing holding your work back, with the evidence. Your Sprint is not
-          open yet, so we will not sell you one. Tell us you want it and you will be first in line when it
-          opens.
-        </p>
+        <Reveal>
+          <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
+            Everyone else starts with the diagnosis.
+          </h2>
+          <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
+            Product managers, designers, engineers, data analysts, growth and AI operators, founders. You can
+            get the same diagnosis today and see the biggest thing holding your work back, with the evidence. Your Sprint is not
+            open yet, so we will not sell you one. Tell us you want it and you will be first in line when it
+            opens.
+          </p>
+        </Reveal>
       </Section>
 
       {/* Not a course */}
       <Section>
-        <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">No lessons. No videos.</h2>
-        <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
-          Atlas is not a course or a coaching program. There is nothing to watch and nothing to memorize. You
-          work on the thing that is actually holding you back, on your own work, until you can do it without
-          us.
-        </p>
+        <Reveal>
+          <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">No lessons. No videos.</h2>
+          <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
+            Atlas is not a course or a coaching program. There is nothing to watch and nothing to memorize. You
+            work on the thing that is actually holding you back, on your own work, until you can do it without
+            us.
+          </p>
+        </Reveal>
       </Section>
 
       {/* The honest part */}
       <Section className="border-t border-hairline bg-surface">
-        <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
-          We tell you when we can&apos;t help.
-        </h2>
-        <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
-          The diagnosis is free. When what&apos;s holding you back is something a 30-day Sprint cannot honestly move, we
-          say so, and we point you somewhere more useful. We would rather lose the sale than waste your month.
-        </p>
+        <Reveal>
+          <h2 className="font-serif text-[24px] font-semibold tracking-[-0.01em]">
+            We tell you when we can&apos;t help.
+          </h2>
+          <p className="mt-3 max-w-[64ch] text-[16px] leading-relaxed text-muted">
+            The diagnosis is free. When what&apos;s holding you back is something a 30-day Sprint cannot honestly move, we
+            say so, and we point you somewhere more useful. We would rather lose the sale than waste your month.
+          </p>
+        </Reveal>
       </Section>
 
       {/* Closing */}
       <Section className="border-t border-hairline text-center">
-        <h2 className="mx-auto max-w-[22ch] font-serif text-[28px] font-semibold tracking-[-0.01em]">
-          Start with the diagnosis.
-        </h2>
-        <p className="mt-3 text-[16px] leading-relaxed text-muted">
-          One real piece of work. A few minutes. The one thing holding it back.
-        </p>
-        <div className="mt-6 flex justify-center">
-          <ButtonLink href="/diagnosis" size="lg">Get your free diagnosis</ButtonLink>
-        </div>
-        <p className="mt-3 text-sm text-muted">
-          Your work stays private. We use it only to produce your diagnosis.
-        </p>
+        <Reveal>
+          <h2 className="mx-auto max-w-[22ch] font-serif text-[28px] font-semibold tracking-[-0.01em]">
+            Start with the diagnosis.
+          </h2>
+          <p className="mt-3 text-[16px] leading-relaxed text-muted">
+            One real piece of work. A few minutes. The one thing holding it back.
+          </p>
+          <div className="mt-6 flex justify-center">
+            <ButtonLink href="/diagnosis" size="lg">Get your free diagnosis</ButtonLink>
+          </div>
+          <p className="mt-3 text-sm text-muted">
+            Your work stays private. We use it only to produce your diagnosis.
+          </p>
+        </Reveal>
       </Section>
 
       {/* Footer */}
