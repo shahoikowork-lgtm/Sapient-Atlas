@@ -1,6 +1,8 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { runThirtyDayPlan } from '@/lib/ai/thirty-day-plan'
 import type { AppUser } from '@/lib/app-user'
+import { PHASES } from './ladder'
+import type { Phase } from './ladder'
 
 // Generate the 30-day plan once, lazily, for a paid (sprint/continuous) user on first
 // access to a plan-using page. Idempotent. Service role (writes). The page then reads
@@ -45,7 +47,7 @@ export async function ensureSprintPlan(user: AppUser): Promise<void> {
   }
 }
 
-type Milestone = { week?: number; title?: string; task?: string; success_criteria?: string }
+type Milestone = { week?: number; title?: string; task?: string; success_criteria?: string; phase?: string }
 type PlanRow = { weekly_milestones?: Milestone[] } | null
 type SubmissionRow = { week: number; status: string; graded_score?: number | null; feedback?: unknown }
 
@@ -54,6 +56,7 @@ export type Week = {
   title?: string
   task?: string
   success_criteria?: string
+  phase?: string
   submission: SubmissionRow | null
   state: 'todo' | 'pending' | 'done'
 }
@@ -70,7 +73,7 @@ export function deriveWeeks(plan: PlanRow, submissions: SubmissionRow[]): {
     const week = m.week ?? i + 1
     const sub = byWeek.get(week) ?? null
     const state: Week['state'] = !sub ? 'todo' : sub.status === 'reviewed' ? 'done' : 'pending'
-    return { week, title: m.title, task: m.task, success_criteria: m.success_criteria, submission: sub, state }
+    return { week, title: m.title, task: m.task, success_criteria: m.success_criteria, phase: m.phase, submission: sub, state }
   })
   const currentWeek = weeks.find((w) => w.state === 'todo')?.week ?? null
   return { weeks, currentWeek }
@@ -82,8 +85,9 @@ export function deriveWeeks(plan: PlanRow, submissions: SubmissionRow[]): {
 // deriveWeeks — each milestone is one mission, the submission (week-indexed) drives its
 // state. The data shape, the API, and progression logic are untouched.
 
-export const PHASES = ['SEE', 'CROSS', 'INDEPENDENCE', 'PROVE'] as const
-export type Phase = (typeof PHASES)[number]
+// Re-exported so existing consumers keep importing PHASES / Phase / M1_LADDER from here.
+export { PHASES, M1_LADDER } from './ladder'
+export type { Phase } from './ladder'
 
 export type Mission = {
   n: number // 1-based position
@@ -105,7 +109,11 @@ export function deriveMissions(plan: PlanRow, submissions: SubmissionRow[]): {
   const { weeks, currentWeek } = deriveWeeks(plan, submissions)
   const total = weeks.length
   const missions: Mission[] = weeks.map((w, i) => {
-    const phase = PHASES[Math.min(3, Math.floor((i * 4) / Math.max(1, total)))]
+    // Prefer the milestone's own phase (canonical M1 ladder); fall back to a proportional
+    // mapping for any legacy plan that predates the phase field.
+    const phase = (PHASES as readonly string[]).includes(w.phase ?? '')
+      ? (w.phase as Phase)
+      : PHASES[Math.min(3, Math.floor((i * 4) / Math.max(1, total)))]
     let state: Mission['state']
     if (w.state === 'done') state = 'done'
     else if (w.state === 'pending') state = 'review'
