@@ -66,17 +66,8 @@ export async function POST(request: Request) {
       userId = created.id
     }
 
-    // 2. diagnosis row + bearer token for the results page
-    const token = generateResultToken()
-    const { error: diagErr } = await admin.from('diagnoses').insert({
-      user_id: userId,
-      work_sample: intake.work_sample,
-      answers: intake,
-      result_token: token,
-    })
-    if (diagErr) throw diagErr
-
-    // 3. cycle row (the Outcome Graph log, snapshot the profile at decision time)
+    // 2. cycle row (the Outcome Graph log, snapshot the profile at decision time). Created
+    // before the diagnosis so the diagnosis links to its exact cycle (no created_at pairing).
     const { data: cycle, error: cycleErr } = await admin
       .from('cycles')
       .insert({ user_id: userId, profile_snapshot: intake, status: 'active' })
@@ -84,6 +75,17 @@ export async function POST(request: Request) {
       .single()
     if (cycleErr) throw cycleErr
     const cycleId = cycle.id
+
+    // 3. diagnosis row + bearer token for the results page, linked to the exact cycle above.
+    const token = generateResultToken()
+    const { error: diagErr } = await admin.from('diagnoses').insert({
+      user_id: userId,
+      cycle_id: cycleId,
+      work_sample: intake.work_sample,
+      answers: intake,
+      result_token: token,
+    })
+    if (diagErr) throw diagErr
 
     // 4. Value Assessment AI -> value_assessments (pending_review)
     const va = await runValueAssessment(intake)

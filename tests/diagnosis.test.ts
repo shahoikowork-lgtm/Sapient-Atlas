@@ -141,6 +141,8 @@ describe('diagnosis API', () => {
     expect(s.rows('value_assessments')[0].user_id).toBe(userId)
     expect(s.rows('value_assessments')[0].cycle_id).toBe(cycleId)
     expect(s.rows('moves')[0].cycle_id).toBe(cycleId)
+    // Exact attribution: the diagnosis links to the same cycle (set at creation, no pairing).
+    expect(s.rows('diagnoses')[0].cycle_id).toBe(cycleId)
   })
 
   it('accepts M1 and stores a Decline result that enables the Sprint CTA', async () => {
