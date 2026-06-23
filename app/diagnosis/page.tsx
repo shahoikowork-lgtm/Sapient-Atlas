@@ -50,6 +50,7 @@ export default function DiagnosisPage() {
   const [error, setError] = useState('')
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({})
   const step2Ref = useRef<HTMLDivElement>(null)
+  const workRef = useRef<HTMLTextAreaElement>(null)
 
   function set<K extends keyof Form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }))
@@ -60,10 +61,16 @@ export default function DiagnosisPage() {
   const wordCount = workReady ? form.work_sample.trim().split(/\s+/).length : 0
 
   function continueToStep2() {
-    if (!workReady) {
-      setErrors((e) => ({ ...e, work_sample: 'Paste one real piece of your work to continue.' }))
+    // Read the latest value straight from the field as a fallback, so an early paste,
+    // autofill, or a React state lag can never leave the user stuck on a dead button.
+    const live = workRef.current?.value ?? form.work_sample
+    if (live.trim().length === 0) {
+      setErrors((e) => ({ ...e, work_sample: 'Paste your work to continue.' }))
       return
     }
+    // Sync state if the field is ahead of React (e.g. text entered before hydration).
+    if (live !== form.work_sample) setForm((f) => ({ ...f, work_sample: live }))
+    setErrors((e) => (e.work_sample ? { ...e, work_sample: undefined } : e))
     setStep(2)
     requestAnimationFrame(() => step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
   }
@@ -154,6 +161,7 @@ export default function DiagnosisPage() {
               <span className="text-[11px] text-s-muted">required</span>
             </div>
             <textarea
+              ref={workRef}
               id="work_sample"
               name="work_sample"
               className={`mt-2.5 min-h-[220px] w-full resize-y rounded-lg border bg-s-bg px-3 py-2.5 font-mono text-[13px] leading-relaxed text-s-text outline-none transition-colors placeholder:text-s-muted/60 ${
@@ -185,7 +193,7 @@ export default function DiagnosisPage() {
 
           {step === 1 ? (
             <div className="flex items-center gap-4">
-              <Button type="button" size="lg" onClick={continueToStep2} disabled={!workReady}>
+              <Button type="button" size="lg" onClick={continueToStep2}>
                 Continue
               </Button>
               <span className="text-label text-s-muted">Then one or two quick details.</span>
