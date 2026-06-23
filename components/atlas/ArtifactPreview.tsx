@@ -23,7 +23,7 @@ export function ArtifactPreview({
           <span className="h-2 w-2 rounded-full bg-s-line-strong" />
         </span>
       </div>
-      <div className="space-y-2 p-4 font-mono text-[13px] leading-relaxed">
+      <div className="space-y-2 p-4 font-mono text-[12px] leading-relaxed break-words sm:text-[13px]">
         {lines.map((line, i) => {
           const hit = i === highlightIndex
           return (

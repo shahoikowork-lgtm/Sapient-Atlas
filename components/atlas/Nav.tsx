@@ -24,7 +24,7 @@ export function Nav({
           {signIn ? (
             <Link
               href="/login"
-              className="text-label text-s-muted underline-offset-4 transition-colors hover:text-s-text hover:underline"
+              className="hidden text-label text-s-muted underline-offset-4 transition-colors hover:text-s-text hover:underline sm:inline"
             >
               Sign in
             </Link>
