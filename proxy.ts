@@ -14,6 +14,11 @@ export async function proxy(request: NextRequest) {
   const { response, user } = await updateSession(request)
   const { pathname } = request.nextUrl
 
+  // Signed-in users have no reason to see /login → send them to their dashboard.
+  if (pathname === '/login' && user) {
+    return NextResponse.redirect(new URL('/app', request.url))
+  }
+
   // Protect /app — must be signed in.
   if (pathname.startsWith('/app') && !user) {
     return NextResponse.redirect(new URL('/login', request.url))
