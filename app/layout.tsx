@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
 
@@ -24,6 +24,7 @@ const DESCRIPTION =
   "Show Atlas a real piece of your work. It finds the single thing holding it back, shows you the evidence, and tells you whether a 30-day Sprint can fix it.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://sapientatlas.com"),
   title: TITLE,
   description: DESCRIPTION,
   openGraph: {
@@ -32,6 +33,11 @@ export const metadata: Metadata = {
     siteName: "Sapient Atlas",
     type: "website",
   },
+};
+
+// Tints the mobile browser UI to the brand indigo (instrument register).
+export const viewport: Viewport = {
+  themeColor: "#1e2950",
 };
 
 export default function RootLayout({

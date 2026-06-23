@@ -1,0 +1,4 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sapient Atlas">
+  <rect width="256" height="256" rx="56" fill="#1e2950"/>
+  <path d="M128 44 Q142 114 212 128 Q142 142 128 212 Q114 142 44 128 Q114 114 128 44 Z" fill="#f4f3ee"/>
+</svg>
