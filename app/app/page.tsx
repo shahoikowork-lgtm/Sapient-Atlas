@@ -1,137 +1,81 @@
 import Link from 'next/link'
 import { getAppUser } from '@/lib/app-user'
 import { getWorkspace } from '@/lib/app-data'
-import { trajectoryLabel, humanizeDimension } from '@/lib/format'
+import { ensureSprintPlan, deriveMissions } from '@/lib/sprint'
+import { Eyebrow, MissionCard, PhaseDots } from '@/components/atlas'
 
 export const dynamic = 'force-dynamic'
 
-const STATUS_LABEL: Record<string, string> = {
-  lead: 'Lead',
-  diagnosed: 'Diagnosed',
-  sprint: 'Value Sprint',
-  continuous: 'Continuous',
-  lapsed: 'Lapsed',
-  cancelled: 'Cancelled',
-}
-
-export default async function DashboardPage() {
+export default async function NowPage() {
   const user = await getAppUser()
-  const { assessment, move, prediction, subscription } = await getWorkspace()
-  const pcd = prediction?.pred_capability_delta as
-    | { dimension: string; from: number; to: number }
-    | undefined
+  if (user) await ensureSprintPlan(user) // idempotent; first-open only (skeleton covers the wait)
+  const { assessment, move, plan, submissions } = await getWorkspace()
+  const { missions, current, cleared, total } = deriveMissions(plan, submissions)
+
+  const reviewing = !current && missions.some((m) => m.state === 'review')
+  const complete = total > 0 && cleared === total
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="text-xs uppercase tracking-wide text-black/40">Your workspace</div>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">{user?.name || 'Welcome back'}</h1>
-        </div>
-        <span className="rounded-full bg-black px-3 py-1 text-xs font-medium text-white">
-          {STATUS_LABEL[user?.status ?? ''] ?? user?.status}
-        </span>
-      </div>
+    <div>
+      <Eyebrow>Now</Eyebrow>
+      <h1 className="mt-2 text-h1 text-s-text">{user?.name || 'Welcome back'}</h1>
 
-      {/* Capability read */}
-      <section className="mt-8 rounded-2xl border border-black/10 p-6">
-        <div className="text-xs uppercase tracking-wide text-black/40">Capability read</div>
-        {assessment ? (
-          <>
-            {assessment.observation ? (
-              <p className="mt-2 text-[15px] leading-relaxed text-black/75">{assessment.observation}</p>
-            ) : null}
-            <div className="mt-2 text-sm text-black/50">
-              Confidence <strong>{assessment.confidence}</strong> · capability trajectory{' '}
-              <strong>{trajectoryLabel(assessment.trajectory)}</strong>
-            </div>
-          </>
-        ) : (
-          <p className="mt-2 text-sm text-black/50">Your capability read is being prepared. Check back shortly.</p>
-        )}
-      </section>
-
-      {/* The one move + prediction */}
-      <section className="mt-4 rounded-2xl bg-black p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div className="text-xs uppercase tracking-wide text-white/50">Your move this sprint</div>
-          {move ? (
-            <Link href="/app/move" className="text-xs text-white/70 underline underline-offset-4 hover:text-white">
-              Open
-            </Link>
-          ) : null}
-        </div>
-        {move ? (
-          <>
-            <h2 className="mt-2 text-lg font-semibold tracking-tight">{move.title}</h2>
-            {move.thesis ? <p className="mt-2 text-sm leading-relaxed text-white/70">{move.thesis}</p> : null}
-            {prediction && pcd ? (
-              <div className="mt-4 border-t border-white/10 pt-3 text-xs text-white/60">
-                30-day prediction: stronger evidence of <span className="text-white/80">{humanizeDimension(pcd.dimension)}</span>
-              </div>
-            ) : null}
-          </>
-        ) : (
-          <p className="mt-2 text-sm text-white/70">Your move appears here once your diagnosis is approved.</p>
-        )}
-      </section>
-
-      {/* Monthly re-rating */}
-      {assessment?.cycle_id ? (
-        <section className="mt-4 rounded-2xl border border-black/10 p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <div className="text-xs uppercase tracking-wide text-black/40">Monthly re-rating</div>
-              <p className="mt-2 text-sm text-black/60">
-                See how your capability moved this sprint, and your next move.
-              </p>
-            </div>
-            <Link href={`/app/rerating/${assessment.cycle_id}`} className="shrink-0 text-xs underline underline-offset-4">
-              Open
-            </Link>
-          </div>
-        </section>
+      {move ? (
+        <p className="mt-2 text-label text-s-muted">Your Sprint · {move.title}</p>
       ) : null}
 
-      {/* Next action + progress placeholder */}
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <section className="rounded-2xl border border-black/10 p-6">
-          <div className="text-xs uppercase tracking-wide text-black/40">Next action</div>
-          <p className="mt-2 text-sm leading-relaxed text-black/70">
-            Start executing your move on real work this week. Weekly check-ins and feedback open as your
-            sprint progresses.
-          </p>
-        </section>
-        <section className="rounded-2xl border border-black/10 p-6">
-          <div className="text-xs uppercase tracking-wide text-black/40">Proof / progress</div>
-          <p className="mt-2 text-sm leading-relaxed text-black/50">
-            Your before/after proof collects here as you complete work.{' '}
-            <Link href="/app/progress" className="underline underline-offset-4">View progress</Link>
-          </p>
-        </section>
-      </div>
-
-      {/* Billing */}
-      <section className="mt-4 rounded-2xl border border-black/10 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-black/40">Billing</div>
-            <p className="mt-2 text-sm text-black/70">
-              {subscription ? (
-                <>
-                  Plan: <strong className="capitalize">{subscription.type}</strong> ·{' '}
-                  <span className="capitalize">{subscription.status}</span>
-                </>
-              ) : (
-                'No active plan.'
-              )}
+      <div className="mt-7">
+        {!move ? (
+          <div className="rounded-3xl border border-s-line bg-s-panel p-7">
+            <div className="font-mono text-eyebrow uppercase text-s-accent">Getting ready</div>
+            <h2 className="mt-2 text-h3 text-s-text">Your read is being prepared.</h2>
+            <p className="mt-2 text-body text-s-text-2">
+              A person is reviewing your diagnosis. Your first mission opens here once it&apos;s confirmed.
             </p>
           </div>
-          <Link href="/app/settings" className="text-xs underline underline-offset-4">
-            Settings
+        ) : current ? (
+          <MissionCard mission={current} />
+        ) : reviewing ? (
+          <div className="rounded-3xl border border-s-line bg-s-panel p-7">
+            <div className="font-mono text-eyebrow uppercase text-s-accent">In review</div>
+            <h2 className="mt-2 text-h3 text-s-text">Your work is being checked.</h2>
+            <p className="mt-2 text-body text-s-text-2">
+              A person is reviewing what you submitted. The next mission opens the moment it&apos;s confirmed.
+            </p>
+          </div>
+        ) : complete ? (
+          <div className="rounded-3xl bg-focal p-7 shadow-focal ring-1 ring-inset ring-white/[0.06]">
+            <div className="font-mono text-eyebrow uppercase text-focal-soft">Sprint complete</div>
+            <h2 className="mt-2 text-h2 text-on-focal">Every mission cleared.</h2>
+            <p className="mt-2 text-body text-on-focal-dim">
+              Next: your re-rating shows what moved, and your next constraint.
+            </p>
+            {assessment?.cycle_id ? (
+              <Link
+                href={`/app/rerating/${assessment.cycle_id}`}
+                className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-on-focal px-5 py-2.5 text-sm font-medium text-focal"
+              >
+                See your re-rating →
+              </Link>
+            ) : null}
+          </div>
+        ) : (
+          <div className="rounded-3xl border border-s-line bg-s-panel p-7">
+            <div className="font-mono text-eyebrow uppercase text-s-accent">Building your path</div>
+            <h2 className="mt-2 text-h3 text-s-text">Preparing your missions…</h2>
+            <p className="mt-2 text-body text-s-text-2">This takes a moment. Refresh shortly.</p>
+          </div>
+        )}
+      </div>
+
+      {missions.length > 0 ? (
+        <div className="mt-6 flex flex-col gap-3">
+          <PhaseDots missions={missions} />
+          <Link href="/app/move" className="text-label text-s-muted underline-offset-4 hover:text-s-text hover:underline">
+            Mission {current?.n ?? cleared} of {total} · {cleared} cleared · see the full path →
           </Link>
         </div>
-      </section>
+      ) : null}
     </div>
   )
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+// Submits the mission's real work. Contract unchanged: POST /api/submissions {week, artifact_text}.
 export function CheckinForm({ week }: { week: number }) {
   const router = useRouter()
   const [text, setText] = useState('')
@@ -22,6 +23,7 @@ export function CheckinForm({ week }: { week: number }) {
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'Submit failed')
       setText('')
+      router.push('/app')
       router.refresh()
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Something went wrong')
@@ -29,25 +31,49 @@ export function CheckinForm({ week }: { week: number }) {
     }
   }
 
+  const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0
+  const submitting = status === 'submitting'
+
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
+      <label htmlFor="mission-work" className="font-mono text-eyebrow uppercase text-s-accent">
+        Your work
+      </label>
       <textarea
+        id="mission-work"
         value={text}
         onChange={(e) => setText(e.target.value)}
         required
-        placeholder="Paste or describe the real work you did this week toward the milestone."
-        className="min-h-[160px] rounded-lg border border-black/15 px-3 py-2 text-sm outline-none transition focus:border-black/40"
+        placeholder="Paste the real work you did for this mission."
+        className="min-h-[180px] resize-y rounded-lg border border-s-line bg-s-panel px-3 py-2.5 text-sm text-s-text outline-none transition-colors placeholder:text-s-muted/60 hover:border-s-line-strong focus:border-s-accent focus:ring-2 focus:ring-s-accent/20"
       />
-      <div className="rounded-lg border border-dashed border-black/15 px-3 py-2 text-xs text-black/40">
-        Attach a work sample (file upload coming soon)
+      <div className="flex items-center justify-between">
+        {err ? (
+          <p role="alert" className="text-[12.5px] text-s-danger">{err}</p>
+        ) : (
+          <span className="text-[11px] text-s-muted">Your work stays private.</span>
+        )}
+        <span className="text-[11px] text-s-muted tabular">
+          {wordCount > 0 ? `${wordCount} word${wordCount === 1 ? '' : 's'}` : ''}
+        </span>
       </div>
-      {err ? <p className="text-sm text-red-600">{err}</p> : null}
       <button
         type="submit"
-        disabled={status === 'submitting'}
-        className="self-start rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-black/85 disabled:opacity-60"
+        disabled={submitting || !text.trim()}
+        aria-busy={submitting || undefined}
+        className="inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-lg bg-s-accent px-5 py-2.5 text-sm font-medium text-s-accent-contrast transition-all duration-200 ease-out hover:-translate-y-px active:translate-y-0 disabled:opacity-60 disabled:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-s-accent/40"
       >
-        {status === 'submitting' ? 'Submitting… (~15s)' : 'Submit this week'}
+        {submitting ? (
+          <>
+            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+              <path className="opacity-90" d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+            Sending for review…
+          </>
+        ) : (
+          'Submit mission'
+        )}
       </button>
     </form>
   )

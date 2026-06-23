@@ -1,6 +1,8 @@
+import Link from 'next/link'
 import { getAppUser } from '@/lib/app-user'
 import { getWorkspace } from '@/lib/app-data'
 import { openBillingPortal } from './actions'
+import { Eyebrow } from '@/components/atlas'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,7 +14,7 @@ const STATUS_LABEL: Record<string, string> = {
   trialing: 'Trialing',
 }
 
-export default async function SettingsPage({
+export default async function YouPage({
   searchParams,
 }: {
   searchParams: Promise<{ portal?: string }>
@@ -23,23 +25,36 @@ export default async function SettingsPage({
   const hasCustomer = !!subscription?.stripe_customer_id
 
   return (
-    <div className="mx-auto w-full max-w-xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+    <div>
+      <Eyebrow>You</Eyebrow>
+      <h1 className="mt-2 text-h2 text-s-text">Account</h1>
 
-      <section className="mt-6 rounded-2xl border border-black/10 p-6">
-        <div className="text-xs uppercase tracking-wide text-black/40">Account</div>
-        <div className="mt-2 text-sm">{user?.email}</div>
+      <section className="mt-6 rounded-2xl border border-s-line bg-s-panel p-6">
+        <div className="font-mono text-eyebrow uppercase text-s-muted">Email</div>
+        <div className="mt-2 text-sm text-s-text">{user?.email}</div>
       </section>
 
-      <section className="mt-4 rounded-2xl border border-black/10 p-6">
-        <div className="text-xs uppercase tracking-wide text-black/40">Subscription</div>
+      <section className="mt-4 rounded-2xl border border-s-line bg-s-panel p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="font-mono text-eyebrow uppercase text-s-muted">Diagnoses</div>
+            <p className="mt-2 text-sm text-s-text-2">Your submitted work and where each read stands.</p>
+          </div>
+          <Link href="/app/diagnoses" className="shrink-0 text-label text-s-accent hover:underline underline-offset-4">
+            View →
+          </Link>
+        </div>
+      </section>
+
+      <section className="mt-4 rounded-2xl border border-s-line bg-s-panel p-6">
+        <div className="font-mono text-eyebrow uppercase text-s-muted">Plan</div>
         {subscription ? (
-          <div className="mt-2 text-sm">
+          <div className="mt-2 text-sm text-s-text">
             <span className="font-medium capitalize">{subscription.type}</span> ·{' '}
             {STATUS_LABEL[subscription.status] ?? subscription.status}
           </div>
         ) : (
-          <div className="mt-2 text-sm text-black/50">No active subscription.</div>
+          <div className="mt-2 text-sm text-s-text-2">No active plan.</div>
         )}
 
         <div className="mt-4">
@@ -47,19 +62,18 @@ export default async function SettingsPage({
             <form action={openBillingPortal}>
               <button
                 type="submit"
-                className="rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white hover:bg-black/85"
+                className="inline-flex min-h-11 items-center rounded-lg bg-s-accent px-4 py-2.5 text-sm font-medium text-s-accent-contrast transition-all duration-200 ease-out hover:-translate-y-px active:translate-y-0"
               >
                 Open billing portal
               </button>
             </form>
           ) : (
-            <p className="text-sm text-black/50">
-              Your Value Sprint is a one-time payment, so there is no recurring billing to manage. The
-              billing portal becomes available with a Continuous subscription.
+            <p className="text-sm text-s-text-2">
+              Your Value Sprint is a one-time payment, so there is no recurring billing to manage.
             </p>
           )}
           {sp.portal === 'none' ? (
-            <p className="mt-2 text-xs text-black/40">No billing account to open yet.</p>
+            <p className="mt-2 text-xs text-s-muted">No billing account to open yet.</p>
           ) : null}
         </div>
       </section>

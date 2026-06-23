@@ -1,14 +1,8 @@
-import Link from 'next/link'
+import { AppNav } from './app-nav'
 
-const NAV = [
-  { href: '/app', label: 'Dashboard' },
-  { href: '/app/diagnoses', label: 'Diagnoses' },
-  { href: '/app/move', label: 'Current Move' },
-  { href: '/app/checkin', label: 'Weekly Check-in' },
-  { href: '/app/progress', label: 'Progress' },
-  { href: '/app/settings', label: 'Settings' },
-] as const
-
+// The authenticated app runs in the dark "instrument" register so it reads as one product
+// with the results page. Desktop: fixed left rail + offset content. Mobile: bottom tab bar
+// with content padded to clear it.
 export function AppShell({
   children,
   email,
@@ -17,25 +11,11 @@ export function AppShell({
   email?: string | null
 }) {
   return (
-    <div className="grid min-h-screen grid-cols-[220px_1fr]">
-      <aside className="flex flex-col gap-6 border-r border-black/10 p-4">
-        <div className="font-semibold">Sapient Atlas</div>
-        <nav className="flex flex-col gap-1 text-sm">
-          {NAV.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="rounded-md px-2 py-1.5 text-black/60 hover:bg-black/5 hover:text-black"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-        {email ? (
-          <div className="mt-auto truncate text-xs text-black/40">{email}</div>
-        ) : null}
-      </aside>
-      <main className="p-6">{children}</main>
+    <div className="instrument min-h-screen bg-s-bg text-s-text">
+      <AppNav email={email} />
+      <main className="md:ml-[200px]">
+        <div className="mx-auto w-full max-w-3xl px-5 pb-24 pt-8 md:px-8 md:pb-12">{children}</div>
+      </main>
     </div>
   )
 }

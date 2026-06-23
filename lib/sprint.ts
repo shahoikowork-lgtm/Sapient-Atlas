@@ -75,3 +75,47 @@ export function deriveWeeks(plan: PlanRow, submissions: SubmissionRow[]): {
   const currentWeek = weeks.find((w) => w.state === 'todo')?.week ?? null
   return { weeks, currentWeek }
 }
+
+// ── Mission presentation layer (no logic change) ───────────────────────────────
+// The Sprint is shown to the user as an ordered ladder of missions grouped into the
+// four ATLAS phases. This is a pure projection of the same plan + submissions used by
+// deriveWeeks — each milestone is one mission, the submission (week-indexed) drives its
+// state. The data shape, the API, and progression logic are untouched.
+
+export const PHASES = ['SEE', 'CROSS', 'INDEPENDENCE', 'PROVE'] as const
+export type Phase = (typeof PHASES)[number]
+
+export type Mission = {
+  n: number // 1-based position
+  total: number
+  week: number // the submission key — identical to the milestone's week
+  title?: string
+  task?: string
+  successCriteria?: string
+  phase: Phase
+  state: 'done' | 'review' | 'current' | 'locked'
+}
+
+export function deriveMissions(plan: PlanRow, submissions: SubmissionRow[]): {
+  missions: Mission[]
+  current: Mission | null
+  cleared: number
+  total: number
+} {
+  const { weeks, currentWeek } = deriveWeeks(plan, submissions)
+  const total = weeks.length
+  const missions: Mission[] = weeks.map((w, i) => {
+    const phase = PHASES[Math.min(3, Math.floor((i * 4) / Math.max(1, total)))]
+    let state: Mission['state']
+    if (w.state === 'done') state = 'done'
+    else if (w.state === 'pending') state = 'review'
+    else state = w.week === currentWeek ? 'current' : 'locked'
+    return { n: i + 1, total, week: w.week, title: w.title, task: w.task, successCriteria: w.success_criteria, phase, state }
+  })
+  return {
+    missions,
+    current: missions.find((m) => m.state === 'current') ?? null,
+    cleared: missions.filter((m) => m.state === 'done').length,
+    total,
+  }
+}

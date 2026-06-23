@@ -7,51 +7,29 @@ import { createClient } from '@/lib/supabase/server'
 export const getWorkspace = cache(async () => {
   const supabase = await createClient()
 
-  const { data: assessment } = await supabase
-    .from('value_assessments')
-    .select('*')
-    .eq('status', 'approved')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  const { data: move } = await supabase
-    .from('moves')
-    .select('*')
-    .in('status', ['approved', 'active', 'completed'])
-    .order('assigned_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+  // Independent reads run in parallel (same RLS-scoped queries, same shapes — only the
+  // sequencing changed). prediction depends on move, so it runs on the next tick.
+  const [
+    { data: assessment },
+    { data: move },
+    { data: subscription },
+    { data: valueHistory },
+    { data: plan },
+    { data: submissions },
+  ] = await Promise.all([
+    supabase.from('value_assessments').select('*').eq('status', 'approved').order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('moves').select('*').in('status', ['approved', 'active', 'completed']).order('assigned_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('subscriptions').select('*').order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('value_history').select('*').order('date', { ascending: true }),
+    supabase.from('plans').select('*').order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('submissions').select('*').order('week', { ascending: true }),
+  ])
 
   let prediction = null
   if (move) {
     const { data } = await supabase.from('predictions').select('*').eq('move_id', move.id).maybeSingle()
     prediction = data
   }
-
-  const { data: subscription } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  const { data: valueHistory } = await supabase
-    .from('value_history')
-    .select('*')
-    .order('date', { ascending: true })
-
-  const { data: plan } = await supabase
-    .from('plans')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  const { data: submissions } = await supabase
-    .from('submissions')
-    .select('*')
-    .order('week', { ascending: true })
 
   return {
     assessment,
