@@ -4,6 +4,7 @@ import { getWorkspace } from '@/lib/app-data'
 import { openBillingPortal } from './actions'
 import { Eyebrow } from '@/components/atlas'
 import { isAdmin } from '@/lib/auth'
+import { SignOutButton } from './sign-out-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -95,6 +96,11 @@ export default async function YouPage({
           ) : null}
         </div>
       </section>
+
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-s-muted">Signed in as {user?.email}</p>
+        <SignOutButton />
+      </div>
     </div>
   )
 }
