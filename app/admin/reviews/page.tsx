@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getAllDiagnoses, DIAGNOSIS_STATUS_LABEL } from '@/lib/diagnoses'
 import { humanizeDimension } from '@/lib/format'
+import { DeleteDiagnosisButton } from './delete-button'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -68,12 +69,15 @@ export default async function AdminReviewsPage() {
                     </a>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/admin/reviews/${r.id}`}
-                      className="whitespace-nowrap rounded-md border border-black/15 px-2.5 py-1 text-xs hover:bg-black/5"
-                    >
-                      Open
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/admin/reviews/${r.id}`}
+                        className="whitespace-nowrap rounded-md border border-black/15 px-2.5 py-1 text-xs hover:bg-black/5"
+                      >
+                        Open
+                      </Link>
+                      <DeleteDiagnosisButton diagnosisId={r.id} email={r.email} />
+                    </div>
                   </td>
                 </tr>
               ))}
