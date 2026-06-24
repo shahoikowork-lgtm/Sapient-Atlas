@@ -3,9 +3,11 @@
 import { motion, useReducedMotion } from 'framer-motion'
 
 // The hero signature: the swap test, made literal. A scan reads your headline; the same line
-// stamps onto three competitors and nothing breaks; the verdict seals with weight. The
-// end-state is legible immediately and reduced-motion renders it whole. Content is
-// illustrative of the mechanic (labeled on the page), never a real user or testimonial.
+// drops onto three rival sites and nothing breaks; the verdict seals. The repetition is the
+// point (one line that fits every competitor is generic), so it is labeled as a test and each
+// row reads as a distinct site, never duplicated placeholder text. End-state legible
+// immediately; reduced-motion renders it whole. Illustrative of the mechanic (labeled),
+// never a real company, user, or testimonial.
 const EASE = [0.22, 1, 0.36, 1] as const
 const EMPHASIS = [0.65, 0, 0.35, 1] as const
 
@@ -43,11 +45,13 @@ export function SwapTest({
         </p>
       </div>
 
-      {/* the swap test: the same line stamps onto three rivals' sites, nothing breaks */}
+      {/* the swap test: the same line dropped onto three rival sites. The label + the per-row
+          site dot make the intentional repetition unmistakable, not a placeholder bug. */}
       <div className="px-4 py-4">
-        <div className="px-1 font-mono text-eyebrow uppercase tracking-[0.14em] text-s-muted">
-          Paste it onto their sites
-        </div>
+        <div className="px-1 font-mono text-eyebrow uppercase tracking-[0.14em] text-s-muted">The swap test</div>
+        <p className="mt-1.5 px-1 text-[12.5px] leading-snug text-s-text-2">
+          The same line, dropped onto a rival’s site. Nothing breaks.
+        </p>
         <div className="mt-3 flex flex-col gap-1.5">
           {sites.map((site, i) => (
             <motion.div
@@ -55,13 +59,14 @@ export function SwapTest({
               initial={reduce ? false : { opacity: 0, scale: 1.04, y: -4 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.32, ease: EMPHASIS, delay: reduce ? 0 : 0.32 + i * 0.1 }}
-              className="flex items-center gap-3 rounded-lg border border-s-line px-3 py-2.5"
+              className="flex items-center gap-2.5 rounded-lg border border-s-line px-3 py-2.5"
             >
-              <span className="w-24 shrink-0 truncate font-mono text-[11px] text-s-muted">{site}</span>
-              <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-s-text-2">“{line}”</span>
-              <span className="shrink-0 font-mono text-[10px] uppercase tracking-wide text-s-muted">
-                nothing breaks
+              <span className="flex shrink-0 items-center gap-1.5 font-mono text-[11px] text-s-muted">
+                <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-s-line-strong" />
+                <span className="whitespace-nowrap">{site}</span>
               </span>
+              <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-s-text-2">“{line}”</span>
+              <span className="shrink-0 font-mono text-[10px] uppercase tracking-wide text-s-muted">fits</span>
             </motion.div>
           ))}
         </div>

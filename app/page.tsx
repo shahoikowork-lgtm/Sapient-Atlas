@@ -94,7 +94,7 @@ export default function Landing() {
       <FocalSection>
         <div className="mx-auto max-w-4xl px-6 py-24 sm:py-32">
           <Eyebrow>The Sprint</Eyebrow>
-          <h2 className="mt-4 max-w-[18ch] text-display text-s-text">Thirty days. The bar rises every week.</h2>
+          <h2 className="mt-4 max-w-[18ch] text-display text-s-text">30 days. The bar rises every week.</h2>
           <p className="mt-6 max-w-[52ch] text-body-lg text-s-text-2">
             Reps on your own real work, each one harder than the last, until you can do, unaided, what you can’t do
             today.
