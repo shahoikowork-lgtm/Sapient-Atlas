@@ -191,6 +191,13 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Full-page dark surfaces (/app, /diagnosis, /results — whose direct body child is the
+   .instrument root) paint the body dark, so the macOS overscroll/rubber-band reveals dark,
+   not the paper canvas. The homepage (its paper wrapper is the direct child) is unaffected. */
+body:has(> .instrument) {
+  background-color: #0b0c13;
+}
+
 /* Subtle global film grain — material richness, no asset request. */
 body::after {
   content: "";
@@ -206,6 +213,8 @@ body::after {
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+  /* No rubber-band overscroll revealing the paper canvas at the page edges. */
+  overscroll-behavior: none;
 }
 
 ::selection {
