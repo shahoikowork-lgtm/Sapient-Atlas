@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { Button } from '@/components/atlas/Button'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -56,34 +57,36 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6">
       <div>
-        <h1 className="text-xl font-semibold">Sign in to Sapient Atlas</h1>
-        <p className="mt-1 text-sm text-black/60">
+        <h1 className="text-h2 text-ink">Sign in to Sapient Atlas</h1>
+        <p className="mt-2 text-body text-text-secondary">
           Continue with Google, or get a magic link by email.
         </p>
       </div>
 
       {/* Primary: Continue with Google */}
-      <button
+      <Button
+        variant="secondary"
         type="button"
+        size="lg"
         onClick={continueWithGoogle}
         disabled={googleBusy}
-        className="flex w-full items-center justify-center gap-2.5 rounded-md border border-black/15 bg-white px-3 py-2.5 text-sm font-medium text-black transition-colors hover:bg-black/[0.03] disabled:opacity-50"
+        className="w-full gap-2.5"
       >
         <GoogleIcon />
         {googleBusy ? 'Redirecting…' : 'Continue with Google'}
-      </button>
+      </Button>
 
       {/* Divider */}
-      <div className="flex items-center gap-3 text-xs text-black/40">
-        <span className="h-px flex-1 bg-black/10" />
+      <div className="flex items-center gap-3 text-label text-muted">
+        <span className="h-px flex-1 bg-hairline" />
         or continue with email
-        <span className="h-px flex-1 bg-black/10" />
+        <span className="h-px flex-1 bg-hairline" />
       </div>
 
       {/* Fallback: email magic link */}
       {status === 'sent' ? (
-        <p className="text-sm">
-          Check your inbox, we sent a sign-in link to <strong>{email}</strong>.
+        <p className="text-body text-text-secondary">
+          Check your inbox, we sent a sign-in link to <strong className="text-ink">{email}</strong>.
         </p>
       ) : (
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
@@ -93,19 +96,15 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@company.com"
-            className="rounded-md border border-black/15 px-3 py-2 text-sm outline-none focus:border-black/40"
+            className="rounded-lg border border-hairline bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-muted/60 hover:border-hairline-strong focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
-          <button
-            type="submit"
-            disabled={status === 'sending'}
-            className="rounded-md bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-          >
+          <Button variant="primary" type="submit" size="lg" disabled={status === 'sending'} className="w-full">
             {status === 'sending' ? 'Sending…' : 'Send magic link'}
-          </button>
+          </Button>
         </form>
       )}
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-label text-danger">{error}</p> : null}
     </main>
   )
 }

@@ -11,8 +11,8 @@ const base =
   'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 ease-out will-change-transform hover:-translate-y-px active:translate-y-0 active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none disabled:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-s-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-s-bg'
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-s-accent text-s-accent-contrast hover:bg-s-accent-strong shadow-sm hover:shadow-s',
-  secondary: 'border border-s-line bg-s-panel text-s-text hover:bg-s-sunken hover:border-s-line-strong',
+  primary: 'bg-s-accent text-s-accent-contrast hover:bg-s-accent-strong shadow-btn hover:shadow-btn-hover',
+  secondary: 'border border-s-line bg-s-panel text-s-text shadow-btn hover:bg-s-sunken hover:border-s-line-strong hover:shadow-btn-hover',
   ghost: 'text-s-accent hover:text-s-accent-strong hover:translate-y-0',
 }
 

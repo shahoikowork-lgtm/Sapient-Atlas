@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Button, Eyebrow, Field, AnalysisState } from '@/components/atlas'
@@ -51,6 +51,20 @@ export default function DiagnosisPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({})
   const step2Ref = useRef<HTMLDivElement>(null)
   const workRef = useRef<HTMLTextAreaElement>(null)
+
+  // Prefill the work from an inline homepage entry, if present. Purely additive: a direct
+  // visit (no stored value) behaves exactly as before, and the submit contract is unchanged.
+  useEffect(() => {
+    try {
+      const v = sessionStorage.getItem('atlas_work_sample')
+      if (v) {
+        setForm((f) => ({ ...f, work_sample: v }))
+        sessionStorage.removeItem('atlas_work_sample')
+      }
+    } catch {
+      // sessionStorage unavailable (private mode); ignore and collect the work normally.
+    }
+  }, [])
 
   function set<K extends keyof Form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }))

@@ -7,7 +7,7 @@ const tones: Record<Tone, string> = {
   sunken: 'bg-s-sunken',
 }
 
-// Hairline card, surface-aware. Calm radius, no shadow by default.
+// Surface-aware card. Calm radius, gentle layered depth; interactive cards lift on hover.
 export function Card({
   tone = 'surface',
   interactive = false,
@@ -15,11 +15,11 @@ export function Card({
   ...props
 }: { tone?: Tone; interactive?: boolean } & ComponentProps<'div'>) {
   const hover = interactive
-    ? 'transition-all duration-200 ease-out hover:border-s-line-strong hover:shadow-s'
+    ? 'transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-s-line-strong hover:shadow-lifted'
     : ''
   return (
     <div
-      className={`rounded-2xl border border-s-line ${tones[tone]} p-6 ${hover} ${className}`}
+      className={`rounded-2xl border border-s-line ${tones[tone]} p-6 shadow-s ${hover} ${className}`}
       {...props}
     />
   )

@@ -17,11 +17,7 @@ export function ArtifactPreview({
     <div className={`overflow-hidden rounded-2xl border border-s-line bg-s-panel shadow-s ${className}`}>
       <div className="flex items-center justify-between border-b border-s-line px-4 py-2.5">
         <span className="font-mono text-eyebrow uppercase text-s-muted">{kind}</span>
-        <span className="flex gap-1.5" aria-hidden="true">
-          <span className="h-2 w-2 rounded-full bg-s-line-strong" />
-          <span className="h-2 w-2 rounded-full bg-s-line-strong" />
-          <span className="h-2 w-2 rounded-full bg-s-line-strong" />
-        </span>
+        <span className="h-1.5 w-1.5 rounded-full bg-s-accent/70" aria-hidden="true" />
       </div>
       <div className="space-y-2 p-4 font-mono text-[12px] leading-relaxed break-words sm:text-[13px]">
         {lines.map((line, i) => {

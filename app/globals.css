@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f4ee;
+  --foreground: #1b1a16;
 }
 
 @theme inline {
@@ -10,64 +10,64 @@
   --color-foreground: var(--foreground);
 
   /* ── Sapient Atlas tokens (presentation only) ───────────────────────────
-     Warm paper + deep indigo. Semantic, calm, high-trust.
-     Family roles: sans = the Atlas voice (UI + headlines); serif = the human
-     voice (the user's own work, Evidence only); mono = labels. */
+     Warm paper + a luminous, owned indigo. Two registers, one product. Family
+     roles: sans = the Atlas voice (UI + headlines); serif = the human voice
+     (the user's own work, Evidence); mono = the instrument readout (labels). */
 
   /* Surfaces */
-  --color-paper: #f8f7f2;          /* page background — brand asset */
-  --color-surface: #ffffff;        /* cards */
-  --color-surface-sunken: #f1efe8; /* wells / insets */
-  --color-focal: #161a2c;          /* the "one move" card — emotional peak */
-  --color-focal-raised: #1d2236;   /* nested blocks on focal */
+  --color-paper: #f6f4ee;          /* page background — brand asset */
+  --color-surface: #fdfcfa;        /* cards (a warm white, not stark) */
+  --color-surface-sunken: #efece4; /* wells / insets */
+  --color-focal: #14172b;          /* the "one move" card — emotional peak */
+  --color-focal-raised: #1d2138;   /* nested blocks on focal */
 
   /* Text (three steps — no ad-hoc opacity on text) */
-  --color-ink: #1a1a17;            /* text-primary */
-  --color-text-secondary: #565049; /* supporting text (AA on paper) */
-  --color-muted: #645f54;          /* text-tertiary / meta (darkened for AA) */
+  --color-ink: #1b1a16;            /* text-primary */
+  --color-text-secondary: #56514a; /* supporting text (AA on paper) */
+  --color-muted: #6a6458;          /* text-tertiary / meta (AA) */
   --color-on-focal: #ffffff;
   --color-on-focal-dim: #b9bdd0;
 
-  /* Lines */
-  --color-hairline: #e6e3d9;
-  --color-hairline-strong: #d8d4c8;
+  /* Lines (softer, premium — borders recede) */
+  --color-hairline: #e8e4d9;
+  --color-hairline-strong: #dbd6ca;
 
-  /* Accent (single brand accent) */
-  --color-accent: #2b3a67;
-  --color-accent-deep: #1e2950;
-  --color-accent-hover: #1e2950;
-  --color-accent-tint: #eceef6;
+  /* Accent — a luminous, owned indigo (retires the flat navy) */
+  --color-accent: #3a3fd0;
+  --color-accent-deep: #2d31b0;
+  --color-accent-hover: #2d31b0;
+  --color-accent-tint: #ecedfb;
 
   /* Functional (always paired with a word/icon; never a grade) */
-  --color-grow: #2e5e47;           /* trajectory: improving */
+  --color-grow: #2e6a4d;           /* trajectory: improving */
   --color-focal-soft: #9aa0c0;     /* mono labels on focal */
   --color-danger: #b4322a;
   --color-danger-tint: #f7eceb;
 
   /* Families */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-hanken);
+  --font-mono: var(--font-plex-mono);
   --font-serif: var(--font-newsreader);
 
   /* Type scale (modular ≈1.25). Paired line-height / tracking / weight. */
   --text-display: clamp(2.5rem, 6vw, 3.5rem);
-  --text-display--line-height: 1.05;
-  --text-display--letter-spacing: -0.025em;
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.028em;
   --text-display--font-weight: 600;
 
   --text-h1: 2.0625rem;
   --text-h1--line-height: 1.1;
-  --text-h1--letter-spacing: -0.02em;
+  --text-h1--letter-spacing: -0.022em;
   --text-h1--font-weight: 600;
 
   --text-h2: 1.625rem;
   --text-h2--line-height: 1.15;
-  --text-h2--letter-spacing: -0.015em;
+  --text-h2--letter-spacing: -0.016em;
   --text-h2--font-weight: 600;
 
   --text-h3: 1.3125rem;
   --text-h3--line-height: 1.25;
-  --text-h3--letter-spacing: -0.01em;
+  --text-h3--letter-spacing: -0.012em;
   --text-h3--font-weight: 600;
 
   --text-body-lg: 1.125rem;
@@ -88,9 +88,9 @@
   --text-evidence: clamp(1.1875rem, 2.2vw, 1.375rem);
   --text-evidence--line-height: 1.5;
 
-  /* Elevation (restrained, border-led; no glow, no glass) */
-  --shadow-raised: 0 1px 2px rgb(26 26 23 / 0.04), 0 6px 16px rgb(26 26 23 / 0.05);
-  --shadow-focal: 0 1px 2px rgb(20 22 36 / 0.10), 0 12px 32px rgb(20 22 36 / 0.18);
+  /* Elevation — layered, warm-tinted, with a designed light source */
+  --shadow-raised: 0 1px 2px rgb(30 27 20 / 0.04), 0 4px 10px rgb(30 27 20 / 0.05), 0 16px 32px rgb(30 27 20 / 0.05);
+  --shadow-focal: 0 2px 8px rgb(12 14 26 / 0.14), 0 24px 60px rgb(12 14 26 / 0.28);
 
   /* Motion */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
@@ -99,56 +99,83 @@
 /* ── Surface-aware register ────────────────────────────────────────────────
    A non-inline @theme so each utility references var(--color-s-*); the
    `.instrument` class below overrides those variables at runtime, flipping the
-   shared component vocabulary into the dark register. Defaults here are
-   byte-identical to the warm-paper tokens, so every paper surface is unchanged. */
+   shared component vocabulary into the dark register. Paper defaults here mirror
+   the warm-paper tokens above. */
 @theme {
-  --color-s-bg: #f8f7f2;
-  --color-s-panel: #ffffff;
-  --color-s-sunken: #f1efe8;
-  --color-s-line: #e6e3d9;
-  --color-s-line-strong: #d8d4c8;
-  --color-s-text: #1a1a17;
-  --color-s-text-2: #565049;
-  --color-s-muted: #645f54;
-  --color-s-accent: #2b3a67;
-  --color-s-accent-strong: #1e2950;
-  --color-s-accent-tint: #eceef6;
+  --color-s-bg: #f6f4ee;
+  --color-s-panel: #fdfcfa;
+  --color-s-sunken: #efece4;
+  --color-s-line: #e8e4d9;
+  --color-s-line-strong: #dbd6ca;
+  --color-s-text: #1b1a16;
+  --color-s-text-2: #56514a;
+  --color-s-muted: #6a6458;
+  --color-s-accent: #3a3fd0;
+  --color-s-accent-strong: #2d31b0;
+  --color-s-accent-tint: #ecedfb;
   --color-s-accent-contrast: #ffffff;
-  --color-s-grow: #2e5e47;
+  --color-s-grow: #2e6a4d;
   --color-s-danger: #b4322a;
   --color-s-danger-tint: #f7eceb;
-  --shadow-s: 0 1px 2px rgb(26 26 23 / 0.04), 0 6px 16px rgb(26 26 23 / 0.05);
+
+  /* Layered elevation + dimensional controls (register-neutral highlights) */
+  --shadow-s: 0 1px 2px rgb(30 27 20 / 0.04), 0 4px 10px rgb(30 27 20 / 0.05), 0 16px 32px rgb(30 27 20 / 0.05);
+  --shadow-lifted: 0 2px 4px rgb(30 27 20 / 0.05), 0 10px 24px rgb(30 27 20 / 0.07), 0 28px 56px rgb(30 27 20 / 0.08);
+  --shadow-btn: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 1px 2px rgb(0 0 0 / 0.16), 0 4px 12px rgb(0 0 0 / 0.12);
+  --shadow-btn-hover: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 2px 5px rgb(0 0 0 / 0.18), 0 10px 24px rgb(0 0 0 / 0.18);
 }
 
-/* The dark "instrument" register — diagnosis + results, and the homepage focal
-   climax. Cool near-black with an indigo undertone; warm-white text echoes the
-   paper so the two registers read as one product, not two sites. */
+/* The dark "instrument" register — diagnosis + results + app, and the homepage
+   focal climax. A deep, cool near-black with an indigo undertone and a faint
+   atmospheric glow; warm-white text echoes the paper so the two registers read
+   as one product. Dark surfaces gain a top-edge highlight (lifted glass). */
 .instrument {
-  --color-s-bg: #0f1118;
-  --color-s-panel: #171a26;
-  --color-s-sunken: #14161f;
-  --color-s-line: #272c3d;
-  --color-s-line-strong: #3a4159;
-  --color-s-text: #f4f3ee;
-  --color-s-text-2: #c3c6d4;
-  --color-s-muted: #8b90a6;
-  --color-s-accent: #aab4f0;
-  --color-s-accent-strong: #c8cdf8;
-  --color-s-accent-tint: rgba(150, 162, 228, 0.14);
-  --color-s-accent-contrast: #11131c;
+  --color-s-bg: #0b0c13;
+  --color-s-panel: #161a28;
+  --color-s-sunken: #0f1119;
+  --color-s-line: #262b3c;
+  --color-s-line-strong: #39405a;
+  --color-s-text: #f3f2ec;
+  --color-s-text-2: #c2c5d4;
+  --color-s-muted: #888da3;
+  --color-s-accent: #aab2ff;
+  --color-s-accent-strong: #c9cdff;
+  --color-s-accent-tint: rgba(150, 160, 235, 0.16);
+  --color-s-accent-contrast: #0d0f18;
   --color-s-grow: #76c79b;
   --color-s-danger: #f0a9a2;
-  --color-s-danger-tint: rgba(180, 50, 42, 0.18);
-  --shadow-s: 0 1px 2px rgb(0 0 0 / 0.4), 0 18px 44px rgb(0 0 0 / 0.5);
+  --color-s-danger-tint: rgba(180, 50, 42, 0.20);
+  --shadow-s: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 28px rgb(0 0 0 / 0.45), 0 30px 60px rgb(0 0 0 / 0.4);
+  --shadow-lifted: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 2px 4px rgb(0 0 0 / 0.45), 0 18px 40px rgb(0 0 0 / 0.5), 0 40px 80px rgb(0 0 0 / 0.45);
+
+  /* atmosphere: a faint indigo glow from the top, composited over bg-s-bg */
+  background-image: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--color-s-accent) 9%, transparent), transparent 60%);
+}
+
+/* Atmospheric glow for the warm-paper hero (very faint accent light). */
+.atmos-paper {
+  background-image: radial-gradient(70% 48% at 50% -6%, color-mix(in srgb, var(--color-accent) 7%, transparent), transparent 60%);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* Subtle global film grain — material richness, no asset request. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
 }
 
 html {
