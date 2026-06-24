@@ -3,6 +3,7 @@ import { getAppUser } from '@/lib/app-user'
 import { getWorkspace } from '@/lib/app-data'
 import { openBillingPortal } from './actions'
 import { Eyebrow } from '@/components/atlas'
+import { isAdmin } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,6 +24,7 @@ export default async function YouPage({
   const user = await getAppUser()
   const { subscription } = await getWorkspace()
   const hasCustomer = !!subscription?.stripe_customer_id
+  const admin = isAdmin(user?.email)
 
   return (
     <div>
@@ -33,6 +35,22 @@ export default async function YouPage({
         <div className="font-mono text-eyebrow uppercase text-s-muted">Email</div>
         <div className="mt-2 text-sm text-s-text">{user?.email}</div>
       </section>
+
+      {admin ? (
+        <section className="mt-4 rounded-2xl border border-s-line bg-s-panel p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-mono text-eyebrow uppercase text-s-muted">Admin</div>
+              <p className="mt-2 text-sm text-s-text-2">
+                Review queue: approve diagnoses and moves before they reach users.
+              </p>
+            </div>
+            <Link href="/admin/reviews" className="shrink-0 text-label text-s-accent hover:underline underline-offset-4">
+              Open →
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       <section className="mt-4 rounded-2xl border border-s-line bg-s-panel p-6">
         <div className="flex items-center justify-between">
