@@ -41,16 +41,17 @@ export default function Landing() {
     <div className="min-h-screen overflow-x-hidden bg-paper text-ink">
       <Nav />
 
-      {/* 1 — HERO: the swap test. The product performs before a word of pitch. */}
+      {/* 1 — HERO: the split, then the swap test. The product performs before a word of pitch. */}
       <section className="atmos-paper px-6 pt-16 pb-20 sm:pt-24">
         <div className="mx-auto grid max-w-5xl items-center gap-12 lg:grid-cols-[5fr_6fr] lg:gap-16">
           <div>
             <Eyebrow tone="muted">The Art of Becoming Harder to Replace</Eyebrow>
             <h1 className="mt-5 max-w-[15ch] text-display text-ink">
-              Find the one thing between you and your next level.
+              Most work is becoming replaceable. Make sure yours isn’t.
             </h1>
             <p className="mt-5 max-w-[44ch] text-body-lg text-text-secondary">
-              Show Atlas a real piece of your work. It finds the one thing holding it back, in your own words.
+              Show Atlas one real piece of your work. It finds the one capability keeping you replaceable, in your own
+              words.
             </p>
             <div className="mt-7">
               <ButtonLink href="/diagnosis" size="lg">
@@ -68,18 +69,19 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* 2 — TENSION: why this matters now. One statement, set plainly. */}
+      {/* 2 — STAKES: the conviction and the clock. One statement, set plainly. */}
       <Section size="md" width="reading" className="border-t border-hairline">
         <p className="max-w-[36ch] font-serif text-[clamp(1.5rem,3.4vw,2rem)] leading-[1.3] tracking-[-0.01em] text-ink">
-          As more of the work gets automated, your edge is the judgment a tool can’t copy. Atlas finds where yours is
-          thin, and helps you close it on your real work.
+          Every year, more of what you do becomes something a tool does for free. The professionals who stay valuable
+          aren’t the ones who use AI. They’re the ones who can do what it can’t, and prove it. That line is being drawn
+          now.
         </p>
       </Section>
 
-      {/* 3 — THE READ: scroll-pinned demonstration of how the constraint is found. */}
+      {/* 3 — THE DIAGNOSIS: scroll-pinned demonstration of how the constraint is found. */}
       <Section size="md" width="product" className="border-t border-hairline bg-surface">
-        <Eyebrow tone="muted">How it works</Eyebrow>
-        <h2 className="mt-3 max-w-[20ch] text-h1 text-ink">Your work, read the way a sharp outside eye would.</h2>
+        <Eyebrow tone="muted">The diagnosis</Eyebrow>
+        <h2 className="mt-3 max-w-[20ch] text-h1 text-ink">Your work, read the way a sharp outside buyer would.</h2>
         <div className="mt-10">
           <ScrollStage demo={DEMO} />
         </div>
@@ -91,7 +93,8 @@ export default function Landing() {
           <Eyebrow>The Sprint</Eyebrow>
           <h2 className="mt-4 max-w-[18ch] text-display text-s-text">Thirty days. The bar rises every week.</h2>
           <p className="mt-6 max-w-[52ch] text-body-lg text-s-text-2">
-            Not a course. Not advice. Nine missions on your own work, escalating until you can do it without us.
+            Reps on your own real work, each one harder than the last, until you can do, unaided, what you can’t do
+            today.
           </p>
           <div className="mt-12">
             <SprintLadderPreview />
@@ -102,9 +105,10 @@ export default function Landing() {
       {/* 5 — THE PROOF: reality validates it; you keep the before/after. */}
       <Section size="md" width="reading" className="border-t border-hairline">
         <Eyebrow tone="muted">The proof</Eyebrow>
-        <h2 className="mt-3 max-w-[22ch] text-h1 text-ink">You prove it on fresh work.</h2>
+        <h2 className="mt-3 max-w-[22ch] text-h1 text-ink">A real buyer recognizes you. Unprompted.</h2>
         <p className="mt-3 max-w-[52ch] text-body text-text-secondary">
-          A real prospect, colleague, or client confirms it. You keep the before and the after.
+          Atlas doesn’t grant the proof. Reality does, a prospect, a colleague, a client. You keep the before and the
+          after, and the words to show it.
         </p>
         <div className="mt-8">
           <BeforeAfter
@@ -116,22 +120,24 @@ export default function Landing() {
         <p className="mt-4 text-label text-muted">An illustration. Your proof is built on your own work.</p>
       </Section>
 
-      {/* 6 — WHO IT'S FOR: we read your field's real work. */}
+      {/* 6 — NOT FOR EVERYONE: selectivity, the decline gate as the standard. */}
       <Section size="md" width="reading" className="border-t border-hairline bg-surface">
-        <Eyebrow tone="muted">Who it’s for</Eyebrow>
-        <h2 className="mt-3 max-w-[24ch] text-h1 text-ink">Working digital professionals.</h2>
+        <Eyebrow tone="muted">Not for everyone</Eyebrow>
+        <h2 className="mt-3 max-w-[24ch] text-h1 text-ink">Atlas isn’t for everyone.</h2>
         <p className="mt-3 max-w-[50ch] text-body text-text-secondary">
-          Atlas reads the real, finished work you already produce.
+          If the thing holding you back isn’t a capability we can move in 30 days, we’ll tell you, and we won’t sell you
+          a Sprint. We’d rather decline you than waste your month. For the ones we can help, it starts with your real
+          work.
         </p>
         <div className="mt-7">
           <ProfessionSelector />
         </div>
       </Section>
 
-      {/* 7 — CLOSE: one strong final CTA, the work pasted inline. */}
+      {/* 7 — CLOSE: who you become, then one strong final CTA, the work pasted inline. */}
       <Section size="lg" width="reading" className="border-t border-hairline text-center">
         <p className="mx-auto max-w-[30ch] font-serif text-[clamp(1.5rem,3.4vw,2.1rem)] leading-[1.25] tracking-[-0.01em] text-ink">
-          You don’t get a certificate. You get harder to replace, and the proof to show it.
+          You don’t get a certificate. You become someone they can’t replace, with the proof to show it.
         </p>
         <div className="mt-10">
           <DiagnosisEntry />
