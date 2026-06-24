@@ -153,7 +153,7 @@ export default function DiagnosisPage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-6 py-14">
+      <main className="atlas-enter mx-auto w-full max-w-2xl px-6 py-14">
         <Eyebrow>See what you can’t see yourself</Eyebrow>
         <h1 className="mt-3 text-h1 text-s-text">Show Atlas one real piece of your work.</h1>
         <p className="mt-3 text-body text-s-text-2">

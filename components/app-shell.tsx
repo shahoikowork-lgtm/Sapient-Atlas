@@ -14,7 +14,7 @@ export function AppShell({
     <div className="instrument min-h-screen bg-s-bg text-s-text">
       <AppNav email={email} />
       <main className="md:ml-[200px]">
-        <div className="mx-auto w-full max-w-3xl px-5 pb-24 pt-8 md:px-8 md:pb-12">{children}</div>
+        <div className="atlas-enter mx-auto w-full max-w-3xl px-5 pb-24 pt-8 md:px-8 md:pb-12">{children}</div>
       </main>
     </div>
   )
