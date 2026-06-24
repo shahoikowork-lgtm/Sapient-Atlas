@@ -40,7 +40,7 @@ export function Nav({
           {signIn ? (
             <Link
               href="/login"
-              className="link-underline hidden text-label text-s-muted transition-colors hover:text-s-text sm:inline"
+              className="link-underline text-label text-s-muted transition-colors hover:text-s-text"
             >
               Sign in
             </Link>
