@@ -39,7 +39,7 @@ const DEMO: ReadDemo = {
 
 export default function Landing() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-paper text-ink">
+    <div className="min-h-screen overflow-x-clip bg-paper text-ink">
       <Nav />
 
       {/* 1 — HERO: the split, then the swap test. The product performs before a word of pitch. */}
