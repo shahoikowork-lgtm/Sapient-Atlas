@@ -8,7 +8,7 @@ type Size = 'md' | 'lg'
 // Restrained micro-interaction: a near-imperceptible lift on hover, a settle on press.
 // Duration-scoped, so the global prefers-reduced-motion guard neutralizes it on opt-out.
 const base =
-  'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 ease-out will-change-transform hover:-translate-y-px active:translate-y-0 active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none disabled:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-s-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-s-bg'
+  'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 ease-[var(--ease-instrument)] will-change-transform hover:-translate-y-px active:translate-y-0 active:scale-[0.97] disabled:opacity-60 disabled:pointer-events-none disabled:hover:translate-y-0'
 
 const variants: Record<Variant, string> = {
   primary: 'bg-s-accent text-s-accent-contrast hover:bg-s-accent-strong shadow-btn hover:shadow-btn-hover',

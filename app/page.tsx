@@ -10,6 +10,7 @@ import {
   SprintLadderPreview,
   SwapTest,
   DiagnosisEntry,
+  Magnetic,
   type ReadDemo,
 } from '@/components/atlas'
 import { ProfessionSelector } from './profession-selector'
@@ -54,9 +55,11 @@ export default function Landing() {
               words.
             </p>
             <div className="mt-7">
-              <ButtonLink href="/diagnosis" size="lg">
-                Get your free diagnosis
-              </ButtonLink>
+              <Magnetic>
+                <ButtonLink href="/diagnosis" size="lg">
+                  Get your free diagnosis
+                </ButtonLink>
+              </Magnetic>
             </div>
             <p className="mt-4 text-label text-muted">Free. No account. We tell you if we can’t help.</p>
           </div>

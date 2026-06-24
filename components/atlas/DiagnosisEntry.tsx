@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from './Button'
+import { Magnetic } from './Magnetic'
 
 // The final CTA, made direct: paste real work right here. On start, the work is carried to
 // the diagnosis page (which prefills it) and the visitor lands one step in. Empty is fine,
@@ -39,9 +40,11 @@ export function DiagnosisEntry() {
         />
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-        <Button type="button" size="lg" onClick={start}>
-          Get your free diagnosis
-        </Button>
+        <Magnetic>
+          <Button type="button" size="lg" onClick={start}>
+            Get your free diagnosis
+          </Button>
+        </Magnetic>
         <span className="text-label text-s-muted">Free. No account.</span>
       </div>
     </div>
