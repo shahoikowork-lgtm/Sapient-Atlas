@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ensureRerating, MIN_REVIEWED_FOR_RERATING } from '@/lib/rerating'
 import { trajectoryLabel, humanizeDimension } from '@/lib/format'
 import { DeployProof } from './deploy-proof'
+import { ReferralAsk } from './referral-ask'
 
 export const dynamic = 'force-dynamic'
 
@@ -176,6 +177,8 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
           <p className="mt-3 text-label text-focal-soft">The next thing making you replaceable. Its sprint is how you remove it.</p>
         </section>
       ) : null}
+
+      {verdict !== 'miss' ? <ReferralAsk /> : null}
 
       {verdict !== 'miss' ? (
         <p className="mt-8 text-[13px] leading-relaxed text-s-muted">

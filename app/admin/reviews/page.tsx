@@ -20,9 +20,14 @@ export default async function AdminReviewsPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-baseline justify-between gap-4">
         <h1 className="text-lg font-semibold">Diagnoses ({rows.length})</h1>
-        <Link href="/admin/review" className="text-xs text-black/50 underline underline-offset-4">
-          Pending-only queue →
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/admin/metrics" className="text-xs text-black/50 underline underline-offset-4">
+            Time to first win →
+          </Link>
+          <Link href="/admin/review" className="text-xs text-black/50 underline underline-offset-4">
+            Pending-only queue →
+          </Link>
+        </div>
       </div>
 
       {rows.length === 0 ? (
