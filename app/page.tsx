@@ -131,8 +131,8 @@ export default function Landing() {
         <h2 className="mt-3 max-w-[24ch] text-h1 text-ink">Atlas isn’t for everyone.</h2>
         <p className="mt-3 max-w-[50ch] text-body text-text-secondary">
           If the thing holding you back isn’t a capability we can move in 30 days, we’ll tell you, and we won’t sell you
-          a Sprint. We’d rather decline you than waste your month. For the ones we can help, it starts with your real
-          work.
+          a Sprint. We design to turn away about one in three. The refusal is the integrity, not a leak in the funnel.
+          For the ones we can help, it starts with your real work.
         </p>
         <div className="mt-7">
           <ProfessionSelector />
