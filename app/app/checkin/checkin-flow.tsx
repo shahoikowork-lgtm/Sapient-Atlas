@@ -61,8 +61,34 @@ export function CheckinFlow({
     .join('\n\n')
   const canSubmit = artifactText.length >= 20
 
-  async function submit() {
+  // Preview: check the work against the bar but persist NOTHING, so the user can tighten and
+  // re-check as many times as they want before locking it in. Never burns the one submission.
+  async function previewCheck() {
     if (!canSubmit) return
+    setStatus('submitting')
+    setErr('')
+    try {
+      const res = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ week, artifact_text: artifactText, preview: true }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || 'Check failed')
+      if (data?.check?.items?.length) {
+        setCheck(data.check as RepCheck)
+        setStatus('idle')
+      } else {
+        await finalSubmit() // nothing to check against; just lock it in
+      }
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Something went wrong')
+      setStatus('error')
+    }
+  }
+
+  // Lock it in: the real submission (persists + runs the gated weekly note), then advance.
+  async function finalSubmit() {
     setStatus('submitting')
     setErr('')
     try {
@@ -73,13 +99,8 @@ export function CheckinFlow({
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'Submit failed')
-      if (data?.check?.items?.length) {
-        setCheck(data.check as RepCheck)
-        setStatus('idle')
-      } else {
-        router.push('/app')
-        router.refresh()
-      }
+      router.push('/app')
+      router.refresh()
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Something went wrong')
       setStatus('error')
@@ -125,9 +146,22 @@ export function CheckinFlow({
         ) : (
           <p className="text-xs text-s-muted">Free rep, no penalty. What isn&apos;t yours yet is right there, fix it and go again.</p>
         )}
-        <button type="button" onClick={() => { router.push('/app'); router.refresh() }} className={`${accentBtn} self-start`}>
-          Continue →
-        </button>
+        <div className="flex items-center gap-3">
+          {!allCleared ? (
+            <button type="button" onClick={() => setCheck(null)} className={accentBtn}>
+              Tighten it →
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={finalSubmit}
+            disabled={status === 'submitting'}
+            className={allCleared ? accentBtn : ghostBtn}
+          >
+            {status === 'submitting' ? 'Saving…' : allCleared ? 'Lock it in →' : 'Submit anyway'}
+          </button>
+        </div>
+        {err ? <p role="alert" className="text-[12.5px] text-s-danger">{err}</p> : null}
       </div>
     )
   }
@@ -259,7 +293,7 @@ export function CheckinFlow({
         </button>
         <button
           type="button"
-          onClick={submit}
+          onClick={previewCheck}
           disabled={status === 'submitting' || !canSubmit}
           aria-busy={status === 'submitting' || undefined}
           className={accentBtn}
@@ -273,7 +307,7 @@ export function CheckinFlow({
               Checking…
             </>
           ) : (
-            'Submit my work'
+            'Check it →'
           )}
         </button>
       </div>

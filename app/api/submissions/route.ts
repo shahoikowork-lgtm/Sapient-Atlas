@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const user = await getAppUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
 
-  let body: { week?: number; artifact_text?: string }
+  let body: { week?: number; artifact_text?: string; preview?: boolean }
   try {
     body = await request.json()
   } catch {
@@ -35,13 +35,9 @@ export async function POST(request: Request) {
     .order('started_at', { ascending: false }).limit(1).maybeSingle()
   if (!cycle) return NextResponse.json({ error: 'No active sprint' }, { status: 400 })
 
-  // One submission per week.
-  const { data: existing } = await admin
-    .from('submissions').select('id')
-    .eq('user_id', user.id).eq('cycle_id', cycle.id).eq('week', week).maybeSingle()
-  if (existing) return NextResponse.json({ error: 'You already submitted this week.' }, { status: 409 })
-
-  // Milestone (title + bar) + move for the two feedback layers.
+  // Milestone (title + bar) + the deep method — needed for the bar-check in both preview and
+  // the real submit. V1 sells only M1, so the active constraint (the sourced "what good looks
+  // like" that keeps feedback specific, not generic) is M1.
   const { data: plan } = await admin.from('plans').select('weekly_milestones').eq('cycle_id', cycle.id).maybeSingle()
   const milestones = (plan?.weekly_milestones ?? []) as {
     week?: number
@@ -53,15 +49,31 @@ export async function POST(request: Request) {
   const milestoneText = m ? `${m.title ?? ''}: ${m.task ?? ''}` : `Week ${week}`
   const missionTitle = m?.title ?? `Week ${week}`
   const bar = m?.success_criteria ?? ''
+  const constraint = getConstraintByCode('M1')
+  const methodBlock = constraint ? methodPromptBlock(constraint) : undefined
+
+  // Preview: check the work against the bar but persist NOTHING — this powers the
+  // tighten-and-recheck loop, so a re-check never burns the one-per-week submission.
+  if (body.preview) {
+    if (!bar) return NextResponse.json({ ok: true, check: null })
+    try {
+      const check = await runRepCheck({ missionTitle, bar, artifactText, methodBlock })
+      return NextResponse.json({ ok: true, check: toUserFacingRepCheck(check) })
+    } catch (err) {
+      console.error('[submissions] preview bar-check failed:', err instanceof Error ? err.message : err)
+      return NextResponse.json({ ok: true, check: null })
+    }
+  }
+
+  // Real submit: one per week.
+  const { data: existing } = await admin
+    .from('submissions').select('id')
+    .eq('user_id', user.id).eq('cycle_id', cycle.id).eq('week', week).maybeSingle()
+  if (existing) return NextResponse.json({ error: 'You already submitted this week.' }, { status: 409 })
+
   const { data: move } = await admin
     .from('moves').select('title').eq('cycle_id', cycle.id)
     .in('status', ['approved', 'active', 'completed']).maybeSingle()
-
-  // The deep method both coaching layers are anchored to. V1 sells only M1, so the active
-  // constraint is M1; this is the sourced "what good looks like" that keeps the feedback
-  // sharp and specific to their work instead of generic.
-  const constraint = getConstraintByCode('M1')
-  const methodBlock = constraint ? methodPromptBlock(constraint) : undefined
 
   // Two feedback layers (ATLAS_OS §6). The instant bar-check is mechanical, crosses no gate,
   // and is returned live so the user sees where their rep cleared the bar before the next
