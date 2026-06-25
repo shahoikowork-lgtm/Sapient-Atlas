@@ -50,6 +50,8 @@ Hard rules:
 - Every move is ~10 minutes on one small artifact, low activation energy. Tiny and near-daily, never a 40-minute project.
 - Grounded in the user's move, gaps, and submitted work. No generic advice.
 - Each builds on the last toward the move's target outcome.
+- PATTERN, NOT ANSWER: each task teaches a reusable move the user can repeat alone on new work (e.g. "make any line a competitor cannot copy"), never a one-off answer to memorize.
+- ESCALATE across the 9: withdraw the scaffolding (more help in the early moves, blank and unaided by INDEPENDENCE) and raise the stakes (a private draft early, a live page a real prospect reads by PROVE). Name the change plainly in the task.
 - Output ONLY valid JSON.`
 
 function buildPrompt(input: {

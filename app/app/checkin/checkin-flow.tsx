@@ -23,6 +23,7 @@ export function CheckinFlow({
   steps,
   successCriteria,
   example,
+  barConditions = [],
 }: {
   week: number
   phase: string
@@ -33,6 +34,7 @@ export function CheckinFlow({
   steps: string[]
   successCriteria: string
   example?: { before: string; after: string }
+  barConditions?: string[]
 }) {
   const router = useRouter()
   const [screen, setScreen] = useState(0) // 0 = intro · 1..steps.length = steps · > steps.length = submit
@@ -152,6 +154,7 @@ export function CheckinFlow({
           </span>
         </div>
         <h1 className="text-h2 text-s-text">{title}</h1>
+        <p className="text-label text-s-muted">Step {n} toward a buyer saying &ldquo;why you.&rdquo;</p>
         {task ? <p className="text-body text-s-text-2">{task}</p> : null}
         {example ? (
           <div className="rounded-xl border border-s-line bg-s-panel p-4">
@@ -203,6 +206,20 @@ export function CheckinFlow({
         <div className="rounded-xl border border-s-line bg-s-panel p-4">
           <div className="font-mono text-eyebrow uppercase text-s-accent">Beat the bar</div>
           <p className="mt-1 text-body text-s-text">{successCriteria}</p>
+        </div>
+      ) : null}
+
+      {barConditions.length > 0 ? (
+        <div>
+          <div className="font-mono text-eyebrow uppercase text-s-muted">Run it past the bar</div>
+          <ul className="mt-2 flex flex-col gap-2">
+            {barConditions.map((c, i) => (
+              <li key={i} className="flex items-start gap-2.5 text-[13px] leading-relaxed text-s-text-2">
+                <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{c}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       ) : null}
 

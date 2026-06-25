@@ -15,9 +15,11 @@ export default async function MissionPage() {
   const { missions, current } = deriveMissions(plan, submissions)
   const submitted = missions.filter((m) => m.state === 'done' || m.state === 'review').sort((a, b) => b.n - a.n)
 
-  // V1 sells only M1; show its worked good-vs-generic example in the move intro.
-  const ex = getConstraintByCode('M1')?.method?.worked_examples?.[0]
+  // V1 sells only M1; surface its worked example + bar checklist in the move flow.
+  const m1 = getConstraintByCode('M1')
+  const ex = m1?.method?.worked_examples?.[0]
   const example = ex ? { before: ex.before, after: ex.after } : undefined
+  const barConditions = m1?.bar?.pass_conditions ?? []
 
   if (missions.length === 0) {
     return (
@@ -47,6 +49,7 @@ export default async function MissionPage() {
             steps={current.steps ?? []}
             successCriteria={current.successCriteria ?? ''}
             example={example}
+            barConditions={barConditions}
           />
         </div>
       ) : (
