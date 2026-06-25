@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getAppUser } from '@/lib/app-user'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { runWeeklyFeedback } from '@/lib/ai/weekly-feedback'
+import { runRepCheck } from '@/lib/ai/rep-check'
+import { toUserFacingRepCheck } from '@/lib/atlas/rep-grade'
 
 export const runtime = 'nodejs'
 
@@ -37,34 +39,60 @@ export async function POST(request: Request) {
     .eq('user_id', user.id).eq('cycle_id', cycle.id).eq('week', week).maybeSingle()
   if (existing) return NextResponse.json({ error: 'You already submitted this week.' }, { status: 409 })
 
-  // Milestone + move for AI context.
+  // Milestone (title + bar) + move for the two feedback layers.
   const { data: plan } = await admin.from('plans').select('weekly_milestones').eq('cycle_id', cycle.id).maybeSingle()
-  const milestones = (plan?.weekly_milestones ?? []) as { week?: number; title?: string; task?: string }[]
+  const milestones = (plan?.weekly_milestones ?? []) as {
+    week?: number
+    title?: string
+    task?: string
+    success_criteria?: string
+  }[]
   const m = milestones.find((x) => (x.week ?? 0) === week) ?? milestones[week - 1]
   const milestoneText = m ? `${m.title ?? ''}: ${m.task ?? ''}` : `Week ${week}`
+  const missionTitle = m?.title ?? `Week ${week}`
+  const bar = m?.success_criteria ?? ''
   const { data: move } = await admin
     .from('moves').select('title').eq('cycle_id', cycle.id)
     .in('status', ['approved', 'active', 'completed']).maybeSingle()
 
-  try {
-    const fb = await runWeeklyFeedback({ moveTitle: move?.title ?? '', week, milestone: milestoneText, artifactText })
-    const { error } = await admin.from('submissions').insert({
-      user_id: user.id,
-      cycle_id: cycle.id,
-      week,
-      artifact_text: artifactText,
-      graded_score: fb.graded_score,
-      feedback: fb.feedback,
-      status: 'pending_review',
-    })
-    if (error) throw error
-    return NextResponse.json({ ok: true })
-  } catch (err) {
-    console.error('[submissions] feedback failed:', err instanceof Error ? err.message : err)
-    // Save the work so it is not lost; feedback can be generated on review.
-    await admin.from('submissions').insert({
-      user_id: user.id, cycle_id: cycle.id, week, artifact_text: artifactText, status: 'submitted',
-    })
-    return NextResponse.json({ ok: true, note: 'saved; feedback pending' })
+  // Two feedback layers (ATLAS_OS §6). The instant bar-check is mechanical, crosses no gate,
+  // and is returned live so the user sees where their rep cleared the bar before the next
+  // mission. The weekly note is substantive: saved pending_review, delivered only after a
+  // human approves it. Run together (one round-trip of latency) and degrade independently.
+  const [checkRes, fbRes] = await Promise.allSettled([
+    bar
+      ? runRepCheck({ missionTitle, bar, artifactText })
+      : Promise.reject(new Error('no bar for this mission')),
+    runWeeklyFeedback({ moveTitle: move?.title ?? '', week, milestone: milestoneText, artifactText }),
+  ])
+  const check = checkRes.status === 'fulfilled' ? checkRes.value : null
+  const fb = fbRes.status === 'fulfilled' ? fbRes.value : null
+  if (checkRes.status === 'rejected') {
+    console.error('[submissions] bar-check failed:', checkRes.reason instanceof Error ? checkRes.reason.message : checkRes.reason)
   }
+  if (fbRes.status === 'rejected') {
+    console.error('[submissions] weekly feedback failed:', fbRes.reason instanceof Error ? fbRes.reason.message : fbRes.reason)
+  }
+
+  // Always persist the work. The instant bar-check is folded into the feedback jsonb so it
+  // is retained next to the (gated) weekly note; a failure of either never loses the rep.
+  const feedback =
+    fb || check
+      ? { ...(fb?.feedback ?? {}), ...(check ? { bar_check: check.bar_check, quality: check.quality } : {}) }
+      : null
+  const { error: insErr } = await admin.from('submissions').insert({
+    user_id: user.id,
+    cycle_id: cycle.id,
+    week,
+    artifact_text: artifactText,
+    graded_score: fb?.graded_score ?? null,
+    feedback,
+    status: fb ? 'pending_review' : 'submitted',
+  })
+  if (insErr) {
+    console.error('[submissions] insert failed:', insErr.message)
+    return NextResponse.json({ error: 'Could not save your work. Please try again.' }, { status: 500 })
+  }
+
+  return NextResponse.json({ ok: true, check: check ? toUserFacingRepCheck(check) : null })
 }

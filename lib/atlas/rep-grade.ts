@@ -38,7 +38,7 @@ export const RepGradeSchema = z.object({
 })
 export type RepGrade = z.infer<typeof RepGradeSchema>
 
-const QUALITY_LABEL: Record<(typeof QUALITY)[number], string> = {
+export const QUALITY_LABEL: Record<(typeof QUALITY)[number], string> = {
   hit: 'Cleared the bar',
   partial: 'Partly there',
   miss: 'Not yet',
@@ -77,4 +77,25 @@ export function userFacingRepGradeStrings(v: UserFacingRepGrade): string[] {
     v.reviewer_note,
     v.next_rep_focus,
   ]
+}
+
+// ── Instant per-rep bar-check (ATLAS_OS §6, layer 1) ────────────────────────────
+// The ungated, mechanical layer: the bar rendered as a checklist, each condition cleared /
+// not-cleared with where it lives in the user's own work, plus the qualitative verdict. No
+// score, number, band, or money, and no coaching — pure verification against the published
+// bar, so it crosses no human-review gate and is shown immediately on submit. The
+// substantive note (reviewer_note / next_rep_focus) stays behind the weekly gate.
+export type UserFacingRepCheck = {
+  quality_label: string
+  items: { condition: string; cleared: boolean; where: string }[]
+}
+
+export function toUserFacingRepCheck(c: {
+  quality: (typeof QUALITY)[number]
+  bar_check: BarCheckItem[]
+}): UserFacingRepCheck {
+  return {
+    quality_label: QUALITY_LABEL[c.quality],
+    items: c.bar_check.map((b) => ({ condition: b.condition, cleared: b.status === 'pass', where: b.where })),
+  }
 }
