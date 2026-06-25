@@ -4,6 +4,7 @@ import { getWorkspace } from '@/lib/app-data'
 import { ensureSprintPlan, deriveMissions } from '@/lib/sprint'
 import { Eyebrow } from '@/components/atlas'
 import { CheckinFlow } from './checkin-flow'
+import { getConstraintByCode } from '@/lib/atlas/constraints'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +14,10 @@ export default async function MissionPage() {
   const { plan, submissions } = await getWorkspace()
   const { missions, current } = deriveMissions(plan, submissions)
   const submitted = missions.filter((m) => m.state === 'done' || m.state === 'review').sort((a, b) => b.n - a.n)
+
+  // V1 sells only M1; show its worked good-vs-generic example in the move intro.
+  const ex = getConstraintByCode('M1')?.method?.worked_examples?.[0]
+  const example = ex ? { before: ex.before, after: ex.after } : undefined
 
   if (missions.length === 0) {
     return (
@@ -41,6 +46,7 @@ export default async function MissionPage() {
             task={current.task ?? ''}
             steps={current.steps ?? []}
             successCriteria={current.successCriteria ?? ''}
+            example={example}
           />
         </div>
       ) : (

@@ -22,6 +22,7 @@ export function CheckinFlow({
   task,
   steps,
   successCriteria,
+  example,
 }: {
   week: number
   phase: string
@@ -31,6 +32,7 @@ export function CheckinFlow({
   task: string
   steps: string[]
   successCriteria: string
+  example?: { before: string; after: string }
 }) {
   const router = useRouter()
   const [screen, setScreen] = useState(0) // 0 = intro · 1..steps.length = steps · > steps.length = submit
@@ -116,9 +118,11 @@ export function CheckinFlow({
             </li>
           ))}
         </ul>
-        {!allCleared ? (
-          <p className="text-xs text-s-muted">What isn&apos;t cleared yet is exactly what the next moves build.</p>
-        ) : null}
+        {allCleared ? (
+          <p className="text-xs text-s-muted">That line is yours now. A competitor can&apos;t claim it.</p>
+        ) : (
+          <p className="text-xs text-s-muted">Free rep, no penalty. What isn&apos;t yours yet is right there, fix it and go again.</p>
+        )}
         <button type="button" onClick={() => { router.push('/app'); router.refresh() }} className={`${accentBtn} self-start`}>
           Continue →
         </button>
@@ -149,6 +153,13 @@ export function CheckinFlow({
         </div>
         <h1 className="text-h2 text-s-text">{title}</h1>
         {task ? <p className="text-body text-s-text-2">{task}</p> : null}
+        {example ? (
+          <div className="rounded-xl border border-s-line bg-s-panel p-4">
+            <div className="font-mono text-eyebrow uppercase text-s-muted">What good looks like</div>
+            <p className="mt-2 text-[13.5px] leading-relaxed text-s-muted line-through decoration-s-muted/40">{example.before}</p>
+            <p className="mt-1.5 text-body text-s-text">{example.after}</p>
+          </div>
+        ) : null}
         <button type="button" onClick={() => setScreen(1)} className={`${accentBtn} self-start`}>
           Let&apos;s go →
         </button>
@@ -190,7 +201,7 @@ export function CheckinFlow({
       {progress}
       {successCriteria ? (
         <div className="rounded-xl border border-s-line bg-s-panel p-4">
-          <div className="font-mono text-eyebrow uppercase text-s-accent">You nailed it when</div>
+          <div className="font-mono text-eyebrow uppercase text-s-accent">Beat the bar</div>
           <p className="mt-1 text-body text-s-text">{successCriteria}</p>
         </div>
       ) : null}
