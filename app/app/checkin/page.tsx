@@ -3,7 +3,7 @@ import { getAppUser } from '@/lib/app-user'
 import { getWorkspace } from '@/lib/app-data'
 import { ensureSprintPlan, deriveMissions } from '@/lib/sprint'
 import { Eyebrow } from '@/components/atlas'
-import { CheckinForm } from './checkin-form'
+import { CheckinFlow } from './checkin-flow'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +17,7 @@ export default async function MissionPage() {
   if (missions.length === 0) {
     return (
       <div>
-        <Eyebrow>Mission</Eyebrow>
+        <Eyebrow>Move</Eyebrow>
         <p className="mt-3 text-body text-s-text-2">
           Your path is being prepared.{' '}
           <Link href="/app" className="underline underline-offset-4">Back to Now</Link>
@@ -31,42 +31,18 @@ export default async function MissionPage() {
       <Link href="/app/move" className="text-label text-s-muted hover:text-s-text">← Path</Link>
 
       {current ? (
-        <section className="mt-3">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-eyebrow uppercase text-s-accent">{current.phase}</span>
-            <span className="font-mono text-eyebrow uppercase text-s-muted tabular">
-              Move {current.n} of {current.total} · ~10 min
-            </span>
-          </div>
-          <h1 className="mt-2 text-h2 text-s-text">{current.title ?? `Move ${current.n}`}</h1>
-
-          {current.task ? (
-            <div className="mt-5">
-              <div className="font-mono text-eyebrow uppercase text-s-muted">Do this</div>
-              <p className="mt-1 text-body text-s-text-2">{current.task}</p>
-              {current.steps && current.steps.length > 0 ? (
-                <ol className="mt-3 flex flex-col gap-2 text-body text-s-text-2">
-                  {current.steps.map((step, i) => (
-                    <li key={i} className="flex gap-2.5">
-                      <span className="mt-px font-mono text-eyebrow text-s-muted tabular">{i + 1}</span>
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              ) : null}
-            </div>
-          ) : null}
-          {current.successCriteria ? (
-            <div className="mt-4 rounded-xl border border-s-line bg-s-panel p-4">
-              <div className="font-mono text-eyebrow uppercase text-s-accent">Done when</div>
-              <p className="mt-1 text-body text-s-text">{current.successCriteria}</p>
-            </div>
-          ) : null}
-
-          <div className="mt-6">
-            <CheckinForm week={current.week} />
-          </div>
-        </section>
+        <div className="mt-3">
+          <CheckinFlow
+            week={current.week}
+            phase={current.phase}
+            n={current.n}
+            total={current.total}
+            title={current.title ?? `Move ${current.n}`}
+            task={current.task ?? ''}
+            steps={current.steps ?? []}
+            successCriteria={current.successCriteria ?? ''}
+          />
+        </div>
       ) : (
         <section className="mt-3 rounded-2xl border border-s-line bg-s-panel p-6">
           <div className="font-mono text-eyebrow uppercase text-s-accent">Nothing to submit</div>
@@ -93,7 +69,7 @@ export default async function MissionPage() {
                 <div key={m.week} className="rounded-xl border border-s-line p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-s-text">
-                      {m.n}. {m.title ?? `Mission ${m.n}`}
+                      {m.n}. {m.title ?? `Move ${m.n}`}
                     </span>
                     <span className="text-xs text-s-muted">{reviewed ? 'Cleared' : 'In review'}</span>
                   </div>
