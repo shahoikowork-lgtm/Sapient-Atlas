@@ -35,25 +35,19 @@ Hard rules:
 - ai_exposure is 0..1: the share of this role's current work that competent AI use can already do.
 - trajectory is rising | holding | slipping (capability trajectory in the AI economy).
 - gaps: concrete constraints that are limiting their capability and progress.
-- Weigh SCOPE OF OWNERSHIP: accountability for a business outcome demonstrates more capability than executing discrete tasks. Use the stated daily/weekly responsibilities to judge real scope, not just the title.
+- Weigh SCOPE OF OWNERSHIP: accountability for a business outcome demonstrates more capability than executing discrete tasks. Judge real scope from the work sample and what they own, not just the title.
 - Be honest and specific. If the work sample is thin, lower confidence and say why. Never flatter.
 - value_low / value_mid / value_high are retained ONLY as an internal signal for human review and are NEVER shown to the user. Fill them with a rough annual estimate in USD, but never reference them, money, or worth anywhere in your prose.
 - Output ONLY valid JSON. No markdown, no commentary.`
 
 function buildPrompt(intake: Intake): string {
   return `PROFILE
-Name: ${intake.name}
+Name: ${intake.name || '—'}
 Role: ${intake.role}
-Seniority: ${intake.seniority || '—'}
-Years: ${intake.years || '—'}
-Company type: ${intake.company_type || '—'}
-Region: ${intake.region || '—'}
-Income band (self-reported): ${intake.income_band || '—'}
-Stated goal: ${intake.goal || '—'}
-Target: ${intake.target || '—'}
-Unfair advantages: ${intake.unfair_advantages || '—'}
-Daily responsibilities: ${intake.responsibilities_daily || '—'}
-Weekly responsibilities: ${intake.responsibilities_weekly || '—'}
+What they want next: ${intake.target || '—'}
+Their closest competitor: ${intake.competitor || '—'}
+Why a buyer should pick them (their words): ${intake.why_you || '—'}
+Where they feel stuck: ${intake.stuck || '—'}
 
 REAL WORK SAMPLE
 """

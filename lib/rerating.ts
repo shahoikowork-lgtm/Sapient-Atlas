@@ -1,5 +1,8 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { runMonthlyRerating } from '@/lib/ai/monthly-rerating'
+import { deriveClearedMicroSkills } from '@/lib/sprint'
+import { getConstraintByCode } from '@/lib/atlas/constraints'
+import { getMicroSkill } from '@/lib/atlas/constraints/types'
 import type { AppUser } from '@/lib/app-user'
 
 // How many reviewed weekly submissions count as "enough evidence" to re-rate.
@@ -16,7 +19,7 @@ export async function ensureRerating(user: AppUser, cycleId: string): Promise<{ 
   try {
     const admin = createAdminClient()
 
-    const { data: cycle } = await admin.from('cycles').select('id,user_id').eq('id', cycleId).maybeSingle()
+    const { data: cycle } = await admin.from('cycles').select('id,user_id,profile_snapshot').eq('id', cycleId).maybeSingle()
     if (!cycle || cycle.user_id !== user.id) return { status: 'no_cycle' }
 
     const { data: reviewed } = await admin
@@ -43,6 +46,17 @@ export async function ensureRerating(user: AppUser, cycleId: string): Promise<{ 
     const { data: prediction } = await admin
       .from('predictions').select('id,pred_capability_delta,pred_value_delta').eq('cycle_id', cycleId).maybeSingle()
 
+    // The day-1 line (the "before") + the micro-skills cleared across reps, for the day-1 vs
+    // day-30 read. Both are read from retained artifacts, never self-reported.
+    const day1Line =
+      (cycle.profile_snapshot as { atlas?: { signals?: { weak_line?: string } } } | null)?.atlas?.signals?.weak_line ??
+      ''
+    const m1 = getConstraintByCode('M1')
+    const clearedSkills = deriveClearedMicroSkills(
+      reviewed.map((s) => ({ week: s.week, status: 'reviewed', feedback: s.feedback })),
+      (slug) => (m1 ? getMicroSkill(m1, slug)?.name : undefined),
+    )
+
     const rr = await runMonthlyRerating({
       original: {
         value_low: original.value_low,
@@ -62,6 +76,8 @@ export async function ensureRerating(user: AppUser, cycleId: string): Promise<{ 
         feedback: s.feedback,
         work: (s.artifact_text ?? '').slice(0, 600),
       })),
+      clearedSkills,
+      day1Line,
     })
 
     await admin.from('value_assessments').insert({

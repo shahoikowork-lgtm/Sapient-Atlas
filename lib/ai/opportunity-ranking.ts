@@ -48,9 +48,10 @@ Hard rules:
 
 function buildPrompt(intake: Intake, va: ValueAssessment): string {
   return `PROFILE
-Role: ${intake.role} | Seniority: ${intake.seniority || '—'} | Goal: ${intake.goal || '—'} | Target: ${intake.target || '—'}
-Daily responsibilities: ${intake.responsibilities_daily || '—'}
-Weekly responsibilities: ${intake.responsibilities_weekly || '—'}
+Role: ${intake.role} | What they want next: ${intake.target || '—'}
+Their closest competitor: ${intake.competitor || '—'}
+Why a buyer should pick them (their words): ${intake.why_you || '—'}
+Where they feel stuck: ${intake.stuck || '—'}
 
 REAL WORK SAMPLE
 """

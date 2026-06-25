@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { getAppUser } from '@/lib/app-user'
 import { createClient } from '@/lib/supabase/server'
 import { ensureRerating, MIN_REVIEWED_FOR_RERATING } from '@/lib/rerating'
+import { deriveClearedMicroSkills } from '@/lib/sprint'
+import { getConstraintByCode } from '@/lib/atlas/constraints'
+import { getMicroSkill } from '@/lib/atlas/constraints/types'
 import { trajectoryLabel, humanizeDimension } from '@/lib/format'
 import { DeployProof } from './deploy-proof'
 import { ReferralAsk } from './referral-ask'
@@ -40,7 +43,7 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
     .from('value_assessments').select('*').eq('cycle_id', cycle).eq('status', 'approved')
     .order('created_at', { ascending: true })
   const { data: reviewedSubs } = await supabase
-    .from('submissions').select('week').eq('cycle_id', cycle).eq('status', 'reviewed')
+    .from('submissions').select('week,feedback').eq('cycle_id', cycle).eq('status', 'reviewed')
   const { data: prediction } = await supabase
     .from('predictions').select('*').eq('cycle_id', cycle).maybeSingle()
   const { data: moves } = await supabase
@@ -49,6 +52,13 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
 
   const reviewedCount = reviewedSubs?.length ?? 0
   const approvedVas = vas ?? []
+
+  // What they can now do — the named micro-skills cleared across the sprint's reps.
+  const m1 = getConstraintByCode('M1')
+  const clearedSkills = deriveClearedMicroSkills(
+    (reviewedSubs ?? []).map((s) => ({ week: s.week, status: 'reviewed', feedback: (s as { feedback?: unknown }).feedback })),
+    (slug) => (m1 ? getMicroSkill(m1, slug)?.name : undefined),
+  )
 
   if (reviewedCount < MIN_REVIEWED_FOR_RERATING) {
     return (
@@ -114,6 +124,23 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
         <p className="mt-3 text-body text-s-text-2">{updated.confidence_reason}</p>
       ) : null}
 
+      {/* What they can now do — capability acquired through reps, named */}
+      {clearedSkills.length > 0 ? (
+        <section className="mt-6 rounded-2xl border border-s-line bg-s-panel p-6">
+          <div className="font-mono text-eyebrow uppercase text-s-muted">What you can now do</div>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {clearedSkills.map((name) => (
+              <li
+                key={name}
+                className="rounded-full border border-s-accent/30 bg-s-accent-tint px-3 py-1 text-[13px] text-s-text"
+              >
+                {name}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       {/* Prediction vs actual + verdict (qualitative, no numbers) */}
       <section className="mt-8 rounded-2xl border border-s-line bg-s-panel p-6">
         <div className="flex items-center justify-between">
@@ -168,13 +195,29 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
       {/* Deployable proof — the sentence to take to your boss (only when it moved). */}
       {verdict !== 'miss' ? <DeployProof statement={PROOF_STATEMENT} /> : null}
 
-      {/* Next constraint — the next thing to remove, framed as the next sprint. */}
-      {nextMove ? (
+      {/* What's next — unlock the next constraint only on a clear win. Never fake graduation:
+          a partial points back to the same capability, a miss is an honest "run it again". */}
+      {verdict === 'hit' && nextMove ? (
         <section className="mt-6 rounded-3xl bg-focal p-6 shadow-focal ring-1 ring-inset ring-white/[0.06]">
           <div className="font-mono text-eyebrow uppercase text-focal-soft">Your next constraint</div>
           <h2 className="mt-2 text-h3 text-on-focal">{nextMove.title}</h2>
           {nextMove.thesis ? <p className="mt-2 text-body text-on-focal-dim">{nextMove.thesis}</p> : null}
           <p className="mt-3 text-label text-focal-soft">The next thing making you replaceable. Its sprint is how you remove it.</p>
+        </section>
+      ) : verdict === 'partial' ? (
+        <section className="mt-6 rounded-2xl border border-s-line bg-s-panel p-6">
+          <div className="font-mono text-eyebrow uppercase text-s-muted">What’s next</div>
+          <p className="mt-2 text-body text-s-text-2">
+            Almost. The same capability, one more focused sprint on fresh work, clears it — then the next constraint opens.
+          </p>
+        </section>
+      ) : verdict === 'miss' ? (
+        <section className="mt-6 rounded-2xl border border-s-line bg-s-panel p-6">
+          <div className="font-mono text-eyebrow uppercase text-s-muted">What’s next</div>
+          <p className="mt-2 text-body text-s-text-2">
+            It didn’t move this time, and that’s an honest read, not a failure. Run the same capability again on a fresh
+            piece of real work when you’re ready.
+          </p>
         </section>
       ) : null}
 

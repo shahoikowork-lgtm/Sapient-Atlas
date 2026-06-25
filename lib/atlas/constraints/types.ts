@@ -63,6 +63,43 @@ export const MethodSchema = z.object({
 })
 export type Method = z.infer<typeof MethodSchema>
 
+// Capability map — the explicit spine the RUNTIME feedback engine is constrained to.
+// A constraint decomposes into one capability, one skill, and the ordered micro-skills that
+// compose it. Each micro-skill carries its own naive-checkable bar, a worked example +
+// counterexample (the lesson's contrast), and exactly ONE pre-approved correction pattern
+// ("the one move"). Per the design-time-approval gate (ATLAS_OS §11), the runtime AI may
+// only SELECT from these conditions and this fix — it never invents coaching, strategy, or
+// the user's final work. This is the human-approved logic; authoring it IS the review.
+// Optional: only authored constraints carry it.
+export const PROOF_KINDS = ['self', 'colleague', 'external'] as const
+export type ProofKind = (typeof PROOF_KINDS)[number]
+
+export const MicroSkillBarSchema = z.object({
+  clears_when: z.string().min(1), // one-line, user-facing "beat the bar"
+  pass_conditions: z.array(z.string().min(1)).min(1),
+  fail_conditions: z.array(z.string().min(1)).min(1),
+})
+
+export const MicroSkillSchema = z.object({
+  id: z.string().regex(/^[a-z][a-z_]*$/), // stable slug, e.g. spot_generic
+  name: z.string().min(1),
+  mistake: z.string().min(1), // the common failure this micro-skill removes
+  bar: MicroSkillBarSchema,
+  example: z.string().min(1), // what good looks like (the contrast's "good")
+  counterexample: z.string().min(1), // the mistake made concrete (the contrast's "bad")
+  mission_type: z.string().min(1),
+  proof_kind: z.enum(PROOF_KINDS),
+  fix: z.string().min(1), // the ONE pre-approved correction the runtime may emit ("one move")
+})
+export type MicroSkill = z.infer<typeof MicroSkillSchema>
+
+export const CapabilityMapSchema = z.object({
+  capability: z.string().min(1),
+  skill: z.string().min(1),
+  micro_skills: z.array(MicroSkillSchema).min(1),
+})
+export type CapabilityMap = z.infer<typeof CapabilityMapSchema>
+
 const ID_RE = /^[a-z_]+\.[a-z_]+$/ // e.g. marketer.generic_positioning
 const CODE_RE = /^[A-Z][0-9]+$/ // e.g. M1
 
@@ -81,6 +118,7 @@ const ConstraintObject = z.object({
   decline_gate_fit: DeclineGateFitSchema,
   bar: BarSchema,
   method: MethodSchema.optional(),
+  capability_map: CapabilityMapSchema.optional(),
   baseline_capture: z.string().min(1),
   reps: RepsSchema,
   proof: z.string().min(1),
@@ -96,7 +134,7 @@ export type Constraint = z.infer<typeof ConstraintObject>
 
 /** The fields the user reads (in some form). Linted for scores / money / percentages. */
 export function userFacingProse(c: Constraint): string[] {
-  return [
+  const prose = [
     c.name,
     c.short_description,
     c.why_it_matters,
@@ -113,6 +151,29 @@ export function userFacingProse(c: Constraint): string[] {
     c.recognition,
     c.thirty_day_success_criteria,
   ]
+  // The capability map is shown to the user (the per-mission lesson + bar + correction), so
+  // its prose is linted too: no scores, money, or percentages reach the user from it.
+  if (c.capability_map) {
+    prose.push(c.capability_map.capability, c.capability_map.skill)
+    for (const ms of c.capability_map.micro_skills) {
+      prose.push(
+        ms.name,
+        ms.mistake,
+        ms.bar.clears_when,
+        ...ms.bar.pass_conditions,
+        ...ms.bar.fail_conditions,
+        ms.example,
+        ms.counterexample,
+        ms.fix,
+      )
+    }
+  }
+  return prose
+}
+
+/** Look up one micro-skill in a constraint's capability map by its slug id. */
+export function getMicroSkill(c: Constraint, id: string): MicroSkill | undefined {
+  return c.capability_map?.micro_skills.find((m) => m.id === id)
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Button, Eyebrow, Field, AnalysisState } from '@/components/atlas'
 
@@ -9,16 +10,10 @@ type Form = {
   name: string
   email: string
   role: string
-  seniority: string
-  years: string
-  company_type: string
-  region: string
-  income_band: string
-  goal: string
   target: string
-  unfair_advantages: string
-  responsibilities_daily: string
-  responsibilities_weekly: string
+  competitor: string
+  why_you: string
+  stuck: string
   work_sample: string
 }
 
@@ -26,16 +21,10 @@ const EMPTY: Form = {
   name: '',
   email: '',
   role: '',
-  seniority: '',
-  years: '',
-  company_type: '',
-  region: '',
-  income_band: '',
-  goal: '',
   target: '',
-  unfair_advantages: '',
-  responsibilities_daily: '',
-  responsibilities_weekly: '',
+  competitor: '',
+  why_you: '',
+  stuck: '',
   work_sample: '',
 }
 
@@ -146,9 +135,9 @@ export default function DiagnosisPage() {
     <div className="instrument min-h-screen bg-s-bg text-s-text">
       <header className="sticky top-0 z-20 border-b border-s-line bg-s-bg/80 backdrop-blur supports-[backdrop-filter]:bg-s-bg/70">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3.5">
-          <a href="/" className="font-semibold tracking-tight text-s-text transition-opacity hover:opacity-70">
+          <Link href="/" className="font-semibold tracking-tight text-s-text transition-opacity hover:opacity-70">
             Sapient Atlas
-          </a>
+          </Link>
           <span className="text-label text-s-muted tabular">Step {step} of 2</span>
         </div>
       </header>
@@ -214,11 +203,61 @@ export default function DiagnosisPage() {
             </div>
           ) : (
             <motion.div ref={step2Ref} {...reveal} className="flex flex-col gap-6">
-              {/* STEP 2 — value-gated identity, minimal. */}
+              {/* STEP 2 — the signals that make the read sharp. Email comes last. */}
+              <Field
+                id="role"
+                label="Your role"
+                value={form.role}
+                onChange={(v) => set('role', v)}
+                onBlur={() => setErrors((e) => ({ ...e, role: form.role.trim() ? undefined : 'This field is required.' }))}
+                required
+                error={errors.role}
+                placeholder="e.g. content marketer, SEO, PM, growth"
+                autoComplete="organization-title"
+              />
+              <Field
+                id="target"
+                label="What are you aiming for next?"
+                value={form.target}
+                onChange={(v) => set('target', v)}
+                placeholder="e.g. lead bigger launches, win better clients"
+              />
+              <Field
+                id="competitor"
+                label="Your closest competitor"
+                value={form.competitor}
+                onChange={(v) => set('competitor', v)}
+                placeholder="The one a buyer would pick instead of you"
+              />
+              <Field
+                id="why_you"
+                label={
+                  form.competitor.trim()
+                    ? `Why should a buyer pick you over ${form.competitor.trim()}?`
+                    : 'Why should a buyer pick you, not a competitor?'
+                }
+                type="textarea"
+                rows={2}
+                value={form.why_you}
+                onChange={(v) => set('why_you', v)}
+                placeholder="One sentence, the way you’d say it out loud. Don’t polish it."
+              />
+              <Field
+                id="stuck"
+                label="Where do you feel stuck?"
+                type="textarea"
+                rows={2}
+                value={form.stuck}
+                onChange={(v) => set('stuck', v)}
+                placeholder="The part that isn’t landing, or the work that feels replaceable."
+              />
+
+              {/* Name + email last, never competing with the work. */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field id="name" label="Your name (optional)" value={form.name} onChange={(v) => set('name', v)} autoComplete="given-name" />
                 <Field
                   id="email"
-                  label="Where should we send it?"
+                  label="Where should we send your read?"
                   type="email"
                   value={form.email}
                   onChange={(v) => set('email', v)}
@@ -237,40 +276,7 @@ export default function DiagnosisPage() {
                   autoComplete="email"
                   placeholder="you@work.com"
                 />
-                <Field
-                  id="role"
-                  label="Your role"
-                  value={form.role}
-                  onChange={(v) => set('role', v)}
-                  onBlur={() => setErrors((e) => ({ ...e, role: form.role.trim() ? undefined : 'This field is required.' }))}
-                  required
-                  error={errors.role}
-                  placeholder="e.g. content marketer, SEO, PM, designer, analyst"
-                  autoComplete="organization-title"
-                />
               </div>
-
-              {/* Optional context — after the work, never competing with it. */}
-              <details className="group rounded-xl border border-s-line transition-colors hover:border-s-line-strong [&_summary]:cursor-pointer">
-                <summary className="flex items-center gap-2 px-4 py-3 text-sm text-s-muted transition-colors hover:text-s-text">
-                  <span aria-hidden="true" className="transition-transform group-open:rotate-45">+</span>
-                  Add context (optional)
-                  <span className="ml-auto text-xs text-s-muted">name · seniority · goals · responsibilities</span>
-                </summary>
-                <div className="grid grid-cols-1 gap-4 border-t border-s-line p-4 sm:grid-cols-2">
-                  <Field id="name" label="Name" value={form.name} onChange={(v) => set('name', v)} autoComplete="name" />
-                  <Field id="seniority" label="Seniority" value={form.seniority} onChange={(v) => set('seniority', v)} placeholder="e.g. Senior" />
-                  <Field id="years" label="Years in the field" value={form.years} onChange={(v) => set('years', v)} inputMode="numeric" />
-                  <Field id="company_type" label="Company type" value={form.company_type} onChange={(v) => set('company_type', v)} placeholder="e.g. B2B SaaS, agency" />
-                  <Field id="region" label="Region" value={form.region} onChange={(v) => set('region', v)} />
-                  <Field id="income_band" label="Income band" value={form.income_band} onChange={(v) => set('income_band', v)} />
-                  <Field id="goal" label="Your goal" value={form.goal} onChange={(v) => set('goal', v)} placeholder="What you want next" />
-                  <Field id="target" label="Target" value={form.target} onChange={(v) => set('target', v)} placeholder="e.g. lead bigger launches" />
-                  <Field id="unfair_advantages" label="Unfair advantages" value={form.unfair_advantages} onChange={(v) => set('unfair_advantages', v)} placeholder="What you have that others don't" className="sm:col-span-2" />
-                  <Field id="responsibilities_daily" label="Daily responsibilities" type="textarea" rows={3} value={form.responsibilities_daily} onChange={(v) => set('responsibilities_daily', v)} placeholder="What a typical day involves." />
-                  <Field id="responsibilities_weekly" label="Weekly responsibilities" type="textarea" rows={3} value={form.responsibilities_weekly} onChange={(v) => set('responsibilities_weekly', v)} placeholder="What you own on a weekly cadence." />
-                </div>
-              </details>
 
               {/* Trust */}
               <div className="flex items-start gap-3 rounded-xl bg-s-accent-tint px-4 py-3">

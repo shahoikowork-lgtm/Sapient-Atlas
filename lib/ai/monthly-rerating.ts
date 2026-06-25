@@ -39,6 +39,7 @@ Hard rules:
 - NO NUMBERS OR KEYS IN PROSE. In your prose never state a capability score, a 0-100 value, or a percentage, and never write a snake_case key (write "analytical reasoning", not "analytical_reasoning"). Describe capability through evidence and qualitative judgment.
 - Grade the prediction: hit | partial | miss. Be honest. If they did not actually improve, say MISS or PARTIAL. Do NOT fake gains.
 - A flat or downward re-read is a valid, honest outcome. Never inflate to please the user.
+- Ground the verdict in the day-1 line versus the completed work, and in the micro-skills cleared: the constraint moved only if the failure mode visible in the day-1 line is gone across the later reps, unaided. Name what is still missing on a partial or a miss.
 - capability_scores: updated scores, each with evidence from the submitted work.
 - proof_summary: the concrete work that supports the change (or the lack of it).
 - next_move: the single next highest-leverage move, framed as capability.
@@ -51,6 +52,8 @@ function buildPrompt(input: {
   moveTarget: string
   prediction: { pred_capability_delta: unknown; pred_value_delta: unknown } | null
   submissions: { week: number; score: unknown; feedback: unknown; work: string }[]
+  clearedSkills: string[]
+  day1Line: string
 }): string {
   const work = input.submissions
     .map((s) => `Week ${s.week} (scored ${s.score}/100):\nFeedback: ${JSON.stringify(s.feedback)}\nWork: ${s.work}`)
@@ -63,11 +66,17 @@ Gaps: ${JSON.stringify(input.original.gaps)}
 THE MOVE
 ${input.moveTitle}. Target: ${input.moveTarget}
 
+THE DAY-1 LINE THEY STARTED FROM (their original weak positioning — the "before")
+${input.day1Line || 'not recorded'}
+
 THE PREDICTION MADE AT THE START
 ${input.prediction ? JSON.stringify(input.prediction) : 'none recorded'}
 
-WORK COMPLETED (reviewed weekly submissions)
+WORK COMPLETED (reviewed weekly submissions — the "after")
 ${work || 'none'}
+
+MICRO-SKILLS THE USER CLEARED ON REAL WORK (each a bar they passed)
+${input.clearedSkills.length ? input.clearedSkills.map((s) => `- ${s}`).join('\n') : 'none recorded'}
 
 Re-rate honestly. Return a JSON object:
 {
@@ -93,6 +102,8 @@ export function runMonthlyRerating(input: {
   moveTarget: string
   prediction: { pred_capability_delta: unknown; pred_value_delta: unknown } | null
   submissions: { week: number; score: unknown; feedback: unknown; work: string }[]
+  clearedSkills: string[]
+  day1Line: string
 }) {
   return generateJSON({
     system: `${SYSTEM}\n\n${PROOF_OVER_ADJECTIVES}`,

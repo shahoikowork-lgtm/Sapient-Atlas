@@ -10,7 +10,7 @@ export async function getTimeToFirstWin(): Promise<{ rows: FirstWinRow[]; median
   const admin = createAdminClient()
   const [{ data: plans }, { data: subs }, { data: users }] = await Promise.all([
     admin.from('plans').select('cycle_id, created_at'),
-    admin.from('submissions').select('user_id, cycle_id, created_at').order('created_at', { ascending: true }),
+    admin.from('submissions').select('user_id, cycle_id, submitted_at').order('submitted_at', { ascending: true }),
     admin.from('users').select('id, email'),
   ])
 
@@ -25,9 +25,9 @@ export async function getTimeToFirstWin(): Promise<{ rows: FirstWinRow[]; median
 
   // First submission per cycle (subs are pre-sorted oldest-first).
   const firstByCycle = new Map<string, { user_id: string; t: number }>()
-  for (const s of (subs ?? []) as { user_id: string; cycle_id: string | null; created_at: string | null }[]) {
-    if (!s.cycle_id || !s.created_at) continue
-    if (!firstByCycle.has(s.cycle_id)) firstByCycle.set(s.cycle_id, { user_id: s.user_id, t: Date.parse(s.created_at) })
+  for (const s of (subs ?? []) as { user_id: string; cycle_id: string | null; submitted_at: string | null }[]) {
+    if (!s.cycle_id || !s.submitted_at) continue
+    if (!firstByCycle.has(s.cycle_id)) firstByCycle.set(s.cycle_id, { user_id: s.user_id, t: Date.parse(s.submitted_at) })
   }
 
   const rows: FirstWinRow[] = []

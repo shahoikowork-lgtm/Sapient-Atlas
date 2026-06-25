@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 type RepCheck = {
   quality_label: string
   items: { condition: string; cleared: boolean; where: string }[]
+  one_move?: string // the single pre-approved correction, shown on a miss
 }
 
 // The guided move: one small step at a time, never a wall of text. Walk the user through the
@@ -89,18 +90,26 @@ export function CheckinFlow({
     }
   }
 
-  // Lock it in: the real submission (persists + runs the gated weekly note), then advance.
-  async function finalSubmit() {
+  // The real submission. 'lock_in' tries to clear the bar — a confident hit advances, a
+  // confident miss bounces straight back for one more retry (nothing saved, nothing blocked).
+  // 'coach' asks a human to look. Only a 'retry' outcome keeps the user on this screen.
+  async function finalSubmit(intent: 'lock_in' | 'coach' = 'lock_in') {
     setStatus('submitting')
     setErr('')
     try {
       const res = await fetch('/api/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ week, artifact_text: artifactText }),
+        body: JSON.stringify({ week, artifact_text: artifactText, intent }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'Submit failed')
+      if (data?.outcome === 'retry') {
+        // Confident "Not yet" — no human, no advance. Show the fresh check and let them tighten.
+        setCheck((data.check as RepCheck) ?? null)
+        setStatus('idle')
+        return
+      }
       router.push('/app')
       router.refresh()
     } catch (e) {
@@ -146,22 +155,31 @@ export function CheckinFlow({
         {allCleared ? (
           <p className="text-xs text-s-muted">That line is yours now. A competitor can&apos;t claim it.</p>
         ) : (
-          <p className="text-xs text-s-muted">Free rep, no penalty. What isn&apos;t yours yet is right there, fix it and go again.</p>
+          <>
+            {check.one_move ? (
+              <div className="rounded-xl border border-s-accent/30 bg-s-accent-tint p-3.5">
+                <div className="font-mono text-eyebrow uppercase text-s-accent">One move</div>
+                <p className="mt-1 text-body text-s-text">{check.one_move}</p>
+              </div>
+            ) : null}
+            <p className="text-xs text-s-muted">Free rep, no penalty. Make that one change and go again.</p>
+          </>
         )}
         <div className="flex items-center gap-3">
-          {!allCleared ? (
-            <button type="button" onClick={() => setCheck(null)} className={accentBtn}>
-              Tighten it →
+          {allCleared ? (
+            <button type="button" onClick={() => finalSubmit('lock_in')} disabled={status === 'submitting'} className={accentBtn}>
+              {status === 'submitting' ? 'Saving…' : 'Lock it in →'}
             </button>
-          ) : null}
-          <button
-            type="button"
-            onClick={finalSubmit}
-            disabled={status === 'submitting'}
-            className={allCleared ? accentBtn : ghostBtn}
-          >
-            {status === 'submitting' ? 'Saving…' : allCleared ? 'Lock it in →' : 'Submit anyway'}
-          </button>
+          ) : (
+            <>
+              <button type="button" onClick={() => setCheck(null)} className={accentBtn}>
+                Tighten it →
+              </button>
+              <button type="button" onClick={() => finalSubmit('coach')} disabled={status === 'submitting'} className={ghostBtn}>
+                {status === 'submitting' ? 'Sending…' : 'Send to your coach'}
+              </button>
+            </>
+          )}
         </div>
         {err ? <p role="alert" className="text-[12.5px] text-s-danger">{err}</p> : null}
       </div>

@@ -88,14 +88,22 @@ export function userFacingRepGradeStrings(v: UserFacingRepGrade): string[] {
 export type UserFacingRepCheck = {
   quality_label: string
   items: { condition: string; cleared: boolean; where: string }[]
+  one_move?: string // the single pre-approved correction, shown only on a miss
 }
 
-export function toUserFacingRepCheck(c: {
-  quality: (typeof QUALITY)[number]
-  bar_check: BarCheckItem[]
-}): UserFacingRepCheck {
+// Project the instant bar-check to what the user sees. `oneMove` is the mission's pre-approved
+// correction (selected, never generated) and is attached only when the rep has not cleared —
+// a cleared rep needs no fix. The verdict + per-condition where stay qualitative.
+export function toUserFacingRepCheck(
+  c: {
+    quality: (typeof QUALITY)[number]
+    bar_check: BarCheckItem[]
+  },
+  oneMove?: string,
+): UserFacingRepCheck {
   return {
     quality_label: QUALITY_LABEL[c.quality],
     items: c.bar_check.map((b) => ({ condition: b.condition, cleared: b.status === 'pass', where: b.where })),
+    one_move: c.quality === 'hit' ? undefined : oneMove,
   }
 }

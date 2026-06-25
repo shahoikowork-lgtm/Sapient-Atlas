@@ -146,10 +146,17 @@ export async function POST(request: Request) {
     try {
       // Match the constraint and pull the user's raw signals together. Signal extraction is
       // best-effort on its own (null on failure) so it can never fail the diagnosis.
-      const [classification, signals] = await Promise.all([
+      const [classification, extracted] = await Promise.all([
         runConstraintMatch(intake, { observation: va.observation, gaps: va.gaps }),
         runExtractSignals(intake.work_sample).catch(() => null),
       ])
+      // Prefer the competitor the user named over the inferred one — they know their market.
+      const namedCompetitor = intake.competitor.trim()
+      const signals = extracted
+        ? { ...extracted, competitor: namedCompetitor || extracted.competitor }
+        : namedCompetitor
+          ? { weak_line: '', competitor: namedCompetitor }
+          : null
       const declineResult = classifyDecline(classification)
       // Authored bar/rep data exists only for the sellable (accepted/M1) constraint.
       const authored =

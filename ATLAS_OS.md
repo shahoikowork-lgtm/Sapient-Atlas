@@ -44,8 +44,14 @@ Compressed: **One professional. One constraint. One move. One sprint. Real work.
    value or salary in any user-facing surface.
 10. **No mechanism talk.** The user experiences results, not process. Do not explain AI,
     models, or review pipelines to them. They should feel understood, not analyzed.
-11. **Human-review gate.** AI never writes directly to the user. Substantive feedback is
-    drafted, human-approved, then delivered.
+11. **Human-review gate, with a design-time-approval lane.** *Revised 2026-06-25.* Free-form
+    AI prose to the user stays gated: anything the AI composes itself is drafted, human-
+    approved, then delivered. A single constrained runtime lane is the exception — Atlas may
+    give instant feedback only when bound to a pre-approved capability map: it may check the
+    attempt against a published bar, point to the failing phrase, explain why it fails, and
+    offer one pre-approved correction pattern. It may never freely coach, invent strategy or
+    doctrine, or write the user's final work. High confidence delivers instantly; low
+    confidence, an off-mission attempt, or anything needing a new strategy routes to a human.
 12. **The user's own real work is both the medium and the proof.** No exercises, no
     hypotheticals, no fabricated scenarios.
 
@@ -237,10 +243,14 @@ Progress = clearing a higher bar, more reliably, with less help, on harder work.
 bar, prescriptive of the next rep, and never generic praise.
 
 **Two layers:**
-- **Per rep (instant, mechanical, no gate crossed):** the bar rendered as a checklist; each
-  condition returns pass/fail with the exact spot in the user's work. Deterministic.
+- **Per rep (instant, design-time-approved):** the bar rendered as a checklist; each condition
+  returns pass/fail with the exact spot in the user's work, plus — on a miss — the one
+  pre-approved correction pattern for that micro-skill. Every word is selected from the
+  approved capability map, never composed at runtime, so it crosses no gate and delivers live.
+  A low-confidence or off-mission verdict routes to human review instead of delivering.
 - **Per week (human-reviewed):** one surgical note naming the single remaining failure mode
-  and the next rep's focus. AI-drafted, human-approved, then delivered.
+  and the next rep's focus. This is free-composed AI prose, so it stays AI-drafted,
+  human-approved, then delivered.
 
 **Detection:**
 - *Generic* → fails the bar's exclusion/specificity test. Fully detectable.
@@ -342,7 +352,9 @@ constraint, not access to software.
 - Never show the user a numeric score, a /100, a band, or a market value / salary figure.
 - Never explain its mechanism (AI, models, review pipeline) to the user.
 - Never use gamification, streaks, or fake wins.
-- Never auto-message the user — AI output passes the human-review gate first.
+- Never send the user free-composed AI prose unreviewed — only pre-approved, map-bound runtime
+  feedback (a published bar check plus its pre-approved correction) may reach them instantly;
+  everything the AI composes itself passes the human-review gate first.
 - Never sell a Sprint for a constraint the Decline Gate refused.
 - Never fabricate or soften a re-rating verdict.
 - Never build a recognition network, issued credential, reputation marketplace, social

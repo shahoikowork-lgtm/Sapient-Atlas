@@ -5,6 +5,7 @@ import { ensureSprintPlan, deriveMissions } from '@/lib/sprint'
 import { Eyebrow } from '@/components/atlas'
 import { CheckinFlow } from './checkin-flow'
 import { getConstraintByCode } from '@/lib/atlas/constraints'
+import { getMicroSkill } from '@/lib/atlas/constraints/types'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
@@ -16,11 +17,18 @@ export default async function MissionPage() {
   const { missions, current } = deriveMissions(plan, submissions)
   const submitted = missions.filter((m) => m.state === 'done' || m.state === 'review').sort((a, b) => b.n - a.n)
 
-  // V1 sells only M1; surface its worked example + bar checklist in the move flow.
+  // V1 sells only M1. The lesson's contrast + bar checklist come from the CURRENT mission's
+  // focus micro-skill; integrative ('full') missions fall back to the constraint's headline
+  // worked example and the whole-bar conditions.
   const m1 = getConstraintByCode('M1')
+  const ms = current?.microSkill && m1 ? getMicroSkill(m1, current.microSkill) : undefined
   const ex = m1?.method?.worked_examples?.[0]
-  const example = ex ? { before: ex.before, after: ex.after } : undefined
-  const barConditions = m1?.bar?.pass_conditions ?? []
+  const example = ms
+    ? { before: ms.counterexample, after: ms.example }
+    : ex
+      ? { before: ex.before, after: ex.after }
+      : undefined
+  const barConditions = ms ? ms.bar.pass_conditions : (m1?.bar?.pass_conditions ?? [])
 
   // Their own material from the diagnosis (day-1 line + competitor) so the move starts from
   // their real work, not a blank box. Best-effort: absent for older cycles, the flow copes.
@@ -86,21 +94,27 @@ export default async function MissionPage() {
           <div className="font-mono text-eyebrow uppercase text-s-muted">Submitted</div>
           <div className="mt-3 flex flex-col gap-3">
             {submitted.map((m) => {
-              const fb = (submissions.find((s) => s.week === m.week)?.feedback ?? {}) as {
+              const sub = submissions.find((s) => s.week === m.week)
+              const fb = (sub?.feedback ?? {}) as {
                 strength?: string
                 key_fix?: string
                 next_step?: string
+                auto_cleared?: boolean
               }
-              const reviewed = m.state === 'done'
+              const cleared = m.state === 'done'
+              // The free-prose weekly note appears only after a human approves it — never on an
+              // auto-cleared rep, where the user already saw the approved instant feedback.
+              const humanReviewed =
+                (sub as { status?: string } | undefined)?.status === 'reviewed' && fb.auto_cleared !== true
               return (
                 <div key={m.week} className="rounded-xl border border-s-line p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-s-text">
                       {m.n}. {m.title ?? `Move ${m.n}`}
                     </span>
-                    <span className="text-xs text-s-muted">{reviewed ? 'Cleared' : 'In review'}</span>
+                    <span className="text-xs text-s-muted">{cleared ? 'Cleared' : 'In review'}</span>
                   </div>
-                  {reviewed && (fb.strength || fb.key_fix || fb.next_step) ? (
+                  {humanReviewed && (fb.strength || fb.key_fix || fb.next_step) ? (
                     <div className="mt-2 flex flex-col gap-1 text-[13px] leading-relaxed text-s-text-2">
                       {fb.strength ? <p><strong className="text-s-text">Strength:</strong> {fb.strength}</p> : null}
                       {fb.key_fix ? <p><strong className="text-s-text">Key fix:</strong> {fb.key_fix}</p> : null}

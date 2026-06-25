@@ -6,6 +6,7 @@ import { runRepCheck } from '@/lib/ai/rep-check'
 import { toUserFacingRepCheck } from '@/lib/atlas/rep-grade'
 import { getConstraintByCode } from '@/lib/atlas/constraints'
 import { methodPromptBlock } from '@/lib/atlas/constraints/types'
+import { resolveMissionBar } from '@/lib/atlas/mission-bar'
 
 export const runtime = 'nodejs'
 
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
   const user = await getAppUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
 
-  let body: { week?: number; artifact_text?: string; preview?: boolean }
+  let body: { week?: number; artifact_text?: string; preview?: boolean; intent?: 'lock_in' | 'coach' }
   try {
     body = await request.json()
   } catch {
@@ -44,21 +45,23 @@ export async function POST(request: Request) {
     title?: string
     task?: string
     success_criteria?: string
+    micro_skill?: string
   }[]
   const m = milestones.find((x) => (x.week ?? 0) === week) ?? milestones[week - 1]
   const milestoneText = m ? `${m.title ?? ''}: ${m.task ?? ''}` : `Week ${week}`
   const missionTitle = m?.title ?? `Week ${week}`
-  const bar = m?.success_criteria ?? ''
+  // The bar the rep is checked against and the one approved correction both come from the M1
+  // capability map via the mission's focus micro-skill — pre-authored, never AI-invented.
+  const { barText: bar, fix: oneMove } = resolveMissionBar(m?.micro_skill)
   const constraint = getConstraintByCode('M1')
   const methodBlock = constraint ? methodPromptBlock(constraint) : undefined
 
   // Preview: check the work against the bar but persist NOTHING — this powers the
-  // tighten-and-recheck loop, so a re-check never burns the one-per-week submission.
+  // tighten-and-recheck loop, so a re-check never burns the one-per-mission submission.
   if (body.preview) {
-    if (!bar) return NextResponse.json({ ok: true, check: null })
     try {
       const check = await runRepCheck({ missionTitle, bar, artifactText, methodBlock })
-      return NextResponse.json({ ok: true, check: toUserFacingRepCheck(check) })
+      return NextResponse.json({ ok: true, check: toUserFacingRepCheck(check, oneMove) })
     } catch (err) {
       console.error('[submissions] preview bar-check failed:', err instanceof Error ? err.message : err)
       return NextResponse.json({ ok: true, check: null })
@@ -75,31 +78,55 @@ export async function POST(request: Request) {
     .from('moves').select('title').eq('cycle_id', cycle.id)
     .in('status', ['approved', 'active', 'completed']).maybeSingle()
 
-  // Two feedback layers (ATLAS_OS §6). The instant bar-check is mechanical, crosses no gate,
-  // and is returned live so the user sees where their rep cleared the bar before the next
-  // mission. The weekly note is substantive: saved pending_review, delivered only after a
-  // human approves it. Run together (one round-trip of latency) and degrade independently.
-  const [checkRes, fbRes] = await Promise.allSettled([
-    bar
-      ? runRepCheck({ missionTitle, bar, artifactText, methodBlock })
-      : Promise.reject(new Error('no bar for this mission')),
-    runWeeklyFeedback({ moveTitle: move?.title ?? '', week, milestone: milestoneText, artifactText, methodBlock }),
-  ])
-  const check = checkRes.status === 'fulfilled' ? checkRes.value : null
-  const fb = fbRes.status === 'fulfilled' ? fbRes.value : null
-  if (checkRes.status === 'rejected') {
-    console.error('[submissions] bar-check failed:', checkRes.reason instanceof Error ? checkRes.reason.message : checkRes.reason)
-  }
-  if (fbRes.status === 'rejected') {
-    console.error('[submissions] weekly feedback failed:', fbRes.reason instanceof Error ? fbRes.reason.message : fbRes.reason)
+  // The instant bar-check (ATLAS_OS §6, design-time-approval gate) decides what happens BEFORE
+  // we persist anything, so run it first and on its own.
+  const intent = body.intent === 'coach' ? 'coach' : 'lock_in'
+  let check: Awaited<ReturnType<typeof runRepCheck>> | null = null
+  try {
+    check = await runRepCheck({ missionTitle, bar, artifactText, methodBlock })
+  } catch (err) {
+    console.error('[submissions] bar-check failed:', err instanceof Error ? err.message : err)
   }
 
-  // Always persist the work. The instant bar-check is folded into the feedback jsonb so it
-  // is retained next to the (gated) weekly note; a failure of either never loses the rep.
-  const feedback =
-    fb || check
-      ? { ...(fb?.feedback ?? {}), ...(check ? { bar_check: check.bar_check, quality: check.quality } : {}) }
-      : null
+  // The confidence gate (fork #1, ATLAS_OS §11). High-confidence verdicts are instant and need
+  // no human: a HIT clears and the next mission opens; a miss/partial returns the one approved
+  // correction for an IMMEDIATE RETRY — no human, no persisted submission, no block, so the rep
+  // is never burned. Only a LOW-confidence verdict (off-mission, ambiguous, or it would need
+  // new strategy), a failed check, or the user explicitly asking ('coach') routes to a human.
+  const isHit = check?.quality === 'hit'
+  const highConf = check?.confidence === 'high'
+  let outcome: 'cleared' | 'retry' | 'review'
+  if (intent === 'coach' || !check) outcome = 'review'
+  else if (highConf && isHit) outcome = 'cleared'
+  else if (highConf) outcome = 'retry'
+  else outcome = 'review'
+
+  // Confident "Not yet": instant feedback only. Persist nothing, block nothing — the user makes
+  // the one change and checks again. This is what keeps the founder out of every attempt.
+  if (outcome === 'retry') {
+    return NextResponse.json({ ok: true, outcome, check: check ? toUserFacingRepCheck(check, oneMove) : null })
+  }
+
+  // 'cleared' or 'review' persist. The weekly note (free prose, always gated) is generated only
+  // for a rep that is actually saved — never wasted on a retry.
+  let fb: Awaited<ReturnType<typeof runWeeklyFeedback>> | null = null
+  try {
+    fb = await runWeeklyFeedback({ moveTitle: move?.title ?? '', week, milestone: milestoneText, artifactText, methodBlock })
+  } catch (err) {
+    console.error('[submissions] weekly feedback failed:', err instanceof Error ? err.message : err)
+  }
+
+  const autoCleared = outcome === 'cleared'
+  const status = autoCleared ? 'reviewed' : 'pending_review'
+
+  // Persist the work + both layers. The cleared micro-skill is recorded for progress capture.
+  const feedback = {
+    ...(fb?.feedback ?? {}),
+    ...(check ? { bar_check: check.bar_check, quality: check.quality, confidence: check.confidence } : {}),
+    micro_skill: m?.micro_skill ?? null,
+    cleared_micro_skill: isHit ? (m?.micro_skill ?? 'full') : null,
+    auto_cleared: autoCleared,
+  }
   const { error: insErr } = await admin.from('submissions').insert({
     user_id: user.id,
     cycle_id: cycle.id,
@@ -107,12 +134,12 @@ export async function POST(request: Request) {
     artifact_text: artifactText,
     graded_score: fb?.graded_score ?? null,
     feedback,
-    status: fb ? 'pending_review' : 'submitted',
+    status,
   })
   if (insErr) {
     console.error('[submissions] insert failed:', insErr.message)
     return NextResponse.json({ error: 'Could not save your work. Please try again.' }, { status: 500 })
   }
 
-  return NextResponse.json({ ok: true, check: check ? toUserFacingRepCheck(check) : null })
+  return NextResponse.json({ ok: true, outcome, check: check ? toUserFacingRepCheck(check, oneMove) : null })
 }

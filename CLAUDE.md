@@ -100,7 +100,10 @@ Do not work on anything else.
   ENABLED on every table.
 - **The service-role key is server-only.** Never send it to the browser, never prefix it
   with `NEXT_PUBLIC_`.
-- **Human-review gate.** AI never writes directly to the user. Value assessments and moves
-  are saved with a review status and shown to the user only after a human approves them in
-  the admin queue. No auto-messages.
+- **Human-review gate (with a design-time-approval lane).** Value assessments, moves, and any
+  free-composed AI prose are saved with a review status and shown to the user only after a
+  human approves them in the admin queue. The one exception is the constrained runtime lane:
+  the per-rep bar check plus its pre-approved correction pattern, selected from the approved
+  capability map (never composed at runtime), may reach the user instantly when confidence is
+  high; low-confidence or off-mission reps still route to human review. No free auto-messages.
 - **Never commit secrets.** Real keys live in `.env.local` (gitignored) and Vercel env vars.

@@ -13,7 +13,7 @@ export async function ensureSprintPlan(user: AppUser): Promise<void> {
     const admin = createAdminClient()
 
     const { data: cycle } = await admin
-      .from('cycles').select('id').eq('user_id', user.id)
+      .from('cycles').select('id, profile_snapshot').eq('user_id', user.id)
       .order('started_at', { ascending: false }).limit(1).maybeSingle()
     if (!cycle) return
 
@@ -33,10 +33,17 @@ export async function ensureSprintPlan(user: AppUser): Promise<void> {
       .from('diagnoses').select('work_sample')
       .eq('cycle_id', cycle.id).order('created_at', { ascending: false }).limit(1).maybeSingle()
 
+    // The competitor the user named (or the one inferred at diagnosis) sharpens the missions.
+    const snap = cycle.profile_snapshot as
+      | { competitor?: string; atlas?: { signals?: { competitor?: string } } }
+      | null
+    const competitor = snap?.atlas?.signals?.competitor || snap?.competitor || ''
+
     const plan = await runThirtyDayPlan({
       moveTitle: move.title,
       moveThesis: move.thesis ?? '',
       moveTarget: move.target_outcome ?? '',
+      competitor,
       gaps: assessment.gaps,
       capabilities: assessment.capability_scores,
       workSample: diag?.work_sample ?? '',
@@ -53,7 +60,7 @@ export async function ensureSprintPlan(user: AppUser): Promise<void> {
   }
 }
 
-type Milestone = { week?: number; title?: string; task?: string; steps?: string[]; success_criteria?: string; phase?: string }
+type Milestone = { week?: number; title?: string; task?: string; steps?: string[]; success_criteria?: string; phase?: string; micro_skill?: string }
 type PlanRow = { weekly_milestones?: Milestone[] } | null
 type SubmissionRow = { week: number; status: string; graded_score?: number | null; feedback?: unknown }
 
@@ -64,12 +71,13 @@ export type Week = {
   steps?: string[]
   success_criteria?: string
   phase?: string
+  micro_skill?: string
   submission: SubmissionRow | null
   state: 'todo' | 'pending' | 'done'
 }
 
-// Pure: derive each week's state from the plan + the user's submissions. The current
-// week is the first one with no submission yet.
+// Pure: derive each mission's state from the plan + the user's submissions. Progression is
+// completion-gated (clear the bar to advance), never by calendar or by count.
 export function deriveWeeks(plan: PlanRow, submissions: SubmissionRow[]): {
   weeks: Week[]
   currentWeek: number | null
@@ -79,10 +87,18 @@ export function deriveWeeks(plan: PlanRow, submissions: SubmissionRow[]): {
   const weeks: Week[] = milestones.map((m, i) => {
     const week = m.week ?? i + 1
     const sub = byWeek.get(week) ?? null
-    const state: Week['state'] = !sub ? 'todo' : sub.status === 'reviewed' ? 'done' : 'pending'
-    return { week, title: m.title, task: m.task, steps: m.steps, success_criteria: m.success_criteria, phase: m.phase, submission: sub, state }
+    // A mission is cleared when its submission reaches the terminal 'reviewed' state — either
+    // auto-cleared (a high-confidence bar hit, flagged in feedback.auto_cleared) or human-
+    // approved. A persisted-but-unconfirmed submission is 'pending' and blocks the next.
+    const cleared = sub != null && sub.status === 'reviewed'
+    const state: Week['state'] = !sub ? 'todo' : cleared ? 'done' : 'pending'
+    return { week, title: m.title, task: m.task, steps: m.steps, success_criteria: m.success_criteria, phase: m.phase, micro_skill: m.micro_skill, submission: sub, state }
   })
-  const currentWeek = weeks.find((w) => w.state === 'todo')?.week ?? null
+  // Completion-gated, no calendar: the current mission is the first unfinished one, and only
+  // if it is not itself awaiting review. A 'pending' (low-confidence, in review) mission
+  // blocks the next from opening until a human confirms it cleared — no skipping ahead.
+  const firstUnfinished = weeks.find((w) => w.state !== 'done')
+  const currentWeek = firstUnfinished && firstUnfinished.state === 'todo' ? firstUnfinished.week : null
   return { weeks, currentWeek }
 }
 
@@ -104,6 +120,7 @@ export type Mission = {
   task?: string
   steps?: string[]
   successCriteria?: string
+  microSkill?: string // the capability-map slug this mission trains, or 'full'
   phase: Phase
   state: 'done' | 'review' | 'current' | 'locked'
 }
@@ -126,7 +143,7 @@ export function deriveMissions(plan: PlanRow, submissions: SubmissionRow[]): {
     if (w.state === 'done') state = 'done'
     else if (w.state === 'pending') state = 'review'
     else state = w.week === currentWeek ? 'current' : 'locked'
-    return { n: i + 1, total, week: w.week, title: w.title, task: w.task, steps: w.steps, successCriteria: w.success_criteria, phase, state }
+    return { n: i + 1, total, week: w.week, title: w.title, task: w.task, steps: w.steps, successCriteria: w.success_criteria, microSkill: w.micro_skill, phase, state }
   })
   return {
     missions,
@@ -168,6 +185,29 @@ export function derivePhaseJourney(missions: Mission[]): PhaseStep[] {
     }
     return { phase, week: PHASE_META[phase].week, description: PHASE_META[phase].description, state }
   })
+}
+
+// The distinct capability-map micro-skills the user has cleared (from confirmed reps), as
+// user-facing names — read from the artifacts, never self-reported. `nameOf` maps a slug to
+// its display name (from the capability map); integrative 'full' reps are not a single
+// micro-skill and are skipped. Order preserved by first clear.
+export function deriveClearedMicroSkills(
+  submissions: SubmissionRow[],
+  nameOf: (slug: string) => string | undefined,
+): string[] {
+  const seen = new Set<string>()
+  const names: string[] = []
+  for (const s of submissions) {
+    if (s.status !== 'reviewed') continue
+    const slug = (s.feedback as { cleared_micro_skill?: string | null } | null)?.cleared_micro_skill
+    if (!slug || slug === 'full' || seen.has(slug)) continue
+    const name = nameOf(slug)
+    if (name) {
+      seen.add(slug)
+      names.push(name)
+    }
+  }
+  return names
 }
 
 // A qualitative position on one progress axis: a 1-3 step and a word. Never a score.

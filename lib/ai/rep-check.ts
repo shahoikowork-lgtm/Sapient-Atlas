@@ -9,6 +9,7 @@ import { BarCheckItemSchema, QUALITY } from '@/lib/atlas/rep-grade'
 // gate and is shown live on submit. The substantive note is a separate, gated layer.
 export const RepCheckSchema = z.object({
   quality: z.enum(QUALITY), // hit | partial | miss overall — qualitative, never a score
+  confidence: z.enum(['high', 'low']), // how sure the verdict is; 'low' routes to a human
   bar_check: z.array(BarCheckItemSchema).min(1),
 })
 export type RepCheck = z.infer<typeof RepCheckSchema>
@@ -21,7 +22,8 @@ Hard rules:
 - When a METHOD block is provided, judge against it too: any failure pattern it names that is present in the work is a "fail", and you apply its diagnostic questions. Do not invent criteria beyond the bar and the method.
 - "where": name or quote the EXACT spot in the user's OWN submitted work that decides it — what is there, or precisely what is missing. Specific to their text. Never generic.
 - "quality" overall: "hit" only if every condition passes; "partial" if some pass and some fail; "miss" if none pass or the core condition fails.
-- NEVER output a score, number, percentage, grade, band, or money. NEVER give advice, encouragement, or a next step. Conditions, pass/fail, and where — nothing else.
+- "confidence": "high" only when the submission is clearly the kind of work this mission asks for AND each condition's verdict is unambiguous from the text. Return "low" when the work is off-topic for the mission, too short or vague to judge, or you are genuinely unsure — low confidence sends the rep to a human, so never inflate it to seem decisive.
+- NEVER output a score, number, percentage, grade, band, or money. NEVER give advice, encouragement, or a next step. Conditions, pass/fail, where, and the verdict — nothing else.
 - Output ONLY valid JSON.`
 
 function buildPrompt(input: { missionTitle: string; bar: string; artifactText: string; methodBlock?: string }): string {
@@ -40,6 +42,7 @@ ${input.artifactText}
 Return JSON only:
 {
   "quality": "hit" | "partial" | "miss",
+  "confidence": "high" | "low",
   "bar_check": [ { "condition": string, "status": "pass" | "fail", "where": string } ]
 }`
 }
