@@ -22,6 +22,7 @@ Hard rules:
 - One KEY FIX: the single most important improvement, concrete.
 - A capability_delta: which capability dimension this work moved and by how many points (0 to 15).
 - A concrete next_step for the coming week.
+- When a METHOD block is provided, ground the STRENGTH, KEY FIX, and NEXT STEP in its framework and fix patterns, and name the specific failure pattern present in their work. Specific to their artifact, never generic.
 - Output ONLY valid JSON.`
 
 function buildPrompt(input: {
@@ -29,12 +30,13 @@ function buildPrompt(input: {
   week: number
   milestone: string
   artifactText: string
+  methodBlock?: string
 }): string {
   return `MOVE: ${input.moveTitle}
 
 WEEK ${input.week} MILESTONE
 ${input.milestone}
-
+${input.methodBlock ? `\n${input.methodBlock}\n` : ''}
 THE WORK THEY SUBMITTED
 """
 ${input.artifactText}
@@ -57,6 +59,7 @@ export function runWeeklyFeedback(input: {
   week: number
   milestone: string
   artifactText: string
+  methodBlock?: string
 }) {
   return generateJSON({
     system: SYSTEM,

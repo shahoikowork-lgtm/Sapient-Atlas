@@ -41,6 +41,28 @@ export const RepsSchema = z.object({
   week_4: z.string().min(1),
 })
 
+// Deep method knowledge — the "what good looks like" the coaching AI is anchored to, so it
+// applies real, sourced expertise to the user's real work instead of improvising
+// (CONSTRAINT_DESIGN_MANUAL §5-6). Optional: only authored constraints carry it; without
+// it the AI falls back to the bar alone.
+export const WorkedExampleSchema = z.object({
+  context: z.string().min(1),
+  before: z.string().min(1),
+  before_why: z.string().min(1),
+  after: z.string().min(1),
+  after_why: z.string().min(1),
+})
+
+export const MethodSchema = z.object({
+  source: z.string().min(1), // the named authority this is distilled from
+  framework: z.array(z.string().min(1)).min(1),
+  worked_examples: z.array(WorkedExampleSchema).min(1),
+  failure_patterns: z.array(z.string().min(1)).min(1),
+  diagnostic_questions: z.array(z.string().min(1)).min(1),
+  fix_patterns: z.array(z.string().min(1)).min(1),
+})
+export type Method = z.infer<typeof MethodSchema>
+
 const ID_RE = /^[a-z_]+\.[a-z_]+$/ // e.g. marketer.generic_positioning
 const CODE_RE = /^[A-Z][0-9]+$/ // e.g. M1
 
@@ -58,6 +80,7 @@ const ConstraintObject = z.object({
   observable_failure_mode: z.string().min(1),
   decline_gate_fit: DeclineGateFitSchema,
   bar: BarSchema,
+  method: MethodSchema.optional(),
   baseline_capture: z.string().min(1),
   reps: RepsSchema,
   proof: z.string().min(1),
@@ -90,6 +113,31 @@ export function userFacingProse(c: Constraint): string[] {
     c.recognition,
     c.thirty_day_success_criteria,
   ]
+}
+
+/**
+ * Format a constraint's deep method into a prompt block the coaching AI is anchored to:
+ * the framework, the failure patterns to catch, how to fix, the diagnostic questions, and
+ * worked weak->strong examples. Returns '' for a constraint with no authored method, so the
+ * AI falls back to the bar alone. This is what turns generic advice into sourced method
+ * applied to the user's own work.
+ */
+export function methodPromptBlock(c: Constraint): string {
+  const m = c.method
+  if (!m) return ''
+  const lines: string[] = [`METHOD — apply this, do not improvise (source: ${m.source}).`, '', 'What good looks like (the chain):']
+  m.framework.forEach((f) => lines.push(`- ${f}`))
+  lines.push('', 'Failure patterns to catch:')
+  m.failure_patterns.forEach((f) => lines.push(`- ${f}`))
+  lines.push('', 'How to fix (prescribe the next move from these):')
+  m.fix_patterns.forEach((f) => lines.push(`- ${f}`))
+  lines.push('', 'Diagnostic questions to apply:')
+  m.diagnostic_questions.forEach((q) => lines.push(`- ${q}`))
+  lines.push('', 'Worked examples (weak -> strong):')
+  m.worked_examples.forEach((e) =>
+    lines.push(`- ${e.context}: WEAK "${e.before}" (${e.before_why}) STRONG "${e.after}" (${e.after_why})`),
+  )
+  return lines.join('\n')
 }
 
 export const ConstraintSchema = ConstraintObject.refine(

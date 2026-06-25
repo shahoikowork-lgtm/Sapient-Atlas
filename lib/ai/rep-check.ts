@@ -18,19 +18,20 @@ const SYSTEM = `You are the bar-check of Sapient Atlas. You do not coach, praise
 Hard rules:
 - Break the bar into its distinct, checkable conditions (each separate thing the bar explicitly requires).
 - For EACH condition return status "pass" if the submitted work plainly meets it, else "fail". When genuinely unsure, return "fail" — the bar is strict and honest.
+- When a METHOD block is provided, judge against it too: any failure pattern it names that is present in the work is a "fail", and you apply its diagnostic questions. Do not invent criteria beyond the bar and the method.
 - "where": name or quote the EXACT spot in the user's OWN submitted work that decides it — what is there, or precisely what is missing. Specific to their text. Never generic.
 - "quality" overall: "hit" only if every condition passes; "partial" if some pass and some fail; "miss" if none pass or the core condition fails.
 - NEVER output a score, number, percentage, grade, band, or money. NEVER give advice, encouragement, or a next step. Conditions, pass/fail, and where — nothing else.
 - Output ONLY valid JSON.`
 
-function buildPrompt(input: { missionTitle: string; bar: string; artifactText: string }): string {
+function buildPrompt(input: { missionTitle: string; bar: string; artifactText: string; methodBlock?: string }): string {
   return `MISSION: ${input.missionTitle}
 
 THE BAR (this rep clears when):
 """
 ${input.bar}
 """
-
+${input.methodBlock ? `\n${input.methodBlock}\n` : ''}
 THE WORK THEY SUBMITTED:
 """
 ${input.artifactText}
@@ -43,7 +44,7 @@ Return JSON only:
 }`
 }
 
-export function runRepCheck(input: { missionTitle: string; bar: string; artifactText: string }) {
+export function runRepCheck(input: { missionTitle: string; bar: string; artifactText: string; methodBlock?: string }) {
   return generateJSON({
     system: SYSTEM,
     prompt: buildPrompt(input),

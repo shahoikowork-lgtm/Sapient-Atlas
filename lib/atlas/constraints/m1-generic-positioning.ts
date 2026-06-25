@@ -23,13 +23,66 @@ export const m1GenericPositioning: Constraint = {
       'A prospect can repeat "why you, not them" in one sentence, and it is demonstrably false of three named competitors.',
     pass_conditions: [
       'A naive reader restates the differentiator in one sentence after a single read',
-      'The claim is false of three named competitors',
+      'The claim rests on a unique attribute that is false of three named competitors',
+      'That attribute is tied to a value the best-fit buyer actually cares about, not a feature for its own sake',
       'The claim is specific and provable from the work, not a category abstraction',
     ],
     fail_conditions: [
       'A named competitor could make the same claim word for word',
       'The claim is a category truism such as "data-driven" or "customer-centric"',
+      'It states a benefit with no unique attribute behind it',
       'A naive reader cannot say "why you" after one read',
+    ],
+  },
+  method: {
+    source:
+      'Distilled from April Dunford, Obviously Awesome (competitive alternatives, unique attributes, value, best-fit market) and Geoffrey Moore positioning template (Crossing the Chasm).',
+    framework: [
+      'Alternative: name what the buyer would use instead of you, a named rival, a spreadsheet, or doing nothing.',
+      'Unique attribute: something true of you and false of that alternative, a fact, not a benefit.',
+      'Value: what that attribute unlocks that this buyer actually pays for.',
+      'Best-fit buyer: the one who cares most about that value.',
+      'Differentiated is not different words, it is a true thing only you can say that the buyer prices.',
+    ],
+    worked_examples: [
+      {
+        context: 'Support SaaS',
+        before: 'The modern platform for customer support teams.',
+        before_why:
+          'A category truism, equally true of Zendesk, Intercom, and Help Scout, so a prospect cannot tell you apart.',
+        after:
+          'The only support tool that turns your call recordings into the objection-handling snippets your reps paste mid-chat.',
+        after_why: 'Rests on a unique attribute the named rivals do not have, tied to a value the support lead prices.',
+      },
+      {
+        context: 'Marketing analytics',
+        before: 'Data-driven marketing that delivers results.',
+        before_why: 'A benefit with no mechanism behind it, and every agency says it.',
+        after:
+          'The only team that ties each campaign to a pre-registered revenue hypothesis, so your CFO sees the number it moved.',
+        after_why: 'A real, ownable attribute mapped to value the economic buyer cares about.',
+      },
+    ],
+    failure_patterns: [
+      'Category truism: data-driven, customer-centric, AI-powered, best-in-class.',
+      'Benefit with no mechanism: a value claim with no unique attribute behind it.',
+      'Shared attribute: a fact a named alternative could claim word for word.',
+      'Unproven superlative: best, leading, world-class with nothing behind it.',
+      'Feature dump: attributes with no value and no buyer named.',
+      'Inward jargon: internal language no buyer would use.',
+    ],
+    diagnostic_questions: [
+      'What would this buyer use if you did not exist? Name it.',
+      'What is true of you that is false of that alternative?',
+      'What does that attribute unlock that this buyer would pay for?',
+      'Could a named competitor put this exact sentence on their own site?',
+      'After one read, can a stranger say why you, not them?',
+    ],
+    fix_patterns: [
+      'Replace the truism with the one mechanism only you have.',
+      'Add the missing attribute behind the benefit: we do X because we have [unique attribute].',
+      'If the rival shares the attribute, go to the specific version only you can claim.',
+      'Cut every line a named competitor could also write.',
     ],
   },
   baseline_capture:

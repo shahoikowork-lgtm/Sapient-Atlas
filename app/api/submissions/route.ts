@@ -4,6 +4,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { runWeeklyFeedback } from '@/lib/ai/weekly-feedback'
 import { runRepCheck } from '@/lib/ai/rep-check'
 import { toUserFacingRepCheck } from '@/lib/atlas/rep-grade'
+import { getConstraintByCode } from '@/lib/atlas/constraints'
+import { methodPromptBlock } from '@/lib/atlas/constraints/types'
 
 export const runtime = 'nodejs'
 
@@ -55,15 +57,21 @@ export async function POST(request: Request) {
     .from('moves').select('title').eq('cycle_id', cycle.id)
     .in('status', ['approved', 'active', 'completed']).maybeSingle()
 
+  // The deep method both coaching layers are anchored to. V1 sells only M1, so the active
+  // constraint is M1; this is the sourced "what good looks like" that keeps the feedback
+  // sharp and specific to their work instead of generic.
+  const constraint = getConstraintByCode('M1')
+  const methodBlock = constraint ? methodPromptBlock(constraint) : undefined
+
   // Two feedback layers (ATLAS_OS §6). The instant bar-check is mechanical, crosses no gate,
   // and is returned live so the user sees where their rep cleared the bar before the next
   // mission. The weekly note is substantive: saved pending_review, delivered only after a
   // human approves it. Run together (one round-trip of latency) and degrade independently.
   const [checkRes, fbRes] = await Promise.allSettled([
     bar
-      ? runRepCheck({ missionTitle, bar, artifactText })
+      ? runRepCheck({ missionTitle, bar, artifactText, methodBlock })
       : Promise.reject(new Error('no bar for this mission')),
-    runWeeklyFeedback({ moveTitle: move?.title ?? '', week, milestone: milestoneText, artifactText }),
+    runWeeklyFeedback({ moveTitle: move?.title ?? '', week, milestone: milestoneText, artifactText, methodBlock }),
   ])
   const check = checkRes.status === 'fulfilled' ? checkRes.value : null
   const fb = fbRes.status === 'fulfilled' ? fbRes.value : null
