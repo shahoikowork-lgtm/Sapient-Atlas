@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       .select('user_id,value_mid,confidence')
     const { error: e2 } = await admin
       .from('moves')
-      .update({ status: 'approved' })
+      .update({ status: 'approved', assigned_at: new Date().toISOString() })
       .eq('cycle_id', cycleId)
       .eq('status', 'pending_review')
     if (e1 || e2) return NextResponse.json({ error: 'Update failed' }, { status: 500 })

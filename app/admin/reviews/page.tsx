@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getAllDiagnoses, DIAGNOSIS_STATUS_LABEL } from '@/lib/diagnoses'
 import { humanizeDimension } from '@/lib/format'
 import { DeleteDiagnosisButton } from './delete-button'
+import { ApproveDiagnosisButton } from './approve-button'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -70,6 +71,9 @@ export default async function AdminReviewsPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {r.status === 'reviewing' && r.cycleId ? (
+                        <ApproveDiagnosisButton cycleId={r.cycleId} />
+                      ) : null}
                       <Link
                         href={`/admin/reviews/${r.id}`}
                         className="whitespace-nowrap rounded-md border border-black/15 px-2.5 py-1 text-xs hover:bg-black/5"
