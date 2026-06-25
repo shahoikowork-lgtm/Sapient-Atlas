@@ -142,10 +142,10 @@ export function deriveMissions(plan: PlanRow, submissions: SubmissionRow[]): {
 // score, number, band, or self-report — position and direction only.
 
 export const PHASE_META: Record<Phase, { week: number; description: string }> = {
-  SEE: { week: 1, description: 'See the failure mode in your own work.' },
-  CROSS: { week: 2, description: 'The week the bar clears for the first time.' },
-  INDEPENDENCE: { week: 3, description: 'Clear it unaided, on harder work.' },
-  PROVE: { week: 4, description: 'One high-stakes rep, then real external proof.' },
+  SEE: { week: 1, description: 'Spot the weak line in your own work.' },
+  CROSS: { week: 2, description: 'The week it clicks for the first time.' },
+  INDEPENDENCE: { week: 3, description: 'Nail it on your own, on harder work.' },
+  PROVE: { week: 4, description: 'One real-stakes move, then proof from a real buyer.' },
 }
 
 export type PhaseStep = {

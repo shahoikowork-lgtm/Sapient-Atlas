@@ -43,7 +43,7 @@ export function MissionCard({
 
       {mission.successCriteria ? (
         <div className="mt-4">
-          <div className="font-mono text-eyebrow uppercase text-focal-soft">Clears when</div>
+          <div className="font-mono text-eyebrow uppercase text-focal-soft">Done when</div>
           <p className="mt-1 text-body text-on-focal-dim">{mission.successCriteria}</p>
         </div>
       ) : null}

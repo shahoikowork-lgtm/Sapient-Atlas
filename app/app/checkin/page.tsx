@@ -58,7 +58,7 @@ export default async function MissionPage() {
           ) : null}
           {current.successCriteria ? (
             <div className="mt-4 rounded-xl border border-s-line bg-s-panel p-4">
-              <div className="font-mono text-eyebrow uppercase text-s-accent">Clears when</div>
+              <div className="font-mono text-eyebrow uppercase text-s-accent">Done when</div>
               <p className="mt-1 text-body text-s-text">{current.successCriteria}</p>
             </div>
           ) : null}
@@ -72,8 +72,8 @@ export default async function MissionPage() {
           <div className="font-mono text-eyebrow uppercase text-s-accent">Nothing to submit</div>
           <p className="mt-2 text-body text-s-text-2">
             {submitted.some((m) => m.state === 'review')
-              ? 'Your latest work is in review. The next mission opens once it is confirmed.'
-              : 'You have cleared every mission. Your re-rating comes next.'}
+              ? 'Your latest work is in review. The next move opens once it is confirmed.'
+              : 'You have cleared every move. See what changed next.'}
           </p>
         </section>
       )}

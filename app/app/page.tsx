@@ -54,14 +54,14 @@ export default async function NowPage() {
                 <div className="font-mono text-eyebrow uppercase text-focal-soft">Sprint complete</div>
                 <h2 className="mt-2 text-h2 text-on-focal">Every move cleared.</h2>
                 <p className="mt-2 text-body text-on-focal-dim">
-                  Next: your re-rating shows what moved, and your next constraint.
+                  Next: see what moved, and the next thing to fix.
                 </p>
                 {assessment?.cycle_id ? (
                   <Link
                     href={`/app/rerating/${assessment.cycle_id}`}
                     className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-on-focal px-5 py-2.5 text-sm font-medium text-focal"
                   >
-                    See your re-rating →
+                    See what moved →
                   </Link>
                 ) : null}
               </div>

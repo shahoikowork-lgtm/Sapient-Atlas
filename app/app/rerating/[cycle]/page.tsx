@@ -53,12 +53,12 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
   if (reviewedCount < MIN_REVIEWED_FOR_RERATING) {
     return (
       <div>
-        <h1 className="text-h2 text-s-text">Re-rating</h1>
+        <h1 className="text-h2 text-s-text">Your 30-day check</h1>
         <p className="mt-3 text-body text-s-text-2">
-          Not enough evidence yet. Clear a mission and get it reviewed, then your re-rating appears here.
+          Not enough yet. Finish a move and get it checked, then this shows up.
         </p>
         <Link href="/app/checkin" className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-s-accent px-4 py-2.5 text-sm font-medium text-s-accent-contrast">
-          Go to your mission
+          Go to your move
         </Link>
       </div>
     )
@@ -67,9 +67,9 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
   if (approvedVas.length < 2) {
     return (
       <div>
-        <h1 className="text-h2 text-s-text">Re-rating</h1>
+        <h1 className="text-h2 text-s-text">Your 30-day check</h1>
         <p className="mt-3 text-body text-s-text-2">
-          Your re-rating is being reviewed. Every re-rating is checked by a person before you see it. Check back shortly.
+          This is being checked. A person checks every one before you see it. Back shortly.
         </p>
       </div>
     )
@@ -89,8 +89,8 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
 
   return (
     <div>
-      <div className="font-mono text-eyebrow uppercase text-s-muted">Re-rating</div>
-      <h1 className="mt-2 text-h2 text-s-text">Did your capability move?</h1>
+      <div className="font-mono text-eyebrow uppercase text-s-muted">The 30-day check</div>
+      <h1 className="mt-2 text-h2 text-s-text">Did it work?</h1>
       {verdict ? (
         <p className="mt-2 text-h3 text-s-text">
           {verdict === 'hit'
@@ -107,7 +107,7 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
       ) : null}
 
       <div className="mt-3 text-sm text-s-text-2">
-        Capability trajectory: <strong className="text-s-text">{trajectoryLabel(updated.trajectory)}</strong>
+        Where you’re trending: <strong className="text-s-text">{trajectoryLabel(updated.trajectory)}</strong>
       </div>
 
       {updated.confidence_reason ? (
@@ -117,7 +117,7 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
       {/* Prediction vs actual + verdict (qualitative, no numbers) */}
       <section className="mt-8 rounded-2xl border border-s-line bg-s-panel p-6">
         <div className="flex items-center justify-between">
-          <div className="font-mono text-eyebrow uppercase text-s-muted">Prediction vs actual</div>
+          <div className="font-mono text-eyebrow uppercase text-s-muted">What we said vs what happened</div>
           {verdict ? (
             <span className={`rounded-full px-3 py-1 text-xs font-medium ${verdictTone}`}>
               {VERDICT_LABEL[verdict] ?? verdict}
@@ -140,7 +140,7 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
       {/* Capability changes (qualitative direction, no scores) */}
       {Object.keys(newCaps).length > 0 ? (
         <section className="mt-4">
-          <h2 className="text-h3 text-s-text">Capability changes</h2>
+          <h2 className="text-h3 text-s-text">What changed</h2>
           <div className="mt-3 flex flex-col gap-2">
             {Object.entries(newCaps).map(([dim, c]) => {
               const before = prevCaps[dim]?.score
