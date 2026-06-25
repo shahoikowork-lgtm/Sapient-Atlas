@@ -3,10 +3,15 @@ import { getAppUser } from '@/lib/app-user'
 import { createClient } from '@/lib/supabase/server'
 import { ensureRerating, MIN_REVIEWED_FOR_RERATING } from '@/lib/rerating'
 import { trajectoryLabel, humanizeDimension } from '@/lib/format'
+import { DeployProof } from './deploy-proof'
 
 export const dynamic = 'force-dynamic'
 
 const VERDICT_LABEL: Record<string, string> = { hit: 'Hit', partial: 'Partial', miss: 'Miss' }
+
+// V1 sells only M1 (positioning), so the deployable capability statement is M1's. When more
+// constraints sell, derive this from the matched constraint's recognition statement.
+const PROOF_STATEMENT = 'I can now write positioning a prospect repeats back, that no competitor could claim.'
 
 // Direction of a capability move, expressed qualitatively (no numbers). The raw scores
 // stay in the backend; we only render whether the evidence got stronger or weaker.
@@ -85,6 +90,20 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
     <div>
       <div className="font-mono text-eyebrow uppercase text-s-muted">Re-rating</div>
       <h1 className="mt-2 text-h2 text-s-text">Did your capability move?</h1>
+      {verdict ? (
+        <p className="mt-2 text-h3 text-s-text">
+          {verdict === 'hit'
+            ? 'Yes. It moved.'
+            : verdict === 'partial'
+              ? 'Partly. It is moving.'
+              : 'Not yet, and here is the honest read.'}
+        </p>
+      ) : null}
+      {reviewedCount > 0 ? (
+        <p className="mt-2 text-label text-s-muted">
+          {reviewedCount} reps cleared the bar across this sprint, each one proof.
+        </p>
+      ) : null}
 
       <div className="mt-3 text-sm text-s-text-2">
         Capability trajectory: <strong className="text-s-text">{trajectoryLabel(updated.trajectory)}</strong>
@@ -145,13 +164,30 @@ export default async function ReratingPage({ params }: { params: Promise<{ cycle
         </section>
       ) : null}
 
-      {/* Next move */}
+      {/* Deployable proof — the sentence to take to your boss (only when it moved). */}
+      {verdict !== 'miss' ? <DeployProof statement={PROOF_STATEMENT} /> : null}
+
+      {/* Next constraint — the next thing to remove, framed as the next sprint. */}
       {nextMove ? (
         <section className="mt-6 rounded-3xl bg-focal p-6 shadow-focal ring-1 ring-inset ring-white/[0.06]">
-          <div className="font-mono text-eyebrow uppercase text-focal-soft">Your next move</div>
+          <div className="font-mono text-eyebrow uppercase text-focal-soft">Your next constraint</div>
           <h2 className="mt-2 text-h3 text-on-focal">{nextMove.title}</h2>
           {nextMove.thesis ? <p className="mt-2 text-body text-on-focal-dim">{nextMove.thesis}</p> : null}
+          <p className="mt-3 text-label text-focal-soft">The next thing making you replaceable. Its sprint is how you remove it.</p>
         </section>
+      ) : null}
+
+      {verdict !== 'miss' ? (
+        <p className="mt-8 text-[13px] leading-relaxed text-s-muted">
+          Did it land with a real buyer?{' '}
+          <a
+            href="mailto:feedback@sapientatlas.com?subject=My%20Why-You%20Sprint"
+            className="underline underline-offset-4 hover:text-s-text"
+          >
+            Send us the one line that changed
+          </a>
+          . This is the moment we most want to hear from you.
+        </p>
       ) : null}
 
       <div className="mt-8">

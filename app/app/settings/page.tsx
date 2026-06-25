@@ -88,7 +88,7 @@ export default async function YouPage({
             </form>
           ) : (
             <p className="text-sm text-s-text-2">
-              Your Value Sprint is a one-time payment, so there is no recurring billing to manage.
+              Your Why-You Sprint is a one-time payment, so there is no recurring billing to manage.
             </p>
           )}
           {sp.portal === 'none' ? (

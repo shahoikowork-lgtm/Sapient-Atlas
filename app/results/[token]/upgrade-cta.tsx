@@ -27,7 +27,7 @@ export function UpgradeCta({ token }: { token: string }) {
 
   return (
     <section className="rounded-2xl border border-s-line bg-s-panel p-6 sm:p-8">
-      <Eyebrow tone="muted">The 30-day Sprint</Eyebrow>
+      <Eyebrow tone="muted">The Why-You Sprint</Eyebrow>
       <h2 className="mt-2 font-serif text-[22px] font-semibold tracking-tight text-s-text">
         Thirty days to a prospect who repeats your positioning, unprompted.
       </h2>
@@ -74,7 +74,7 @@ export function UpgradeCta({ token }: { token: string }) {
 
       <div className="mt-6">
         <Button onClick={go} disabled={busy} size="lg">
-          {busy ? 'Starting checkout…' : 'Start the Sprint · $149, once'}
+          {busy ? 'Starting checkout…' : 'Start the Why-You Sprint · $149, once'}
         </Button>
       </div>
       {err ? <p className="mt-2 text-sm text-s-danger">{err}</p> : null}
