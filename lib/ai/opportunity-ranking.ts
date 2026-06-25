@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { generateJSON } from '@/lib/anthropic'
+import { PROOF_OVER_ADJECTIVES } from '@/lib/ai/voice'
 import type { Intake } from '@/lib/validation'
 import type { ValueAssessment } from '@/lib/ai/value-assessment'
 
@@ -73,7 +74,7 @@ Return a JSON object with EXACTLY these keys:
 
 export function runOpportunityRanking(intake: Intake, va: ValueAssessment) {
   return generateJSON({
-    system: SYSTEM,
+    system: `${SYSTEM}\n\n${PROOF_OVER_ADJECTIVES}`,
     prompt: buildPrompt(intake, va),
     schema: OpportunitySchema,
     maxTokens: 2000,

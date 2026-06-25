@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { generateJSON } from '@/lib/anthropic'
+import { PROOF_OVER_ADJECTIVES } from '@/lib/ai/voice'
 
 export const WeeklyFeedbackSchema = z.object({
   graded_score: z.number(),
@@ -62,7 +63,7 @@ export function runWeeklyFeedback(input: {
   methodBlock?: string
 }) {
   return generateJSON({
-    system: SYSTEM,
+    system: `${SYSTEM}\n\n${PROOF_OVER_ADJECTIVES}`,
     prompt: buildPrompt(input),
     schema: WeeklyFeedbackSchema,
     maxTokens: 1500,

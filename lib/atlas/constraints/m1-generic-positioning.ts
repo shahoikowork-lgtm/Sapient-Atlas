@@ -36,7 +36,7 @@ export const m1GenericPositioning: Constraint = {
   },
   method: {
     source:
-      'Distilled from April Dunford, Obviously Awesome (competitive alternatives, unique attributes, value, best-fit market) and Geoffrey Moore positioning template (Crossing the Chasm).',
+      'Distilled from April Dunford, Obviously Awesome (competitive alternatives, unique attributes, value, best-fit market), Geoffrey Moore positioning template (Crossing the Chasm), and David Ogilvy (proof over adjectives).',
     framework: [
       'Alternative: name what the buyer would use instead of you, a named rival, a spreadsheet, or doing nothing.',
       'Unique attribute: something true of you and false of that alternative, a fact, not a benefit.',
@@ -62,6 +62,13 @@ export const m1GenericPositioning: Constraint = {
           'The only team that ties each campaign to a pre-registered revenue hypothesis, so your CFO sees the number it moved.',
         after_why: 'A real, ownable attribute mapped to value the economic buyer cares about.',
       },
+      {
+        context: 'Proof over adjectives (any claim)',
+        before: 'This car is silent.',
+        before_why: 'An adjective with no proof, the reader cannot check it and does not feel it.',
+        after: 'At sixty miles an hour the loudest sound is the electric clock.',
+        after_why: 'Names a specific, checkable fact that cannot be faked, and makes the reader feel the silence.',
+      },
     ],
     failure_patterns: [
       'Category truism: data-driven, customer-centric, AI-powered, best-in-class.',
@@ -70,6 +77,7 @@ export const m1GenericPositioning: Constraint = {
       'Unproven superlative: best, leading, world-class with nothing behind it.',
       'Feature dump: attributes with no value and no buyer named.',
       'Inward jargon: internal language no buyer would use.',
+      'Adjective standing in for a fact: an empty descriptor (powerful, premium, seamless, best-in-class) where a specific, checkable proof belongs.',
     ],
     diagnostic_questions: [
       'What would this buyer use if you did not exist? Name it.',
@@ -83,6 +91,7 @@ export const m1GenericPositioning: Constraint = {
       'Add the missing attribute behind the benefit: we do X because we have [unique attribute].',
       'If the rival shares the attribute, go to the specific version only you can claim.',
       'Cut every line a named competitor could also write.',
+      'Swap the adjective for the specific checkable thing: not fast but saves two hours, not trusted but who trusted it, not durable but what it survived.',
     ],
   },
   baseline_capture:

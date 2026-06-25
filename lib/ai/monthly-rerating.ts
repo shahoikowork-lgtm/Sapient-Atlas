@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { generateJSON } from '@/lib/anthropic'
+import { PROOF_OVER_ADJECTIVES } from '@/lib/ai/voice'
 
 export const ReratingSchema = z.object({
   value_low: z.number(),
@@ -94,7 +95,7 @@ export function runMonthlyRerating(input: {
   submissions: { week: number; score: unknown; feedback: unknown; work: string }[]
 }) {
   return generateJSON({
-    system: SYSTEM,
+    system: `${SYSTEM}\n\n${PROOF_OVER_ADJECTIVES}`,
     prompt: buildPrompt(input),
     schema: ReratingSchema,
     maxTokens: 2500,

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { generateJSON } from '@/lib/anthropic'
+import { PROOF_OVER_ADJECTIVES } from '@/lib/ai/voice'
 import type { Intake } from '@/lib/validation'
 
 // Maps to the value_assessments table columns.
@@ -73,7 +74,7 @@ Return a JSON object with EXACTLY these keys:
 
 export function runValueAssessment(intake: Intake) {
   return generateJSON({
-    system: SYSTEM,
+    system: `${SYSTEM}\n\n${PROOF_OVER_ADJECTIVES}`,
     prompt: buildPrompt(intake),
     schema: ValueAssessmentSchema,
     maxTokens: 2000,

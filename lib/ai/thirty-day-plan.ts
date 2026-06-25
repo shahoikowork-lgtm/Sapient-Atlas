@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { generateJSON } from '@/lib/anthropic'
+import { PROOF_OVER_ADJECTIVES } from '@/lib/ai/voice'
 import { M1_LADDER } from '@/lib/ladder'
 
 // V1 sells one constraint: Marketer · M1 (positioning). The Sprint is the fixed 9-mission
@@ -87,7 +88,7 @@ export async function runThirtyDayPlan(input: {
   capabilities: unknown
 }): Promise<ThirtyDayPlan> {
   const gen = await generateJSON({
-    system: SYSTEM,
+    system: `${SYSTEM}\n\n${PROOF_OVER_ADJECTIVES}`,
     prompt: buildPrompt(input),
     schema: GenSchema,
     maxTokens: 2500,
