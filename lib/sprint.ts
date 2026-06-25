@@ -129,3 +129,80 @@ export function deriveMissions(plan: PlanRow, submissions: SubmissionRow[]): {
     total,
   }
 }
+
+// ── The visible journey (ATLAS_OS §5) ──────────────────────────────────────────
+// Pure projections of the same missions/submissions: the four-phase Sprint arc as a path
+// the user can see, and the three doctrine progress axes as qualitative positions. No
+// score, number, band, or self-report — position and direction only.
+
+export const PHASE_META: Record<Phase, { week: number; description: string }> = {
+  SEE: { week: 1, description: 'See the failure mode in your own work.' },
+  CROSS: { week: 2, description: 'The week the bar clears for the first time.' },
+  INDEPENDENCE: { week: 3, description: 'Clear it unaided, on harder work.' },
+  PROVE: { week: 4, description: 'One high-stakes rep, then real external proof.' },
+}
+
+export type PhaseStep = {
+  phase: Phase
+  week: number
+  description: string
+  state: 'done' | 'current' | 'review' | 'upcoming'
+}
+
+// The four phases with each one's state, derived from where the missions stand.
+export function derivePhaseJourney(missions: Mission[]): PhaseStep[] {
+  return PHASES.map((phase) => {
+    const inPhase = missions.filter((m) => m.phase === phase)
+    let state: PhaseStep['state'] = 'upcoming'
+    if (inPhase.length > 0) {
+      if (inPhase.some((m) => m.state === 'current')) state = 'current'
+      else if (inPhase.some((m) => m.state === 'review')) state = 'review'
+      else if (inPhase.every((m) => m.state === 'done')) state = 'done'
+      else if (inPhase.some((m) => m.state === 'done')) state = 'current'
+    }
+    return { phase, week: PHASE_META[phase].week, description: PHASE_META[phase].description, state }
+  })
+}
+
+// A qualitative position on one progress axis: a 1-3 step and a word. Never a score.
+export type AxisView = { key: string; label: string; note: string; step: 1 | 2 | 3 }
+
+// The three doctrine axes. Independence and difficulty are structural — the Sprint arc
+// withdraws scaffolding and raises stakes by phase, so the phase is the honest reading.
+// Quality is the real signal: the latest rep's bar-check verdict (hit / partial / miss).
+export function deriveProgressAxes(missions: Mission[], submissions: SubmissionRow[]): AxisView[] {
+  const active = missions.find((m) => m.state === 'current') ?? missions.find((m) => m.state === 'review')
+  const phase: Phase =
+    active?.phase ?? (missions.length > 0 && missions.every((m) => m.state === 'done') ? 'PROVE' : 'SEE')
+  const ladder: 1 | 2 | 3 = phase === 'SEE' ? 1 : phase === 'CROSS' ? 2 : 3
+
+  const graded = submissions.filter((s) => (s.feedback as { quality?: string } | null)?.quality)
+  const latestQuality = graded.length
+    ? ((graded[graded.length - 1].feedback as { quality?: string }).quality as 'hit' | 'partial' | 'miss')
+    : null
+  const qStep: 1 | 2 | 3 = latestQuality === 'hit' ? 3 : latestQuality === 'partial' ? 2 : 1
+  const qNote =
+    latestQuality === 'hit'
+      ? 'hitting the bar'
+      : latestQuality === 'partial'
+        ? 'partly there'
+        : latestQuality === 'miss'
+          ? 'not yet, keep repping'
+          : 'first rep ahead'
+
+  return [
+    { key: 'quality', label: 'Quality', note: qNote, step: qStep },
+    {
+      key: 'independence',
+      label: 'Independence',
+      note: ladder === 1 ? 'heavy support' : ladder === 2 ? 'less support' : 'on your own',
+      step: ladder,
+    },
+    {
+      key: 'difficulty',
+      label: 'Difficulty',
+      note: ladder === 1 ? 'low stakes' : ladder === 2 ? 'real stakes' : 'high stakes',
+      step: ladder,
+    },
+  ]
+}
