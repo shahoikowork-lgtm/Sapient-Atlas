@@ -5,6 +5,7 @@ import { generateResultToken } from '@/lib/tokens'
 import { runValueAssessment } from '@/lib/ai/value-assessment'
 import { runOpportunityRanking } from '@/lib/ai/opportunity-ranking'
 import { runConstraintMatch } from '@/lib/ai/constraint-match'
+import { runExtractSignals } from '@/lib/ai/extract-signals'
 import { classifyDecline } from '@/lib/atlas/decline-gate'
 import { getConstraintByCode } from '@/lib/atlas/constraints'
 
@@ -143,10 +144,12 @@ export async function POST(request: Request) {
     // change). Only an `accepted` M1 result may sell a Sprint; known-but-inactive or
     // non-marketing constraints route to `waitlist`; everything else routes the user away.
     try {
-      const classification = await runConstraintMatch(intake, {
-        observation: va.observation,
-        gaps: va.gaps,
-      })
+      // Match the constraint and pull the user's raw signals together. Signal extraction is
+      // best-effort on its own (null on failure) so it can never fail the diagnosis.
+      const [classification, signals] = await Promise.all([
+        runConstraintMatch(intake, { observation: va.observation, gaps: va.gaps }),
+        runExtractSignals(intake.work_sample).catch(() => null),
+      ])
       const declineResult = classifyDecline(classification)
       // Authored bar/rep data exists only for the sellable (accepted/M1) constraint.
       const authored =
@@ -173,6 +176,7 @@ export async function POST(request: Request) {
                       joined_at: new Date().toISOString(),
                     }
                   : null,
+              signals,
             },
           },
         })

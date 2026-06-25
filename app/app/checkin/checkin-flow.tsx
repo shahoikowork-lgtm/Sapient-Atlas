@@ -24,6 +24,7 @@ export function CheckinFlow({
   successCriteria,
   example,
   barConditions = [],
+  signals,
 }: {
   week: number
   phase: string
@@ -35,6 +36,7 @@ export function CheckinFlow({
   successCriteria: string
   example?: { before: string; after: string }
   barConditions?: string[]
+  signals?: { weakLine: string; competitor: string }
 }) {
   const router = useRouter()
   const [screen, setScreen] = useState(0) // 0 = intro · 1..steps.length = steps · > steps.length = submit
@@ -177,6 +179,14 @@ export function CheckinFlow({
     </div>
   )
 
+  const materialRef = signals?.weakLine ? (
+    <div className="rounded-lg border border-s-line bg-s-panel px-3 py-2 text-[12.5px] leading-relaxed">
+      <span className="text-s-muted">Your day-1 line: </span>
+      <span className="text-s-text">&ldquo;{signals.weakLine}&rdquo;</span>
+      {signals.competitor ? <span className="text-s-muted"> · up against {signals.competitor}</span> : null}
+    </div>
+  ) : null
+
   // ── Intro ───────────────────────────────────────────────────────────────────────
   if (screen === 0) {
     return (
@@ -190,6 +200,7 @@ export function CheckinFlow({
         <h1 className="text-h2 text-s-text">{title}</h1>
         <p className="text-label text-s-muted">Step {n} toward a buyer saying &ldquo;why you.&rdquo;</p>
         {task ? <p className="text-body text-s-text-2">{task}</p> : null}
+        {materialRef}
         {example ? (
           <div className="rounded-xl border border-s-line bg-s-panel p-4">
             <div className="font-mono text-eyebrow uppercase text-s-muted">What good looks like</div>
@@ -210,6 +221,7 @@ export function CheckinFlow({
     return (
       <div className="flex flex-col gap-5">
         {progress}
+        {materialRef}
         <div>
           <div className="font-mono text-eyebrow uppercase text-s-muted">Step {screen} of {totalSteps}</div>
           <p className="mt-2 text-h3 text-s-text">{steps[i]}</p>

@@ -5,6 +5,7 @@ import { ensureSprintPlan, deriveMissions } from '@/lib/sprint'
 import { Eyebrow } from '@/components/atlas'
 import { CheckinFlow } from './checkin-flow'
 import { getConstraintByCode } from '@/lib/atlas/constraints'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +21,22 @@ export default async function MissionPage() {
   const ex = m1?.method?.worked_examples?.[0]
   const example = ex ? { before: ex.before, after: ex.after } : undefined
   const barConditions = m1?.bar?.pass_conditions ?? []
+
+  // Their own material from the diagnosis (day-1 line + competitor) so the move starts from
+  // their real work, not a blank box. Best-effort: absent for older cycles, the flow copes.
+  let signals: { weakLine: string; competitor: string } | undefined
+  if (user) {
+    const { data: cyc } = await createAdminClient()
+      .from('cycles')
+      .select('profile_snapshot')
+      .eq('user_id', user.id)
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    const s = (cyc?.profile_snapshot as { atlas?: { signals?: { weak_line?: string; competitor?: string } } } | null)
+      ?.atlas?.signals
+    if (s?.weak_line) signals = { weakLine: s.weak_line, competitor: s.competitor ?? '' }
+  }
 
   if (missions.length === 0) {
     return (
@@ -50,6 +67,7 @@ export default async function MissionPage() {
             successCriteria={current.successCriteria ?? ''}
             example={example}
             barConditions={barConditions}
+            signals={signals}
           />
         </div>
       ) : (
