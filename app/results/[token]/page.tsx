@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { trajectoryLabel, aiExposureLabel, humanizeDimension } from '@/lib/format'
@@ -13,6 +14,19 @@ export const dynamic = 'force-dynamic'
 // quoted evidence from the user's own work is the dominant, repeated element, then the
 // interpretation, the constraints, and the one move. No scores, bands, bars, percentages,
 // or valuation signals are shown to the user. Rendered in the dark instrument register.
+function Header() {
+  return (
+    <header className="border-b border-s-line">
+      <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3.5">
+        <Link href="/" className="font-semibold tracking-tight text-s-text transition-opacity hover:opacity-70">
+          Sapient Atlas
+        </Link>
+        <span className="font-mono text-eyebrow uppercase text-s-muted">Your results</span>
+      </div>
+    </header>
+  )
+}
+
 export default async function ResultsPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
   const admin = createAdminClient()
@@ -36,17 +50,6 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
   const atlas = (cycle?.profile_snapshot as { atlas?: AtlasCycleData } | null)?.atlas
   const eligibility = sprintEligibility(atlas)
   const constraintName = atlas?.constraint_name ?? null
-
-  const Header = () => (
-    <header className="border-b border-s-line">
-      <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3.5">
-        <a href="/" className="font-semibold tracking-tight text-s-text transition-opacity hover:opacity-70">
-          Sapient Atlas
-        </a>
-        <span className="font-mono text-eyebrow uppercase text-s-muted">Your results</span>
-      </div>
-    </header>
-  )
 
   // needs_more_artifact: ask for a fuller piece of work and show no Sprint CTA.
   if (eligibility.mode === 'needs_more_artifact') {
@@ -146,6 +149,14 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
           </section>
         ) : null}
 
+        {/* The named constraint — one quotable, screenshot-worthy line. */}
+        {constraintName ? (
+          <section className="mt-12 rounded-2xl border border-s-accent/30 bg-s-accent-tint p-6">
+            <div className="font-mono text-eyebrow uppercase text-s-accent">The one thing holding your work back</div>
+            <h2 className="mt-2 text-h2 text-s-text">{constraintName}</h2>
+          </section>
+        ) : null}
+
         {/* 2. INTERPRETATION — the considered judgment, after the evidence. */}
         {va.observation ? (
           <section className="mt-12 border-t border-s-line pt-10">
@@ -241,6 +252,13 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
             <section className="rounded-2xl border border-s-line bg-s-panel p-6">
               <Eyebrow tone="muted">Where this leaves you</Eyebrow>
               <p className="mt-2 text-body-lg text-s-text-2">{eligibility.explanation}</p>
+              <p className="mt-4 text-body text-s-text-2">
+                If you have other real work, a different piece might map to something a 30-day sprint can move. No dead
+                end here.
+              </p>
+              <div className="mt-4">
+                <ButtonLink href="/diagnosis" size="lg">Try a different piece of your work</ButtonLink>
+              </div>
             </section>
           ) : null}
         </div>
