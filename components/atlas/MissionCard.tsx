@@ -28,6 +28,16 @@ export function MissionCard({
         <div className="mt-4">
           <div className="font-mono text-eyebrow uppercase text-focal-soft">Do this</div>
           <p className="mt-1 text-body text-on-focal-dim">{mission.task}</p>
+          {mission.steps && mission.steps.length > 0 ? (
+            <ol className="mt-3 flex flex-col gap-2 text-body text-on-focal-dim">
+              {mission.steps.map((step, i) => (
+                <li key={i} className="flex gap-2.5">
+                  <span className="mt-px font-mono text-eyebrow text-focal-soft tabular">{i + 1}</span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          ) : null}
         </div>
       ) : null}
 

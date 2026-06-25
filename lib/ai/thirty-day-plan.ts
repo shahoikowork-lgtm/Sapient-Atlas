@@ -10,6 +10,7 @@ import { M1_LADDER } from '@/lib/ladder'
 const RungSchema = z.object({
   title: z.string().optional(),
   task: z.string(),
+  steps: z.array(z.string()).max(4).optional(),
   success_criteria: z.string(),
 })
 
@@ -20,6 +21,7 @@ export const ThirtyDayPlanSchema = z.object({
         week: z.number(),
         title: z.string(),
         task: z.string(),
+        steps: z.array(z.string()).optional(),
         success_criteria: z.string(),
         phase: z.string().optional(),
       }),
@@ -37,8 +39,9 @@ const SYSTEM = `You are the Execution Engine of Sapient Atlas.
 The user is on the Marketer positioning Sprint: a fixed ladder of 9 missions, each a small rep done on the user's REAL work, escalating across four phases (SEE → CROSS → INDEPENDENCE → PROVE).
 
 The 9 mission titles are FIXED and given to you. Do not rename, reorder, add, or drop any. For EACH of the 9, write:
-- task: one specific action done on the user's real campaigns/pages this rep, producing an artifact. Not reading, not research, not courses.
-- success_criteria: how they will know this rep cleared the bar, in concrete, checkable terms.
+- task: ONE short sentence naming the single action of this rep on the user's real campaigns/pages — the directive, scannable at a glance. Not a paragraph. Not reading, not research, not courses.
+- steps: 2 to 4 short imperative steps (a few words each) for how to do it on their real work. Concrete and specific, no filler.
+- success_criteria: how they will know this rep cleared the bar, in concrete, checkable terms. One or two sentences.
 
 Hard rules:
 - Exactly 9 missions, in the given order.
@@ -70,7 +73,7 @@ ${LADDER_LIST}
 Return JSON with exactly 9 entries, in this order, one per mission above:
 {
   "missions": [
-    { "task": string, "success_criteria": string }
+    { "task": string, "steps": string[], "success_criteria": string }
     // ...9 total, aligned to missions 1..9
   ]
 }`
@@ -100,6 +103,7 @@ export async function runThirtyDayPlan(input: {
       title: rung.title,
       phase: rung.phase,
       task: detail?.task ?? `Apply "${rung.title}" to a real piece of your current work.`,
+      steps: detail?.steps,
       success_criteria:
         detail?.success_criteria ?? 'A real prospect or colleague can tell why you, not a competitor.',
     }

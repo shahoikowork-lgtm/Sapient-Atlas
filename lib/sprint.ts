@@ -47,7 +47,7 @@ export async function ensureSprintPlan(user: AppUser): Promise<void> {
   }
 }
 
-type Milestone = { week?: number; title?: string; task?: string; success_criteria?: string; phase?: string }
+type Milestone = { week?: number; title?: string; task?: string; steps?: string[]; success_criteria?: string; phase?: string }
 type PlanRow = { weekly_milestones?: Milestone[] } | null
 type SubmissionRow = { week: number; status: string; graded_score?: number | null; feedback?: unknown }
 
@@ -55,6 +55,7 @@ export type Week = {
   week: number
   title?: string
   task?: string
+  steps?: string[]
   success_criteria?: string
   phase?: string
   submission: SubmissionRow | null
@@ -73,7 +74,7 @@ export function deriveWeeks(plan: PlanRow, submissions: SubmissionRow[]): {
     const week = m.week ?? i + 1
     const sub = byWeek.get(week) ?? null
     const state: Week['state'] = !sub ? 'todo' : sub.status === 'reviewed' ? 'done' : 'pending'
-    return { week, title: m.title, task: m.task, success_criteria: m.success_criteria, phase: m.phase, submission: sub, state }
+    return { week, title: m.title, task: m.task, steps: m.steps, success_criteria: m.success_criteria, phase: m.phase, submission: sub, state }
   })
   const currentWeek = weeks.find((w) => w.state === 'todo')?.week ?? null
   return { weeks, currentWeek }
@@ -95,6 +96,7 @@ export type Mission = {
   week: number // the submission key — identical to the milestone's week
   title?: string
   task?: string
+  steps?: string[]
   successCriteria?: string
   phase: Phase
   state: 'done' | 'review' | 'current' | 'locked'
@@ -118,7 +120,7 @@ export function deriveMissions(plan: PlanRow, submissions: SubmissionRow[]): {
     if (w.state === 'done') state = 'done'
     else if (w.state === 'pending') state = 'review'
     else state = w.week === currentWeek ? 'current' : 'locked'
-    return { n: i + 1, total, week: w.week, title: w.title, task: w.task, successCriteria: w.success_criteria, phase, state }
+    return { n: i + 1, total, week: w.week, title: w.title, task: w.task, steps: w.steps, successCriteria: w.success_criteria, phase, state }
   })
   return {
     missions,

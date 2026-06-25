@@ -44,6 +44,16 @@ export default async function MissionPage() {
             <div className="mt-5">
               <div className="font-mono text-eyebrow uppercase text-s-muted">Do this</div>
               <p className="mt-1 text-body text-s-text-2">{current.task}</p>
+              {current.steps && current.steps.length > 0 ? (
+                <ol className="mt-3 flex flex-col gap-2 text-body text-s-text-2">
+                  {current.steps.map((step, i) => (
+                    <li key={i} className="flex gap-2.5">
+                      <span className="mt-px font-mono text-eyebrow text-s-muted tabular">{i + 1}</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
             </div>
           ) : null}
           {current.successCriteria ? (
