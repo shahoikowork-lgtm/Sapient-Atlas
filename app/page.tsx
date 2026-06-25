@@ -84,7 +84,9 @@ export default function Landing() {
       {/* 3 — THE DIAGNOSIS: scroll-pinned demonstration of how the constraint is found. */}
       <Section size="md" width="product" className="border-t border-hairline bg-surface">
         <Eyebrow tone="muted">The diagnosis</Eyebrow>
-        <h2 className="mt-3 max-w-[20ch] text-h1 text-ink">Your work, read the way a sharp outside buyer would.</h2>
+        <h2 className="mt-3 max-w-[26ch] text-h1 text-ink">
+          Your work, read the way a buyer choosing between you and three rivals would.
+        </h2>
         <div className="mt-10">
           <ScrollStage demo={DEMO} />
         </div>
