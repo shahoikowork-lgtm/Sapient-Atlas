@@ -6,8 +6,8 @@ import type { Mission } from '@/lib/sprint'
 export function MissionCard({
   mission,
   href = '/app/checkin',
-  cta = 'Start this mission',
-  estimate = '~30 min',
+  cta = "Start today's move",
+  estimate = '~10 min',
 }: {
   mission: Mission
   href?: string
@@ -19,10 +19,10 @@ export function MissionCard({
       <div className="flex items-center justify-between">
         <span className="font-mono text-eyebrow uppercase text-focal-soft">{mission.phase}</span>
         <span className="font-mono text-eyebrow uppercase text-focal-soft tabular">
-          Mission {mission.n} of {mission.total} · {estimate}
+          Move {mission.n} of {mission.total} · {estimate}
         </span>
       </div>
-      <h2 className="mt-3 text-h2 text-on-focal">{mission.title ?? `Mission ${mission.n}`}</h2>
+      <h2 className="mt-3 text-h2 text-on-focal">{mission.title ?? `Move ${mission.n}`}</h2>
 
       {mission.task ? (
         <div className="mt-4">

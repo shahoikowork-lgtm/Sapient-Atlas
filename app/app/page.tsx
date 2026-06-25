@@ -27,44 +27,32 @@ export default async function NowPage() {
           <div className="font-mono text-eyebrow uppercase text-s-accent">Getting ready</div>
           <h2 className="mt-2 text-h3 text-s-text">Your read is being prepared.</h2>
           <p className="mt-2 text-body text-s-text-2">
-            A person is reviewing your diagnosis. Your first mission opens here once it&apos;s confirmed.
+            A person is reviewing your diagnosis. Your first move opens here once it&apos;s confirmed.
           </p>
         </div>
       ) : (
         <>
-          {/* The destination: where these 30 days end, always in view. */}
-          {move.target_outcome ? (
-            <div className="mt-6 rounded-2xl border border-s-line bg-s-panel p-5">
-              <div className="font-mono text-eyebrow uppercase tracking-[0.14em] text-s-accent">
-                Where this is going
-              </div>
-              <p className="mt-1.5 text-body text-s-text-2">{move.target_outcome}</p>
-            </div>
-          ) : null}
-
-          {/* The path: the four phases, and where you stand on them. */}
-          {missions.length > 0 ? (
-            <div className="mt-7">
-              <SprintJourney missions={missions} />
-            </div>
-          ) : null}
-
-          {/* The work now. */}
+          {/* The one thing now — single focus, above everything else. */}
           <div className="mt-7">
             {current ? (
-              <MissionCard mission={current} />
+              <>
+                <MissionCard mission={current} />
+                {current.phase === 'CROSS' ? (
+                  <p className="mt-3 text-label text-s-muted">
+                    This is the week it gets harder before it clicks. That&apos;s the work, not failure.
+                  </p>
+                ) : null}
+              </>
             ) : reviewing ? (
               <div className="rounded-3xl border border-s-line bg-s-panel p-7">
                 <div className="font-mono text-eyebrow uppercase text-s-accent">In review</div>
                 <h2 className="mt-2 text-h3 text-s-text">Your work is being checked.</h2>
-                <p className="mt-2 text-body text-s-text-2">
-                  The next mission opens the moment it&apos;s confirmed.
-                </p>
+                <p className="mt-2 text-body text-s-text-2">The next move opens the moment it&apos;s confirmed.</p>
               </div>
             ) : complete ? (
               <div className="rounded-3xl bg-focal p-7 shadow-focal ring-1 ring-inset ring-white/[0.06]">
                 <div className="font-mono text-eyebrow uppercase text-focal-soft">Sprint complete</div>
-                <h2 className="mt-2 text-h2 text-on-focal">Every mission cleared.</h2>
+                <h2 className="mt-2 text-h2 text-on-focal">Every move cleared.</h2>
                 <p className="mt-2 text-body text-on-focal-dim">
                   Next: your re-rating shows what moved, and your next constraint.
                 </p>
@@ -80,40 +68,59 @@ export default async function NowPage() {
             ) : (
               <div className="rounded-3xl border border-s-line bg-s-panel p-7">
                 <div className="font-mono text-eyebrow uppercase text-s-accent">Building your path</div>
-                <h2 className="mt-2 text-h3 text-s-text">Preparing your missions…</h2>
+                <h2 className="mt-2 text-h3 text-s-text">Preparing your moves…</h2>
                 <p className="mt-2 text-body text-s-text-2">This takes a moment. Refresh shortly.</p>
               </div>
             )}
           </div>
 
-          {/* You're getting better: the three axes, qualitative. */}
+          {/* Momentum from real progress — never a streak. */}
           {current ? (
-            <div className="mt-7">
-              <div className="mb-2.5 font-mono text-eyebrow uppercase tracking-[0.14em] text-s-muted">
-                You&apos;re getting better
-              </div>
-              <ProgressAxes axes={axes} />
-            </div>
+            <p className="mt-4 text-label text-s-muted">
+              {cleared > 0
+                ? `${cleared} cleared · your positioning is sharper than day one.`
+                : 'Do this one move. The skill compounds across the next 30 days.'}
+            </p>
           ) : null}
 
-          {/* The proof forming toward day 30. */}
-          {missions.length > 0 && !complete ? (
-            <div className="mt-6 rounded-2xl border border-s-line bg-s-panel p-4">
-              <p className="text-sm text-s-text-2">
-                <span className="font-medium text-s-text">Your proof is forming.</span>{' '}
-                {cleared > 0 ? `${cleared} cleared so far. ` : ''}By day 30 you hold a real artifact, and one
-                sentence you can say to your boss.
-              </p>
-            </div>
-          ) : null}
-
+          {/* The path, progress, and destination — context, below the move. */}
           {missions.length > 0 ? (
-            <div className="mt-5">
+            <div className="mt-10 flex flex-col gap-7 border-t border-s-line pt-8">
+              {move.target_outcome ? (
+                <div className="rounded-2xl border border-s-line bg-s-panel p-5">
+                  <div className="font-mono text-eyebrow uppercase tracking-[0.14em] text-s-accent">
+                    Where this is going
+                  </div>
+                  <p className="mt-1.5 text-body text-s-text-2">{move.target_outcome}</p>
+                </div>
+              ) : null}
+
+              <SprintJourney missions={missions} />
+
+              {current ? (
+                <div>
+                  <div className="mb-2.5 font-mono text-eyebrow uppercase tracking-[0.14em] text-s-muted">
+                    You&apos;re getting better
+                  </div>
+                  <ProgressAxes axes={axes} />
+                </div>
+              ) : null}
+
+              {!complete ? (
+                <div className="rounded-2xl border border-s-line bg-s-panel p-4">
+                  <p className="text-sm text-s-text-2">
+                    <span className="font-medium text-s-text">Your proof is forming.</span>{' '}
+                    {cleared > 0 ? `${cleared} cleared so far. ` : ''}By day 30 you hold a real artifact, and one
+                    sentence you can say to your boss.
+                  </p>
+                </div>
+              ) : null}
+
               <Link
                 href="/app/move"
                 className="text-label text-s-muted underline-offset-4 hover:text-s-text hover:underline"
               >
-                Mission {current?.n ?? cleared} of {total} · see the full path →
+                Move {current?.n ?? cleared} of {total} · see the full path →
               </Link>
             </div>
           ) : null}

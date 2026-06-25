@@ -28,12 +28,18 @@ export async function ensureSprintPlan(user: AppUser): Promise<void> {
       .eq('cycle_id', cycle.id).in('status', ['approved', 'active', 'completed']).maybeSingle()
     if (!assessment || !move) return
 
+    // The user's own submitted work — Mission 1 (the day-one win) rewrites its weakest line.
+    const { data: diag } = await admin
+      .from('diagnoses').select('work_sample')
+      .eq('cycle_id', cycle.id).order('created_at', { ascending: false }).limit(1).maybeSingle()
+
     const plan = await runThirtyDayPlan({
       moveTitle: move.title,
       moveThesis: move.thesis ?? '',
       moveTarget: move.target_outcome ?? '',
       gaps: assessment.gaps,
       capabilities: assessment.capability_scores,
+      workSample: diag?.work_sample ?? '',
     })
 
     await admin.from('plans').insert({

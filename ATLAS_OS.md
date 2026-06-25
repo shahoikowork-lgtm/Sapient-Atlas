@@ -204,10 +204,20 @@ time. Rep progression for every constraint follows the universal Sprint arc (§5
 | 4 | **Prove** | One high-stakes independent rep → externally validated proof | Real stakes |
 
 **Day 1** establishes: the 30-day target, the bar (with a worked example), the baseline rep,
-the queue of real work to rep on, and an explicit naming of the Week-2 valley.
+the queue of real work to rep on, and an explicit naming of the Week-2 valley. It also
+delivers the **first felt win in the first session**: the user rewrites the single weakest,
+most generic line from their own submitted work and watches it clear the first bar — proof on
+day one, not only at day 30.
 
-**The rep** is the smallest unit of real work that forces the constrained capability,
-~20–40 minutes, always on the user's actual work — never an exercise. A Sprint is ~8–12 reps.
+**The rep is a daily move** — the smallest unit of real work that forces the constrained
+capability, ~10 minutes, on one piece of the user's actual work, done most days — never an
+exercise. A Sprint is a cadence of these small moves over 30 days, done at a near-daily
+rhythm and grouped into the four phases. The smallest possible move keeps activation energy low, especially in
+the Week-2 valley; the bar, not the clock, defines when a move clears.
+
+> *Revised 2026-06-25: V1 moved from ~8–12 reps of 20–40 min to a daily ~10-minute cadence,
+> to cut time-to-first-win and daily effort (Hormozi value equation). The four-phase arc, the
+> weekly-tightening bar, the three progress axes, and externally validated proof are unchanged.*
 
 **The bar tightens weekly** on the same capability: distinct → distinct + excludes/falsifiable
 → provable, unaided → high-stakes + externally validated.

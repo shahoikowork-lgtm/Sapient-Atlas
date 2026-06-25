@@ -35,10 +35,10 @@ export default async function MissionPage() {
           <div className="flex items-center justify-between">
             <span className="font-mono text-eyebrow uppercase text-s-accent">{current.phase}</span>
             <span className="font-mono text-eyebrow uppercase text-s-muted tabular">
-              Mission {current.n} of {current.total} · ~30 min
+              Move {current.n} of {current.total} · ~10 min
             </span>
           </div>
-          <h1 className="mt-2 text-h2 text-s-text">{current.title ?? `Mission ${current.n}`}</h1>
+          <h1 className="mt-2 text-h2 text-s-text">{current.title ?? `Move ${current.n}`}</h1>
 
           {current.task ? (
             <div className="mt-5">

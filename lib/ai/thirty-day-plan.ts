@@ -40,13 +40,15 @@ const SYSTEM = `You are the Execution Engine of Sapient Atlas.
 The user is on the Marketer positioning Sprint: a fixed ladder of 9 missions, each a small rep done on the user's REAL work, escalating across four phases (SEE → CROSS → INDEPENDENCE → PROVE).
 
 The 9 mission titles are FIXED and given to you. Do not rename, reorder, add, or drop any. For EACH of the 9, write:
-- task: ONE short sentence naming the single action of this rep on the user's real campaigns/pages — the directive, scannable at a glance. Not a paragraph. Not reading, not research, not courses.
+- task: ONE short sentence naming the single ~10-minute action of this move on ONE piece of the user's real work (one headline, one opener, one section) — the directive, scannable at a glance. Not a paragraph, not a 40-minute project, not reading or research.
 - steps: 2 to 4 short imperative steps (a few words each) for how to do it on their real work. Concrete and specific, no filler.
 - success_criteria: how they will know this rep cleared the bar, in concrete, checkable terms. One or two sentences.
 
 Hard rules:
 - Exactly 9 missions, in the given order.
-- Grounded in the user's move and gaps. No generic advice.
+- MISSION 1 is the day-one win: its task is to rewrite the single weakest, most generic line taken from the user's OWN submitted work (shown below) so a named competitor could not also claim it. Quote that exact line in the task. Doable in ~10 minutes.
+- Every move is ~10 minutes on one small artifact, low activation energy. Tiny and near-daily, never a 40-minute project.
+- Grounded in the user's move, gaps, and submitted work. No generic advice.
 - Each builds on the last toward the move's target outcome.
 - Output ONLY valid JSON.`
 
@@ -56,6 +58,7 @@ function buildPrompt(input: {
   moveTarget: string
   gaps: unknown
   capabilities: unknown
+  workSample: string
 }): string {
   return `THE MOVE
 Title: ${input.moveTitle}
@@ -67,6 +70,11 @@ ${JSON.stringify(input.gaps)}
 
 CAPABILITIES
 ${JSON.stringify(input.capabilities)}
+
+THE USER'S SUBMITTED WORK (take Mission 1's weakest line from this)
+"""
+${input.workSample || '(no work sample on file)'}
+"""
 
 THE 9 MISSIONS (fixed titles, in order)
 ${LADDER_LIST}
@@ -86,6 +94,7 @@ export async function runThirtyDayPlan(input: {
   moveTarget: string
   gaps: unknown
   capabilities: unknown
+  workSample: string
 }): Promise<ThirtyDayPlan> {
   const gen = await generateJSON({
     system: `${SYSTEM}\n\n${PROOF_OVER_ADJECTIVES}`,
