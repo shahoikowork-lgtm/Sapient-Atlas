@@ -4,7 +4,10 @@ import { notFound } from 'next/navigation'
 import { trajectoryLabel, aiExposureLabel, humanizeDimension } from '@/lib/format'
 import { ButtonLink, Card, Eyebrow, Evidence, Pill, MoveCard, WaitlistState } from '@/components/atlas'
 import { sprintEligibility, type AtlasCycleData } from '@/lib/atlas/eligibility'
+import { getConstraintByCode } from '@/lib/atlas/constraints'
+import { getMicroSkill } from '@/lib/atlas/constraints/types'
 import { UpgradeCta } from './upgrade-cta'
+import { InstantRead } from './instant-read'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -87,6 +90,49 @@ export default async function ResultsPage({ params }: { params: Promise<{ token:
     .maybeSingle()
 
   if (!va || !move) {
+    // INSTANT MAP-BOUND READ — shown the moment the user submits, with no wait for human
+    // approval. Built only from data already computed at diagnosis (the extracted swap-test
+    // signals, the Decline Gate decision, the matched constraint) + the authored capability map.
+    // No free-composed prose: the full human-reviewed read (the AI value assessment + move,
+    // loaded above) stays gated and replaces this once a person approves it.
+    const atlasRead = atlas as
+      | (AtlasCycleData & { constraint_code?: string; signals?: { weak_line?: string; competitor?: string } | null })
+      | null
+      | undefined
+    const weakLine = atlasRead?.signals?.weak_line || undefined
+    const competitor = atlasRead?.signals?.competitor || undefined
+    const movable = eligibility.show_sprint_cta
+    const constraint = atlasRead?.constraint_code ? getConstraintByCode(atlasRead.constraint_code) : undefined
+    const firstMove =
+      movable && constraint
+        ? getMicroSkill(constraint, 'unique_attribute')?.fix ?? constraint.capability_map?.micro_skills?.[0]?.fix ?? null
+        : null
+
+    // Only render the instant read when we actually have map-bound material; otherwise fall
+    // back to the original reviewed-wait state (older or unclassified cycles).
+    if (constraintName || weakLine) {
+      return (
+        <div className="instrument min-h-screen bg-s-bg text-s-text">
+          <Header />
+          <main className="mx-auto w-full max-w-2xl px-6 py-14">
+            <InstantRead
+              token={token}
+              movable={movable}
+              mode={eligibility.mode}
+              weakLine={weakLine}
+              competitor={competitor}
+              constraintName={constraintName}
+              whyItMatters={movable ? constraint?.why_it_matters ?? null : null}
+              barDefinition={movable ? constraint?.bar?.definition ?? null : null}
+              barConditions={movable ? constraint?.bar?.pass_conditions?.slice(0, 3) ?? [] : []}
+              firstMove={firstMove}
+              explanation={eligibility.explanation}
+            />
+          </main>
+        </div>
+      )
+    }
+
     return (
       <div className="instrument min-h-screen bg-s-bg text-s-text">
         <Header />
