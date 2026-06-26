@@ -60,7 +60,9 @@ export async function POST(request: Request) {
   // tighten-and-recheck loop, so a re-check never burns the one-per-mission submission.
   if (body.preview) {
     try {
-      const check = await runRepCheck({ missionTitle, bar, artifactText, methodBlock })
+      // Preview is directional iteration feedback — one fast pass. The gate (final submit, below)
+      // uses the multi-pass default for a reliable auto-clear/human decision.
+      const check = await runRepCheck({ missionTitle, bar, artifactText, methodBlock }, { passes: 1 })
       return NextResponse.json({ ok: true, check: toUserFacingRepCheck(check, oneMove) })
     } catch (err) {
       console.error('[submissions] preview bar-check failed:', err instanceof Error ? err.message : err)
@@ -126,7 +128,16 @@ export async function POST(request: Request) {
   const attempts = Number.isFinite(body.attempts) && (body.attempts as number) > 0 ? Math.min(Math.round(body.attempts as number), 99) : null
   const feedback = {
     ...(fb?.feedback ?? {}),
-    ...(check ? { bar_check: check.bar_check, quality: check.quality, confidence: check.confidence } : {}),
+    ...(check
+      ? {
+          bar_check: check.bar_check,
+          quality: check.quality,
+          confidence: check.confidence,
+          grader_version: check.grader_version, // which grader produced this verdict (auditable/reproducible)
+          grader_passes: check.passes,
+          grader_agreement: check.agreement,
+        }
+      : {}),
     micro_skill: m?.micro_skill ?? null,
     cleared_micro_skill: isHit ? (m?.micro_skill ?? 'full') : null,
     auto_cleared: autoCleared,

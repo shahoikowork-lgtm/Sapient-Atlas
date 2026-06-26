@@ -44,14 +44,15 @@ export async function generateJSON<T>(opts: {
   prompt: string
   schema: ZodType<T>
   maxTokens?: number
+  temperature?: number
 }): Promise<T> {
-  const { system, prompt, schema, maxTokens = 2000 } = opts
+  const { system, prompt, schema, maxTokens = 2000, temperature = 0.3 } = opts
 
   async function once(extra = ''): Promise<T> {
     const msg = await client().messages.create({
       model: MODEL,
       max_tokens: maxTokens,
-      temperature: 0.3,
+      temperature,
       system,
       messages: [{ role: 'user', content: prompt + extra }],
     })
