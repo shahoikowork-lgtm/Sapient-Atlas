@@ -47,6 +47,7 @@ export function CheckinFlow({
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle')
   const [err, setErr] = useState('')
   const [check, setCheck] = useState<RepCheck | null>(null)
+  const [attempts, setAttempts] = useState(0) // how many checks they ran before locking in (clearance latency)
 
   const totalSteps = steps.length
   const onSubmitScreen = screen > totalSteps
@@ -68,6 +69,7 @@ export function CheckinFlow({
   // re-check as many times as they want before locking it in. Never burns the one submission.
   async function previewCheck() {
     if (!canSubmit) return
+    setAttempts((a) => a + 1)
     setStatus('submitting')
     setErr('')
     try {
@@ -100,7 +102,7 @@ export function CheckinFlow({
       const res = await fetch('/api/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ week, artifact_text: artifactText, intent }),
+        body: JSON.stringify({ week, artifact_text: artifactText, intent, attempts: attempts || 1 }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'Submit failed')

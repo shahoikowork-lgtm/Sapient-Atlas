@@ -16,6 +16,9 @@ export default function AdminPage() {
       <Link href="/admin/metrics" className="text-black/60 underline underline-offset-4">
         Time to first win →
       </Link>
+      <Link href="/admin/intelligence" className="text-black/60 underline underline-offset-4">
+        Capability intelligence (transformation funnel) →
+      </Link>
     </div>
   )
 }

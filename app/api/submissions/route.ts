@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const user = await getAppUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
 
-  let body: { week?: number; artifact_text?: string; preview?: boolean; intent?: 'lock_in' | 'coach' }
+  let body: { week?: number; artifact_text?: string; preview?: boolean; intent?: 'lock_in' | 'coach'; attempts?: number }
   try {
     body = await request.json()
   } catch {
@@ -120,12 +120,18 @@ export async function POST(request: Request) {
   const status = autoCleared ? 'reviewed' : 'pending_review'
 
   // Persist the work + both layers. The cleared micro-skill is recorded for progress capture.
+  // attempts (how many checks the user ran before locking in) and correction_shown (the
+  // pre-approved "one move" for this micro-skill) are the OutcomeGraph's raw material: they make
+  // clearance latency and correction efficacy computable from user #1 — the flywheel's fuel.
+  const attempts = Number.isFinite(body.attempts) && (body.attempts as number) > 0 ? Math.min(Math.round(body.attempts as number), 99) : null
   const feedback = {
     ...(fb?.feedback ?? {}),
     ...(check ? { bar_check: check.bar_check, quality: check.quality, confidence: check.confidence } : {}),
     micro_skill: m?.micro_skill ?? null,
     cleared_micro_skill: isHit ? (m?.micro_skill ?? 'full') : null,
     auto_cleared: autoCleared,
+    attempts,
+    correction_shown: oneMove,
   }
   const { error: insErr } = await admin.from('submissions').insert({
     user_id: user.id,
