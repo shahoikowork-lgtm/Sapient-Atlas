@@ -86,6 +86,23 @@ describe('Atlas Constraint Library', () => {
           expect(SNAKE_CASE.test(s), `snake_case key in prose: "${s}"`).toBe(false)
         }
       })
+
+      it('an active capability declares a semver version and provenance (CAPABILITY_SPEC Ch 11)', () => {
+        if (!c.active_v1) return
+        expect(c.version).toMatch(/^\d+\.\d+\.\d+$/)
+        expect(c.provenance?.sources.length ?? 0).toBeGreaterThanOrEqual(1)
+      })
+
+      it('micro-skill prerequisites reference a different, real micro-skill in the same map', () => {
+        if (!c.capability_map) return
+        const ids = new Set(c.capability_map.micro_skills.map((m) => m.id))
+        for (const m of c.capability_map.micro_skills) {
+          for (const p of m.prereqs ?? []) {
+            expect(p, `self-prereq on ${m.id}`).not.toBe(m.id)
+            expect(ids.has(p), `unknown prereq "${p}" on ${m.id}`).toBe(true)
+          }
+        }
+      })
     },
   )
 })

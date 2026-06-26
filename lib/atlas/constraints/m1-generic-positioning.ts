@@ -171,6 +171,7 @@ export const m1GenericPositioning: Constraint = {
         mission_type: 'Name it',
         proof_kind: 'self',
         fix: 'Write the exact problem in the buyer’s own words, not a benefit.',
+        prereqs: ['name_buyer'],
       },
       {
         id: 'unique_attribute',
@@ -186,6 +187,7 @@ export const m1GenericPositioning: Constraint = {
         mission_type: 'Find it',
         proof_kind: 'self',
         fix: 'Find the one true thing only you can say: a fact, not an adjective.',
+        prereqs: ['name_alternative'],
       },
       {
         id: 'attribute_to_value',
@@ -201,6 +203,7 @@ export const m1GenericPositioning: Constraint = {
         mission_type: 'Connect',
         proof_kind: 'self',
         fix: 'Finish the sentence "which means you can ___" in the buyer’s terms.',
+        prereqs: ['unique_attribute', 'name_buyer'],
       },
       {
         id: 'kill_adjective',
@@ -216,6 +219,7 @@ export const m1GenericPositioning: Constraint = {
         mission_type: 'Proof over adjectives',
         proof_kind: 'self',
         fix: 'Swap the adjective for the specific fact: not "fast" but "saves two hours".',
+        prereqs: ['spot_generic'],
       },
       {
         id: 'falsifiable_exclusion',
@@ -231,6 +235,7 @@ export const m1GenericPositioning: Constraint = {
         mission_type: 'Exclusion test',
         proof_kind: 'colleague',
         fix: 'Name three real competitors and confirm each one cannot claim this line.',
+        prereqs: ['unique_attribute', 'name_alternative'],
       },
       {
         id: 'repeatable_playback',
@@ -246,6 +251,7 @@ export const m1GenericPositioning: Constraint = {
         mission_type: 'Playback test',
         proof_kind: 'external',
         fix: 'Get one person to say it back in their own words, then fix what they miss.',
+        prereqs: ['attribute_to_value', 'falsifiable_exclusion'],
       },
     ],
   },
@@ -282,4 +288,16 @@ export const m1GenericPositioning: Constraint = {
   ],
   not_v1_if: [],
   active_v1: true,
+  prerequisites: [],
+  unlocks: ['M2'],
+  version: '1.0.0',
+  provenance: {
+    sources: [
+      'April Dunford — Obviously Awesome (competitive alternatives, unique attributes, value, best-fit market)',
+      'Geoffrey Moore — Crossing the Chasm (positioning template)',
+      'David Ogilvy — proof over adjectives',
+    ],
+    authored_at: '2026-06-25',
+    reviewed_at: '2026-06-25',
+  },
 }

@@ -90,6 +90,7 @@ export const MicroSkillSchema = z.object({
   mission_type: z.string().min(1),
   proof_kind: z.enum(PROOF_KINDS),
   fix: z.string().min(1), // the ONE pre-approved correction the runtime may emit ("one move")
+  prereqs: z.array(z.string()).optional(), // micro-skill ids in THIS map that must precede it (CAPABILITY_SPEC Ch 4)
 })
 export type MicroSkill = z.infer<typeof MicroSkillSchema>
 
@@ -99,6 +100,16 @@ export const CapabilityMapSchema = z.object({
   micro_skills: z.array(MicroSkillSchema).min(1),
 })
 export type CapabilityMap = z.infer<typeof CapabilityMapSchema>
+
+// Versioning + provenance (CAPABILITY_SPEC Ch 11, INTELLIGENCE_LAYER §3). Every shippable
+// capability declares the version of its content and the named authorities behind it, so the
+// data flywheel can attribute outcomes to a version and the standard stays traceable.
+export const ProvenanceSchema = z.object({
+  sources: z.array(z.string().min(1)).min(1), // the named authorities this capability is distilled from
+  authored_at: z.string().optional(), // ISO date the content was authored
+  reviewed_at: z.string().optional(), // ISO date of the last human review
+})
+export type Provenance = z.infer<typeof ProvenanceSchema>
 
 const ID_RE = /^[a-z_]+\.[a-z_]+$/ // e.g. marketer.generic_positioning
 const CODE_RE = /^[A-Z][0-9]+$/ // e.g. M1
@@ -128,6 +139,13 @@ const ConstraintObject = z.object({
   should_decline_if: z.array(z.string().min(1)).min(1),
   not_v1_if: z.array(z.string().min(1)),
   active_v1: z.boolean(),
+  // Capability-graph edges (INTELLIGENCE_LAYER §2): capability codes removed before this one,
+  // and the codes this one opens next. Optional; absent = none.
+  prerequisites: z.array(z.string().regex(CODE_RE)).optional(),
+  unlocks: z.array(z.string().regex(CODE_RE)).optional(),
+  // Versioning + provenance (CAPABILITY_SPEC Ch 11); required for an active capability (refine below).
+  version: z.string().regex(/^\d+\.\d+\.\d+$/).optional(),
+  provenance: ProvenanceSchema.optional(),
 })
 
 export type Constraint = z.infer<typeof ConstraintObject>
@@ -207,3 +225,17 @@ export const ConstraintSchema = ConstraintObject.refine(
 ).refine((c) => userFacingProse(c).every((s) => !FORBIDDEN_PROSE.test(s)), {
   message: 'User-facing prose must contain no scores, money, or percentages (ATLAS_OS).',
 })
+  .refine((c) => !c.active_v1 || (!!c.version && !!c.provenance), {
+    message: 'An active capability must declare a version and provenance (CAPABILITY_SPEC Ch 11).',
+  })
+  .refine(
+    (c) => {
+      // Micro-skill prerequisites must reference a different, real micro-skill in the same map.
+      if (!c.capability_map) return true
+      const ids = new Set(c.capability_map.micro_skills.map((m) => m.id))
+      return c.capability_map.micro_skills.every((m) =>
+        (m.prereqs ?? []).every((p) => p !== m.id && ids.has(p)),
+      )
+    },
+    { message: 'Every micro-skill prerequisite must reference a different micro-skill in the same capability map.' },
+  )
