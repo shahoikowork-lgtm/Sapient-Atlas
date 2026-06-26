@@ -49,6 +49,24 @@ Each object is operational: a thing in the data, not a concept.
   `value_history`, and the derived OutcomeGraph (`lib/intelligence.ts`). **[GAP]** a single durable
   per-user record table; today it is derived.
 
+### 1.1 — The learning primitives (how capability actually forms)
+
+The objects above are *what the system stores*. These are *what must change inside the user*. Each is
+defined only by how Atlas teaches and measures it — no theory.
+
+| Primitive | Operational definition | How Atlas teaches it | How Atlas measures it | Why it makes them harder to replace |
+|---|---|---|---|---|
+| **Learning** | A change in what the user produces *unaided on novel real work* — the named failure mode gone under rising difficulty + falling scaffolding | Reps on real work + the instant bar-check; never content | Re-diagnosis on fresh Day-30 work (failure mode absent) | The market pays for what you can *do*, not what you've heard |
+| **Mental model** | The reusable rule that generates a correct move on unseen work (M1: "a claim must be false of a named alternative") | The bad→good `worked_example` contrast applied to *their* work — never stated as a lesson | Clearing the bar on a *different* artifact | A model transfers; a memorized answer doesn't — transfer is the scarce thing |
+| **Pattern recognition** | Spotting the failure mode / the move's structure across instances | The swap test + repeated bad→good exposure (`spot_generic`) | The user flags the generic line *themselves* on new work | Seeing the flaw unaided is the precondition to fixing it without you |
+| **Judgment** | Choosing the right move under ambiguity (which attribute, which buyer) | Varying conditions across the ladder (product / segment / stakes) | Clears on novel conditions with no template | Judgment is the least-automatable layer — highest scarcity |
+| **Transfer** | Clearing the bar on work the user hasn't seen, unaided — the *only* proof of learning | Condition variation + spaced retrieval | Day-30 re-diagnosis on fresh work | Employers pay for handling *new* problems, not repeating one solved case |
+| **Automaticity** | The move costs little deliberate effort/time | Repetition to fluency (the daily reps) | `attempts`-to-clear trending down + faster clears (flywheel signal) | Frees capacity for higher-order work → more value per hour |
+| **Mastery** | Transfer + automaticity: clears reliably, fast, unaided, high stakes, on novel work | The full four-phase arc ending in PROVE | PROVE-phase clear + external proof + low attempts on fresh work | Mastery + external proof *is* "harder to replace," demonstrated |
+
+The KPI ("more valuable in the labor market") = **transfer a pricer recognizes.** Every engine optimizes
+transfer, never completion.
+
 ---
 
 ## CHAPTER 2 — Capability Graph
@@ -235,6 +253,33 @@ No XP, no streaks, no scores (enforced by `FORBIDDEN_PROSE`).
 - **AI role:** grade against the same bar; draft the verdict (gated). **Human role:** approve the
   verdict prose. **Never** fabricate or soften.
 
+### Career Intelligence (the next-capability decision rules)
+
+Re-diagnosis ends one Sprint; Career Intelligence chooses the next. Exact rules:
+
+- **Next capability** = the highest `leverage = (career value × movability) ÷ effort`, weighted *down* by
+  the AI-exposure of the user's current work, that **passes the Decline Gate**. Movability and
+  capability-shape are hard filters, not tie-breakers.
+- **Decide NOT to teach** when a candidate fails the Decline Gate (not capability-shaped, illegible bar,
+  not reppable, not 30-day-movable) **or** has high AI-exposure (building it won't reduce replaceability).
+  Rule: `if !decline_gate.pass(c) OR ai_exposure(c) ≥ high → don't teach; name the reason`.
+- **Disagree with the user's goal** when: (a) it's an *outcome*, not a capability ("get promoted") → target
+  the capability that earns it; (b) it maps to a refused category (confidence, office politics) → decline
+  honestly; (c) they want a low-leverage capability while a higher-leverage one is binding → show the
+  diagnosis evidence; the constraint wins; (d) the wanted capability is high-AI-exposure → "this won't make
+  you harder to replace, here's why." Always evidence + reason, **never a silent override** (honesty over
+  flattery, `ATLAS_OS.md §1.7`).
+- **Depth vs breadth:** specialize (depth) while each new proof keeps moving a pricer **and** the user's
+  value metric responds; broaden when the AI-exposure of their current stack rises (diversify the moat).
+  Default: depth until marginal proof stops moving a pricer, then broaden.
+- **Capability decay:** the memory layer flags a previously-cleared micro-skill that *fails* on later work
+  (a rep or a re-diagnosis) → decay signal → schedule a spaced re-rep *before* teaching anything new.
+- **Spaced-retrieval schedule:** revisit a cleared micro-skill at expanding intervals (e.g. +3 days, +9,
+  +21) under *new* conditions; pull it earlier if decay is detected. **[GAP — roadmap]**
+- **Mastery (exact):** a capability is mastered only when, on **fresh** work, **unaided**, the user clears
+  the **tightened** bar with **low attempts** (automaticity) **and** an **external proof event** occurred.
+  Transfer + automaticity + external proof — all three. Anything less is "partial," and the Sprint says so.
+
 ---
 
 ## CHAPTER 12 — Automation Model [BUILT]
@@ -282,9 +327,115 @@ What the operator sees daily:
 
 ---
 
-## CHAPTER 15 — Implementation Roadmap (internal product logic only)
+## CHAPTER 15 — Learning Science Engine [why Atlas produces transformation]
+
+Not education — the mechanism. Each principle appears only as the exact Atlas behavior that implements it.
+
+- **Deliberate practice** → the daily rep: the *smallest hard thing* the user avoids, on *real* work, with
+  *immediate* feedback, at the *edge* of ability (the bar tightens weekly). `checkin-flow` + `mission-bar`
+  + `rep-check`.
+- **Retrieval practice** → the user *produces* the move (writes the line) — never recognizes it from
+  options; re-diagnosis retrieves it cold on fresh work.
+- **Spacing** → spaced-retrieval rungs re-surface earlier micro-skills across days, not back-to-back.
+  **[GAP — roadmap #4]**
+- **Interleaving** → the ladder mixes micro-skills + conditions (spot → name → attribute → exclusion across
+  products/segments) instead of drilling one to death.
+- **Feedback timing** → the instant bar-check at the moment of the attempt (the highest-value learning
+  signal); the deeper weekly note is gated and less time-critical.
+- **Desirable difficulty** → the three axes keep every rep at the edge: hard enough to require effort
+  (productive struggle), never so hard it's unsolvable (the one move keeps it reachable).
+- **Transfer** → condition variation + the fresh-work re-diagnosis. The entire point; everything else serves it.
+- **Progressive overload** → difficulty only rises — bar tightens, scaffolding withdraws, stakes rise across
+  SEE → CROSS → INDEPENDENCE → PROVE. The standard never drops to manufacture a win.
+
+---
+
+## CHAPTER 16 — Knowledge Evolution Engine [the compounding moat]
+
+How the maps get smarter every month. This is the *governance + versioning* layer that turns Ch 13's
+captured signal into approved map changes. (Ch 13 captures; this evolves.) **[GAP — the monthly learner job
+is not yet built; the signal it needs is being captured.]**
+
+- **Proof events improve the graph** → each `ProofEvent` updates `P(proof | clearance)` per bar; load-bearing
+  bars are promoted, bars that clear but never precede a real reaction are flagged for rework.
+- **Missions retired** → a ladder rung whose clearance doesn't correlate with later transfer/proof is retired
+  or reworked.
+- **Examples evolve** → `worked_examples` whose contrast doesn't lift clearance are replaced by higher-lift
+  real examples mined from *consented* cleared user work.
+- **Bars evolve** → a bar with low grader-vs-human agreement or low `P(proof|clearance)` is rewritten —
+  tightened if too easy, clarified if illegible.
+- **Eval prompts evolve** → the grader prompt is versioned; every change is gated by the eval gold set (no
+  regression on false-pass).
+- **Versioning** → every map, bar, and eval-prompt carries a version + provenance (authority + flywheel
+  evidence); each rep is tagged with the version it trained against, so outcomes attribute to versions.
+- **Outdated knowledge removed** → a capability whose AI-exposure crosses a threshold (a tool now does it) is
+  retired from active selling — it no longer makes anyone harder to replace; a bar that reality invalidates
+  is deprecated.
+- **Cadence + human role** → monthly, a human approves the learner's proposed deltas (promote / prune /
+  retire). The founder approves map changes; never composes them. **This is the moat: versioned,
+  reality-validated maps that compound, and that a competitor cannot copy without first running the loop on
+  thousands of real professionals.**
+
+---
+
+## CHAPTER 17 — Failure Analysis [destroy Atlas — learning-system risks, ranked]
+
+Each risk: why it happens → how Atlas detects it → how Atlas prevents it → how Atlas recovers.
+
+1. **Diagnosis failure (deepest — invisible + fatal).** *Why:* the artifact's dominant failure mode is
+   mis-read; the user reps the wrong constraint. *Detect:* low match-confidence; re-diagnosis "did not move"
+   despite high completion; the user's "stuck" answer contradicts the named constraint. *Prevent:* the
+   Decline Gate + confidence logging + the user *confirming* the named constraint before paying. *Recover:*
+   re-diagnose, re-aim/refund the Sprint, log the miss to the matcher's training set.
+2. **Wrong capability selection (next Sprint).** *Why:* leverage mis-ranked; AI-exposure ignored. *Detect:*
+   repeat "did not move"; the user's value metric flat. *Prevent:* the Career-Intelligence rules (Ch 11).
+   *Recover:* re-rank, switch constraint, record the outcome.
+3. **Weak bars (gameable / illegible).** *Why:* a bar that clears without doing the real thing, or that two
+   reviewers read differently. *Detect:* high clearance but low `P(proof|clearance)`; grader-vs-human
+   disagreement. *Prevent:* the six bar rules + the seven tests at authoring. *Recover:* the Knowledge
+   Evolution Engine rewrites/retires it.
+4. **False transfer (the learning illusion).** *Why:* the user grinds one artifact → looks learned, isn't.
+   *Detect:* re-diagnosis on *fresh* work fails though the Sprint reps passed. *Prevent:* condition variation
+   + spaced retrieval + the fresh-work re-diagnosis as the load-bearing gate. *Recover:* extend the Sprint on
+   novel conditions; don't grant proof.
+5. **Grading drift.** *Why:* the grader (prompt or model) silently shifts; false-pass creeps up. *Detect:*
+   the eval gold-set regression; rising auto-clear with flat proof. *Prevent:* versioned grader + the eval
+   gate on every change + the false-pass SLO. *Recover:* roll back the grader version; re-run the gold set.
+6. **Hallucinated lessons.** *Why:* the AI composes coaching/strategy at runtime. *Detect:* feedback text not
+   traceable to an authored fix/bar. *Prevent:* the design-time-approval gate — runtime *selects* from the
+   map, never composes; low-confidence → human. *Recover:* route to human; add the missing pattern to the
+   map at design time.
+7. **Weak proof.** *Why:* "proof" that's a self-report or an Atlas grade, not a pricer's reaction. *Detect:*
+   a proof artifact with no external receiver; `proof_kind` unmet. *Prevent:* the Proof Engine's
+   external-validation requirement + the engineered Week-4 ask. *Recover:* don't claim the result; request
+   the real artifact/reaction.
+8. **Curriculum collapse (scaling content).** *Why:* adding constraints faster than they can be authored +
+   validated → quality rot. *Detect:* new constraints failing the seven tests or showing low
+   `P(proof|clearance)`. *Prevent:* one-constraint-at-a-time + the authoring pipeline + the validity gate.
+   *Recover:* deactivate the bad constraint (`active_v1: false`); rework.
+9. **Personalization failure.** *Why:* the mission references work the user doesn't have, or ignores prior
+   mistakes. *Detect:* high abandon at a specific rung; "stuck" with no real artifact. *Prevent:* diagnosis
+   screens for a real-work supply; the generator binds to *their* artifact/signals. *Recover:* swap the
+   artifact, lower the rung's stakes, or decline (needs_more_artifact).
+10. **Automation failure (founder bottleneck).** *Why:* the low-confidence rate stays high → the review
+    queue grows with users. *Detect:* `/admin/ops` queue depth rising; auto-clear rate flat across cohorts.
+    *Prevent:* the flywheel must drive confidence up + false-fail down; the eval discipline. *Recover:*
+    temporarily widen human review; prioritize grader hardening (roadmap #1).
+
+**Top three by lethality: diagnosis failure → grading false-pass → false transfer.** All three are invisible
+*without* the fresh-work re-diagnosis, the grader eval, and the proof linkage — which is why those three
+checks are load-bearing and protected above all.
+
+---
+
+## CHAPTER 18 — Implementation Roadmap (internal product logic only)
 
 Ranked by impact on customer results. (No customers/marketing/redesign — out of scope.)
+*Updated for Ch 15–17: top priorities unchanged — the grader (#1) and the proof event (#2) stay P0. Ch 15
+confirms spaced retrieval (#4) as the key learning-quality lever; Ch 16 makes the knowledge-evolution learner
+(#3) the compounding moat. Ch 17's three top-lethality failures — diagnosis, grading false-pass, false
+transfer — are each guarded by an early item (the matcher's confidence gate, the grader #1, and the
+fresh-work re-diagnosis + spaced retrieval #4), confirming the order.*
 
 1. **Harden the grader** — expand `eval-grader.ts` gold set; cut the 15% false-fail (best-of-N /
    tighter prompt) while holding 0% false-pass. *The brain; everything depends on it.*
